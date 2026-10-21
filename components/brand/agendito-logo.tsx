@@ -7,10 +7,12 @@ export function AgenditoLogo({
   size = "medium",
   className,
   priority = false,
+  sizes: sizesOverride,
 }: {
   size?: AgenditoLogoSize;
   className?: string;
   priority?: boolean;
+  sizes?: string;
 }) {
   return (
     <span className={cn("agendito-logo-frame", `agendito-logo-${size}`, className)}>
@@ -20,7 +22,9 @@ export function AgenditoLogo({
         width={1536}
         height={1024}
         priority={priority}
-        sizes={size === "large" ? "240px" : size === "medium" ? "(max-width: 480px) 260px, 340px" : "112px"}
+        sizes={sizesOverride ?? (size === "large" ? "(max-width: 760px) 144px, (max-width: 1200px) 30vw, 440px" : size === "medium" ? "(max-width: 480px) 260px, 340px" : "112px")}
+        quality={size === "large" ? 95 : undefined}
+        unoptimized={size === "large" || Boolean(sizesOverride)}
         className="agendito-logo-image"
       />
     </span>

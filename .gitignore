@@ -1,6 +1,7 @@
 node_modules
 .next
 .next-iphone
+.next-mobile
 recovery/
 out
 dist

@@ -1171,3 +1171,112 @@ body .agendito-app-layer :is(h1, h2, h3, h4, h5, h6) {
     max-height: calc(100dvh - 1rem);
   }
 }
+
+@media (min-width: 901px) and (min-height: 720px) {
+  .auth-shell-registration {
+    height: 100svh;
+    min-height: 100svh;
+    overflow: hidden;
+  }
+
+  .auth-shell-registration .auth-form-column {
+    max-height: calc(100svh - 2rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+}
+
+.auth-shell-compact .auth-intro-copy :is(h1, h2),
+.auth-shell-compact .auth-card :is(h1, h2),
+.auth-shell-registration .auth-intro-copy :is(h1, h2),
+.auth-shell-registration .auth-card :is(h1, h2) {
+  color: #fff;
+}
+
+.auth-shell-compact .auth-intro-copy h1 > span:not(.sr-only),
+.auth-shell-registration .auth-intro-copy h1 > span:not(.sr-only) {
+  color: #fff;
+}
+
+/* Keep the password form readable instead of stretching it across the admin page. */
+.access-panel-password {
+  box-sizing: border-box;
+  width: min(700px, 100%);
+  margin: 1.25rem auto;
+  padding: clamp(1.1rem, 2.5vw, 2rem);
+}
+
+.access-panel-password .access-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: .85rem;
+  margin-bottom: 1.35rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--ag-line);
+}
+
+.access-panel-password .access-panel-heading > svg {
+  flex: 0 0 auto;
+  margin-top: .15rem;
+  color: var(--ag-cyan);
+}
+
+.access-panel-password .access-panel-heading h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.25;
+}
+
+.access-panel-password .access-panel-heading p {
+  margin: .35rem 0 0;
+  color: var(--ag-text-secondary);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.access-panel-password .access-form {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.access-panel-password .access-form > * {
+  min-width: 0;
+}
+
+.access-panel-password .access-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: .25rem;
+}
+
+@media (max-width: 600px) {
+  .access-panel-password {
+    width: 100%;
+    margin: .75rem auto;
+    padding: 1rem;
+  }
+
+  .access-panel-password .access-panel-heading {
+    gap: .7rem;
+    margin-bottom: 1rem;
+    padding-bottom: .85rem;
+  }
+
+  .access-panel-password .access-form {
+    gap: .85rem;
+  }
+
+  .access-panel-password .access-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .access-panel-password .access-actions > * {
+    width: 100%;
+    justify-content: center;
+  }
+}

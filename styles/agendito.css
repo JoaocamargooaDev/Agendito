@@ -12,6 +12,35 @@ body{position:relative;isolation:isolate;min-height:100svh;margin:0;color:var(--
 .background-art-calendar-clock{top:-8rem;right:28vw;width:clamp(10rem,15vw,15rem);background-image:url("/images/decor/glass-calendar-clock.png")}
 .agendito-app-layer{position:relative;z-index:1;min-height:100svh;background:transparent}
 h1,h2,h3,h4,h5,h6{color:var(--ag-ink);letter-spacing:-.04em}p,small{color:var(--ag-ink-soft)}
+.auth-shell-compact .auth-intro-copy h1{color:#fff}
+@media(min-width:761px){.auth-shell-compact .auth-intro .auth-brand{align-self:center;margin-inline:auto;transform:translateX(-2rem)}.auth-shell-compact .auth-intro .auth-brand .agendito-logo-large{width:clamp(340px,30vw,440px);height:clamp(227px,20vw,293px)}}
+@media(min-width:761px){.auth-shell:not(.auth-shell-compact) .auth-intro .auth-brand{align-self:center;margin-inline:auto}.auth-shell:not(.auth-shell-compact) .auth-intro .auth-brand .agendito-logo-large{width:clamp(300px,24vw,360px);height:clamp(200px,16vw,240px)}}
+@media(min-width:901px) and (min-height:720px){
+  .auth-shell-registration{min-height:100svh;padding-block:clamp(.5rem,1.5vh,1rem);place-items:center}
+  .auth-shell-registration .auth-grid{grid-template-columns:minmax(0,1fr) minmax(0,560px);gap:clamp(1.5rem,3vw,3rem);align-items:center}
+  .auth-shell-registration .auth-intro{min-height:0;justify-content:center;gap:clamp(1.25rem,3vh,2rem);padding:0}
+  .auth-shell-registration .auth-intro .auth-brand{transform:translateX(-6rem)}
+  .auth-shell-registration .auth-intro-copy,.auth-shell-registration .auth-form-column{transform:translateY(-1.5rem)}
+  .auth-shell-registration .auth-intro .auth-brand .agendito-logo-large{width:clamp(280px,21vw,330px);height:clamp(187px,14vw,220px)}
+  .auth-shell-registration .auth-intro-copy h1{max-width:12ch;margin:.45rem 0 .65rem;font-size:clamp(3rem,4.5vw,4.5rem);line-height:.98}
+  .auth-shell-registration .auth-intro-copy p{font-size:.96rem;line-height:1.45}
+  .auth-shell-registration .auth-note{margin-top:.25rem}
+  .auth-shell-registration .auth-back{margin-bottom:.4rem}
+  .auth-shell-registration .auth-card{padding:clamp(1.1rem,1.6vw,1.5rem)}
+  .auth-shell-registration .auth-form{gap:.55rem}
+  .auth-shell-registration .auth-card-heading{margin-bottom:.15rem}
+  .auth-shell-registration .auth-card-heading h2{margin:.25rem 0;font-size:clamp(1.5rem,2vw,1.9rem)}
+  .auth-shell-registration .auth-card-heading p{font-size:.88rem;line-height:1.35}
+  .auth-shell-registration .field{gap:.2rem}
+  .auth-shell-registration .field label{font-size:.8rem;line-height:1.2}
+  .auth-shell-registration .field-control{min-height:40px;padding-inline:.7rem}
+  .auth-shell-registration .field-control input{min-height:38px;font-size:.9rem}
+  .auth-shell-registration .field-message{font-size:.68rem;line-height:1.2}
+  .auth-shell-registration .password-field .password-toggle{width:32px;min-width:32px;height:32px;min-height:32px}
+  .auth-shell-registration .terms-control{font-size:.78rem}
+  .auth-shell-registration .auth-submit{min-height:44px}
+  .auth-shell-registration .auth-switch{font-size:.78rem}
+}
 a:not(.glass-button){color:var(--ag-teal)}a:not(.glass-button):hover{color:#633d55}
 .eyebrow,.token-label{color:#85536c;font-size:.72rem;font-weight:760;letter-spacing:.13em;text-transform:uppercase}
 .glass-filter-definitions{position:absolute;width:0;height:0;overflow:hidden}
@@ -629,6 +658,8 @@ label:not(.segment){background:transparent!important;box-shadow:none!important}
   .business-interval{grid-template-columns:repeat(2,minmax(0,1fr))}
   .business-interval>button{grid-column:1/-1;justify-self:start;padding:.35rem}
 }
+@media(min-width:680px){.entry-layout{transform:translateY(-1.75rem)}.entry-header{transform:translateY(2rem)}.entry-brand .agendito-logo-medium{width:clamp(380px,30vw,480px);height:clamp(253px,20vw,320px)}}
+@media(max-width:679px){.entry-layout{transform:translateY(-.75rem)}}
 
 /* Admin chrome: keep the mobile title and actions in one balanced, non-overlapping row. */
 .admin-header{display:flex;align-items:center;gap:clamp(.45rem,1.2vw,.85rem);min-width:0}

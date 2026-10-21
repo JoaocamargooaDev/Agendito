@@ -26,7 +26,7 @@ export default function Home() {
       <div className="entry-orbit entry-orbit-two" aria-hidden />
       <div className="entry-layout">
         <header className="entry-header">
-          <span className="entry-brand"><AgenditoLogo size="medium" priority /></span>
+          <span className="entry-brand"><AgenditoLogo size="medium" sizes="(max-width: 679px) 240px, 480px" priority /></span>
         </header>
         <section className="entry-intro" aria-labelledby="entry-title">
           <span className="eyebrow">Uma plataforma, muitos espaços</span>

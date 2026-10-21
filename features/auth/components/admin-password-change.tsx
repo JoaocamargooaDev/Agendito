@@ -40,7 +40,7 @@ export function AdminPasswordChange() {
 
   return <AdminPageContainer>
     <AdminPageHeader eyebrow="Conta do gestor" title="Acesso" description="Seu e-mail de acesso é definido pelo proprietário do Agendito. Você pode trocar sua senha após entrar." />
-    <GlassSurface material="frosted" className="access-panel">
+    <GlassSurface material="frosted" className="access-panel access-panel-password">
       <div className="access-panel-heading"><KeyRound size={20} /><div><h2>Alterar senha</h2><p>Conta: <strong>{user?.email}</strong></p></div></div>
       <form className="access-form" onSubmit={submit}>
         <PasswordField label="Senha atual" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} autoComplete="current-password" required />

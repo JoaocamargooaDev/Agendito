@@ -4,9 +4,9 @@ import { GlassSurface } from "@/components/ui";
 import { AgenditoLogo } from "@/components/brand/agendito-logo";
 import type { ReactNode } from "react";
 
-export function AuthLayout({ children, eyebrow, title, description, backHref = "/", backLabel = "Voltar ao início", compact = false }: { children: ReactNode; eyebrow: string; title: string; description: string; backHref?: string; backLabel?: string; compact?: boolean }) {
+export function AuthLayout({ children, eyebrow, title, description, backHref = "/", backLabel = "Voltar ao início", compact = false, registration = false }: { children: ReactNode; eyebrow: string; title: string; description: string; backHref?: string; backLabel?: string; compact?: boolean; registration?: boolean }) {
   return (
-    <main className={`auth-shell${compact ? " auth-shell-compact" : ""}`}>
+    <main className={`auth-shell${compact ? " auth-shell-compact" : ""}${registration ? " auth-shell-registration" : ""}`}>
       <div className="ambient ambient-one" /><div className="ambient ambient-two" />
       <div className="auth-grid">
         <section className="auth-intro">
