@@ -22,6 +22,11 @@
   margin: .65rem auto .8rem;
   padding: .6rem .9rem;
   border-radius: var(--ag-r-md, 1rem);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .admin-header-title h1 {
@@ -58,35 +63,67 @@
 }
 
 .sidebar-collapse-toggle {
-  display: inline-grid;
-  flex: 0 0 auto;
+  width: 100%;
+  min-height: 46px;
+  justify-content: flex-start;
+  gap: .7rem;
+  padding: 0 .72rem;
+  border-color: transparent !important;
+  border-radius: 11px;
+  color: var(--ag-text-secondary) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
-.admin-sidebar-toggle {
-  display: flex;
-  justify-content: flex-start;
-  padding: .35rem 0;
+.admin-sidebar .sidebar-collapse-toggle:hover,
+.admin-sidebar .sidebar-collapse-toggle:focus-visible {
+  color: #fff !important;
+  background: rgba(255, 245, 249, .12) !important;
 }
 
 .admin-sidebar .admin-nav {
   gap: .35rem;
 }
 
+.admin-sidebar:not(.sidebar-collapsed) .admin-sidebar-top {
+  justify-content: center;
+  padding-top: 1.15rem;
+}
+
+.admin-sidebar:not(.sidebar-collapsed) .admin-brand .agendito-logo-medium {
+  width: 148px;
+  height: 99px;
+}
+
+.admin-sidebar .sidebar-user {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
 @media (min-width: 801px) {
+  .admin-sidebar .admin-nav {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: .35rem;
+    min-height: 0;
+    padding-block: .75rem;
+  }
+
   .admin-sidebar .sidebar-collapse-toggle {
-    display: inline-grid !important;
+    display: flex !important;
+  }
+
+  .admin-shell-collapsed .admin-sidebar .sidebar-collapse-toggle {
     width: 36px;
     min-width: 36px;
-    height: 36px;
-    min-height: 36px;
+    min-height: 50px;
+    justify-content: center;
     padding: 0;
     border-radius: 50%;
   }
-
-}
-
-.admin-shell-collapsed .admin-sidebar .admin-sidebar-toggle {
-  justify-content: center;
 }
 
 .admin-shell-collapsed .admin-sidebar .admin-nav-item {
@@ -587,6 +624,49 @@
     width: 36px;
     min-width: 36px;
     min-height: 38px;
+  }
+}
+
+body .agendito-app-layer :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 700;
+}
+
+.agenda-create-button {
+  width: 100%;
+  justify-content: center;
+}
+
+.service-create-button {
+  width: 100%;
+  justify-content: center;
+  margin-bottom: .75rem;
+}
+
+.employee-create-button {
+  width: 100%;
+  justify-content: center;
+  margin-bottom: .75rem;
+}
+
+@media (min-width: 680px) {
+  .entry-intro h1 {
+    margin-bottom: 1.25rem;
+  }
+
+  .entry-destinations {
+    margin-top: clamp(1.8rem, 4vh, 2.4rem);
+  }
+}
+
+@media (min-width: 901px) {
+  .auth-shell-compact {
+    padding-block: clamp(.75rem, 2.2vh, 1.5rem);
+  }
+
+  .auth-shell-compact .auth-intro {
+    min-height: 0;
+    gap: clamp(1rem, 2.5vh, 1.5rem);
+    padding-block: .25rem;
   }
 }
 

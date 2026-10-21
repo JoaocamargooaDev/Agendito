@@ -74,7 +74,8 @@ export function AgendaPage() {
 
   if (status === "loading") return <AdminPageContainer><div className="dashboard-loading">Carregando agenda…</div></AdminPageContainer>;
   if (!establishment) return <AdminPageContainer><AdminPageHeader title="Agenda" description="Estabelecimento indisponível." /><GlassSurface material="frosted" className="dashboard-empty">Não foi possível carregar o estabelecimento atual.</GlassSurface></AdminPageContainer>;
-  return <AdminPageContainer><AdminPageHeader eyebrow={establishment.name} title="Agenda" description={`${dateLabel(dateKey)} · horários, profissionais e atendimentos em um só lugar.`} action={<GlassButton variant="primary" onClick={openCreate}><Plus size={16} />Novo agendamento</GlassButton>} />
+  return <AdminPageContainer><AdminPageHeader eyebrow={establishment.name} title="Agenda" description={`${dateLabel(dateKey)} · horários, profissionais e atendimentos em um só lugar.`} />
+    <GlassButton className="agenda-create-button" variant="primary" onClick={openCreate}><Plus size={16} />Novo agendamento</GlassButton>
     <GlassSurface material="frosted" className="agenda-toolbar">
       <div className="agenda-date-controls">
         <GlassButton variant="quiet" size="icon" onClick={() => setDateKey(addDays(dateKey, view === "week" ? -7 : -1))} aria-label={view === "week" ? "Semana anterior" : "Data anterior"}><ChevronLeft size={18} /></GlassButton>
