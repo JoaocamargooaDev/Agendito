@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs><filter id="b"><feGaussianBlur stdDeviation="70"/></filter></defs>
+  <rect width="1600" height="900" fill="#26322c"/>
+  <g filter="url(#b)" opacity=".9"><ellipse cx="350" cy="720" rx="500" ry="290" fill="#a68162"/><ellipse cx="1280" cy="200" rx="470" ry="330" fill="#789083"/><ellipse cx="900" cy="620" rx="340" ry="260" fill="#3b4e43"/></g>
+  <path d="M0 620c260-130 490-160 770-44 297 123 536 72 830-80v404H0z" fill="#171e1a" opacity=".46"/>
+</svg>

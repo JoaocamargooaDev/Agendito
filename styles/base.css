@@ -1,0 +1,154 @@
+/* Agendito design foundations — semantic tokens and global accessibility. */
+:root {
+  color-scheme: dark;
+  --font-sans: "Aptos", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  --font-size-xs: .75rem;
+  --font-size-sm: .875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  --ag-bg: #101827;
+  --ag-bg-secondary: #17263d;
+  --ag-surface: #1c3352;
+  --ag-primary: #3979bd;
+  --ag-primary-hover: #4389d1;
+  --ag-cyan: #66d8e8;
+  --ag-lavender: #a9a2f4;
+  --ag-text: #f5f7fc;
+  --ag-text-secondary: #bbc9dc;
+  --ag-ink: var(--ag-text);
+  --ag-ink-soft: var(--ag-text-secondary);
+  --ag-ink-muted: #93a6c0;
+  --ag-night: var(--ag-bg);
+  --ag-deep: var(--ag-bg-secondary);
+  --ag-teal: var(--ag-primary);
+  --ag-teal-bright: var(--ag-cyan);
+  --ag-coral: var(--ag-lavender);
+  --ag-amber: #8fb8e4;
+  --ag-success: #79d9b5;
+  --ag-warning: #f2c879;
+  --ag-danger: #ff858b;
+  --ag-info: var(--ag-cyan);
+  --ag-success-text: #9de8c9;
+  --ag-warning-text: #f2d18f;
+  --ag-danger-text: #ffb2b5;
+  --ag-info-text: #9ce8f2;
+  --ag-glass: rgba(28, 51, 82, .76);
+  --ag-glass-strong: rgba(28, 51, 82, .94);
+  --ag-glass-dark: rgba(16, 24, 39, .88);
+  --ag-line: rgba(187, 201, 220, .26);
+  --ag-line-dark: rgba(187, 201, 220, .2);
+  --ag-shadow: 0 24px 70px rgba(3, 9, 19, .42);
+  --ag-shadow-small: 0 10px 28px rgba(3, 9, 19, .28);
+  --ag-r-xs: 10px;
+  --ag-r-sm: 15px;
+  --ag-r-md: 22px;
+  --ag-r-lg: 30px;
+  --ag-r-pill: 999px;
+  --ag-motion-fast: 140ms;
+  --ag-motion: 230ms;
+  --ag-motion-slow: 420ms;
+  --ag-ease: cubic-bezier(.2, .75, .2, 1);
+  --ag-page-width: 1440px;
+  --ag-page-gutter: clamp(1rem, 3vw, 2.5rem);
+
+  --ink: var(--ag-text);
+  --ink-soft: var(--ag-text-secondary);
+  --porcelain: var(--ag-bg-secondary);
+  --paper: var(--ag-surface);
+  --moss: var(--ag-primary);
+  --sage: var(--ag-cyan);
+  --copper: var(--ag-cyan);
+  --accent: var(--ag-primary);
+  --danger: var(--ag-danger);
+  --success: var(--ag-success);
+  --warning: var(--ag-warning);
+  --info: var(--ag-info);
+  --focus: var(--ag-cyan);
+  --text-primary: var(--ag-text);
+  --text-secondary: var(--ag-text-secondary);
+  --text-on-dark: var(--ag-text);
+  --text-on-dark-secondary: var(--ag-text-secondary);
+  --status-success-text: var(--ag-success-text);
+  --status-warning-text: var(--ag-warning-text);
+  --status-danger-text: var(--ag-danger-text);
+  --status-info-text: var(--ag-info-text);
+  --color-canvas: var(--ag-bg);
+  --color-ink: var(--ag-text);
+  --color-muted: var(--ag-text-secondary);
+  --surface-solid: var(--ag-surface);
+  --surface-muted: var(--ag-bg-secondary);
+  --border-subtle: rgba(187, 201, 220, .2);
+  --focus-ring: 0 0 0 3px rgba(102, 216, 232, .2);
+  --glass-white: 28 51 82;
+  --glass-dark: 16 24 39;
+  --glass-alpha: .76;
+  --glass-alpha-strong: .94;
+  --glass-clear-bg: rgba(28, 51, 82, .58);
+  --glass-regular-bg: var(--ag-glass);
+  --glass-thick-bg: var(--ag-glass-strong);
+  --border-optical: var(--ag-line);
+  --border-optical-strong: rgba(187, 201, 220, .48);
+  --border-dark: var(--ag-line-dark);
+  --highlight: inset 0 1px 0 rgba(245, 247, 252, .22);
+  --shadow-soft: var(--ag-shadow-small);
+  --shadow-raised: var(--ag-shadow);
+  --radius-sm: var(--ag-r-sm);
+  --radius-md: var(--ag-r-md);
+  --radius-lg: var(--ag-r-lg);
+  --radius-full: var(--ag-r-pill);
+  --motion-fast: var(--ag-motion-fast);
+  --motion-base: var(--ag-motion);
+  --motion-slow: var(--ag-motion-slow);
+  --ease-out: var(--ag-ease);
+  --z-nav: 20;
+  --z-popover: 40;
+  --z-modal: 60;
+  --app-backdrop: linear-gradient(145deg, rgba(16, 24, 39, .92), rgba(16, 24, 39, .96)), url("/images/agendito-wallpaper.jpg") center / cover no-repeat;
+}
+
+@theme inline {
+  --color-background: var(--ag-bg);
+  --color-background-secondary: var(--ag-bg-secondary);
+  --color-surface: var(--ag-surface);
+  --color-primary: var(--ag-primary);
+  --color-accent-cyan: var(--ag-cyan);
+  --color-accent-lavender: var(--ag-lavender);
+  --color-foreground: var(--ag-text);
+  --color-muted: var(--ag-text-secondary);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { min-width: 320px; scroll-behavior: smooth; background: var(--ag-night); }
+body {
+  min-height: 100svh;
+  margin: 0;
+  color: var(--ag-ink);
+  background: var(--app-backdrop);
+  color-scheme: dark;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: -.012em;
+  text-rendering: optimizeLegibility;
+}
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+::selection { color: var(--ag-bg); background: var(--ag-cyan); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

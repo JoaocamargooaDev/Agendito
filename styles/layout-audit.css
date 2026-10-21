@@ -1,0 +1,1093 @@
+/* Shared layout corrections: geometry only; visual tokens remain in the design system. */
+:root {
+  --admin-sidebar-space: 274px;
+  --admin-sidebar-compact-space: 108px;
+}
+
+.admin-workspace {
+  width: calc(100% - var(--admin-sidebar-space));
+  min-width: 0;
+  margin-inline-start: var(--admin-sidebar-space);
+}
+
+.admin-shell-collapsed .admin-workspace {
+  width: calc(100% - var(--admin-sidebar-compact-space));
+  margin-inline-start: var(--admin-sidebar-compact-space);
+}
+
+.admin-workspace > .admin-header {
+  box-sizing: border-box;
+  width: min(var(--ag-page-width), calc(100% - var(--ag-page-gutter) * 2));
+  min-height: 72px;
+  margin: .65rem auto .8rem;
+  padding: .6rem .9rem;
+  border-radius: var(--ag-r-md, 1rem);
+}
+
+.admin-header-title h1 {
+  font-size: clamp(1.25rem, 1.8vw, 1.65rem);
+  line-height: 1.1;
+}
+
+.admin-header-page-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 1 auto;
+  min-width: 0;
+  gap: .35rem;
+}
+
+.admin-header-page-actions > .glass-button,
+.admin-header-page-actions .settings-public-actions > .glass-button {
+  min-height: 36px;
+  padding: .35rem .6rem;
+  font-size: .74rem;
+  white-space: nowrap;
+}
+
+.admin-header-page-actions .settings-public-actions {
+  flex-wrap: nowrap;
+  gap: .35rem;
+}
+
+.admin-shell-collapsed .admin-sidebar .admin-sidebar-top,
+.admin-shell-collapsed .admin-sidebar .admin-nav-item,
+.admin-shell-collapsed .admin-sidebar .sidebar-user {
+  justify-content: center;
+}
+
+.sidebar-collapse-toggle {
+  display: inline-grid;
+  flex: 0 0 auto;
+}
+
+.admin-sidebar-toggle {
+  display: flex;
+  justify-content: flex-start;
+  padding: .35rem 0;
+}
+
+.admin-sidebar .admin-nav {
+  gap: .35rem;
+}
+
+@media (min-width: 801px) {
+  .admin-sidebar .sidebar-collapse-toggle {
+    display: inline-grid !important;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+}
+
+.admin-shell-collapsed .admin-sidebar .admin-sidebar-toggle {
+  justify-content: center;
+}
+
+.admin-shell-collapsed .admin-sidebar .admin-nav-item {
+  width: 44px;
+  min-width: 44px;
+  margin-inline: auto;
+  padding-inline: 0;
+}
+
+.admin-shell-collapsed .admin-sidebar .admin-nav-item > span,
+.admin-shell-collapsed .admin-sidebar .establishment-copy,
+.admin-shell-collapsed .admin-sidebar .sidebar-user-copy {
+  display: none !important;
+}
+
+.admin-shell-collapsed .admin-sidebar .sidebar-user {
+  padding: .15rem 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.admin-shell-collapsed .admin-sidebar .tooltip-root {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.admin-shell-collapsed .admin-sidebar .admin-nav {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: .4rem;
+  min-height: 0;
+}
+
+.admin-shell-collapsed .admin-sidebar .tooltip-root > .admin-nav-item,
+.admin-shell-collapsed .admin-sidebar > .admin-nav .admin-nav-item {
+  width: 44px;
+  min-width: 44px;
+  min-height: 50px;
+}
+
+@media (max-width: 800px) {
+  .admin-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "title system" "page page";
+    row-gap: .35rem;
+  }
+
+  .admin-header-title { grid-area: title; }
+  .admin-header-actions { grid-area: system; }
+
+  .admin-header-page-actions {
+    grid-area: page;
+    justify-content: flex-end;
+  }
+
+  .admin-header-page-actions .settings-public-actions {
+    width: auto;
+    justify-content: flex-end;
+  }
+
+  .admin-header-page-actions .settings-public-actions > * {
+    flex: 0 1 auto;
+    width: auto;
+  }
+
+  .admin-workspace:has(.settings-page) > .admin-header {
+    row-gap: .5rem;
+  }
+
+  .admin-workspace:has(.settings-page) > .admin-header .admin-header-page-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .admin-workspace:has(.settings-page) > .admin-header .admin-header-page-actions .settings-public-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: .4rem;
+    margin: 0;
+  }
+
+  .admin-workspace:has(.settings-page) > .admin-header .admin-header-page-actions .settings-public-actions > * {
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    justify-content: center;
+    padding-inline: .4rem;
+    font-size: .68rem;
+    white-space: nowrap;
+  }
+
+  .sidebar-collapse-toggle { display: none !important; }
+  .admin-sidebar .admin-nav { gap: .2rem; }
+
+  .admin-workspace > .admin-header {
+    width: min(var(--ag-page-width), calc(100% - var(--ag-page-gutter) * 2));
+    min-height: 62px;
+    margin: .5rem auto .65rem;
+    padding: .5rem .7rem;
+  }
+
+  .mobile-sidebar-drawer {
+    box-sizing: border-box;
+    width: min(232px, 76vw);
+    padding: .5rem 0 .5rem .5rem;
+  }
+
+  .mobile-sidebar-drawer .admin-sidebar {
+    box-sizing: border-box;
+    padding: .7rem;
+  }
+
+  .mobile-sidebar-drawer .admin-sidebar-top {
+    min-height: 56px;
+    justify-content: flex-start;
+    padding: 0 .1rem .35rem;
+  }
+
+  .mobile-sidebar-drawer .admin-brand .agendito-logo-medium {
+    width: 112px;
+    height: 75px;
+  }
+
+  .mobile-sidebar-drawer .admin-nav {
+    display: grid;
+    flex: 1 1 auto;
+    align-content: start;
+    grid-auto-rows: max-content;
+    gap: .2rem;
+    min-height: 0;
+    overflow-y: auto;
+    padding-block: .2rem;
+  }
+
+  .admin-shell-collapsed .mobile-sidebar-drawer .admin-sidebar .admin-nav {
+    display: grid;
+    flex: 1 1 auto;
+    align-content: start;
+    justify-content: initial;
+    gap: .2rem;
+  }
+
+  .mobile-sidebar-drawer .admin-nav-item {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    justify-content: flex-start;
+    gap: .65rem;
+    margin: 0;
+    padding-inline: .65rem;
+  }
+
+  .admin-shell-collapsed .mobile-sidebar-drawer .admin-sidebar .admin-nav-item {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    justify-content: flex-start;
+    margin: 0;
+    padding-inline: .65rem;
+  }
+
+  .mobile-sidebar-drawer .admin-nav-item > span {
+    display: inline !important;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .admin-shell-collapsed .mobile-sidebar-drawer .admin-sidebar .admin-nav-item > span {
+    display: inline !important;
+  }
+
+  .mobile-sidebar-drawer .admin-sidebar-bottom {
+    margin-top: auto;
+    padding-top: .45rem;
+  }
+}
+
+.admin-main {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding-inline: 0;
+}
+
+.settings-tabs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: .5rem;
+  border: 0;
+  overflow: visible;
+  padding: 0;
+  margin-bottom: .8rem;
+}
+
+.settings-tabs > button {
+  min-width: 0;
+  min-height: 48px;
+  padding: .55rem .65rem;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.25;
+  border: 1px solid var(--ag-line) !important;
+  border-bottom: 1px solid var(--ag-line) !important;
+  border-radius: var(--ag-r-sm, .75rem);
+}
+
+.settings-tabs > button.is-active {
+  border-color: var(--ag-cyan) !important;
+}
+
+.settings-heading h1 {
+  margin: 0 0 .35rem;
+  font-size: clamp(1.75rem, 3vw, 2.45rem);
+  line-height: 1.05;
+}
+
+.settings-page {
+  box-sizing: border-box;
+  width: min(var(--ag-page-width), calc(100% - var(--ag-page-gutter) * 2));
+  margin-inline: auto;
+}
+
+.settings-heading {
+  box-sizing: border-box;
+  width: 100%;
+  align-items: center;
+  padding: .9rem 1rem;
+  margin-block-end: .8rem;
+}
+
+.settings-heading p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.settings-public-actions {
+  gap: .45rem;
+}
+
+.settings-public-actions > .glass-button {
+  min-height: 38px;
+  padding: .4rem .7rem;
+  white-space: nowrap;
+}
+
+.admin-page-actions,
+.settings-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  margin: 0 0 .7rem;
+}
+
+.admin-page-actions > .glass-button {
+  flex: 0 0 auto;
+}
+
+.settings-actions-row .settings-public-actions {
+  margin: 0;
+  justify-content: flex-end;
+}
+
+.dashboard-welcome {
+  margin-bottom: .8rem;
+}
+
+.admin-page-container:has(.agenda-toolbar) {
+  gap: .7rem;
+}
+
+.admin-page-container:has(.agenda-toolbar) > .admin-page-header {
+  box-sizing: border-box;
+  min-height: 0;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  padding: .75rem 1rem;
+}
+
+.admin-page-container:has(.agenda-toolbar) > .admin-page-header > div {
+  gap: .12rem;
+}
+
+.admin-page-container:has(.agenda-toolbar) > .admin-page-header h1 {
+  font-size: clamp(1.45rem, 2.4vw, 1.85rem);
+  line-height: 1.08;
+}
+
+.admin-page-container:has(.agenda-toolbar) > .admin-page-header p {
+  max-width: none;
+  font-size: .82rem;
+  line-height: 1.35;
+}
+
+.admin-page-container:has(.agenda-toolbar) > .admin-page-header > .glass-button {
+  min-height: 38px;
+  margin: 0;
+  padding-inline: .8rem;
+}
+
+@media (max-width: 800px) {
+  .admin-page-container:has(.agenda-toolbar) > .admin-page-header {
+    align-items: flex-start;
+    gap: .5rem;
+    padding: .7rem .8rem;
+  }
+
+  .admin-page-container:has(.agenda-toolbar) > .admin-page-header > .glass-button {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 800px) {
+  .admin-page-actions,
+  .settings-actions-row {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .settings-actions-row .settings-public-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .settings-actions-row .settings-public-actions > * {
+    flex: 0 1 auto;
+  }
+
+  .settings-heading {
+    align-items: flex-start;
+    padding: .8rem;
+  }
+
+  .settings-tabs {
+    display: flex;
+    gap: .4rem;
+    overflow-x: auto;
+    padding: .1rem .05rem .3rem;
+    scrollbar-width: none;
+  }
+
+  .settings-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .settings-tabs > button {
+    flex: 0 0 auto;
+    min-height: 42px;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1100px) {
+  .settings-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.admin-mobile-nav {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: .25rem;
+  padding: .4rem .55rem;
+}
+
+.admin-mobile-nav > a,
+.admin-mobile-nav > button {
+  width: min(100%, 4.5rem);
+  min-width: 0;
+  min-height: 3.25rem;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+}
+
+.admin-mobile-nav > a:hover,
+.admin-mobile-nav > button:hover {
+  background: transparent;
+  box-shadow: none;
+}
+
+.admin-mobile-nav > .mobile-nav-active {
+  border-color: rgba(102, 216, 232, .28);
+  background: rgba(102, 216, 232, .14);
+  box-shadow: inset 0 1px 1px rgba(245, 247, 252, .2), 0 4px 14px rgba(3, 9, 19, .14);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
+}
+
+/* Agenda filters follow one compact three-row pattern at every breakpoint. */
+.agenda-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .55rem;
+  padding: clamp(.65rem, 1.3vw, .85rem);
+}
+
+.agenda-date-controls {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  grid-template-rows: 40px;
+  align-items: center;
+  gap: .5rem;
+}
+
+.agenda-date-controls > .field {
+  display: contents;
+  min-width: 0;
+}
+
+.agenda-date-controls > .field > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.agenda-date-controls > .field > .field-control {
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+}
+
+.agenda-date-controls > .field > .field-control input {
+  min-width: 0;
+  text-align: center;
+}
+
+.agenda-date-controls > .glass-button {
+  grid-row: 1;
+  width: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  justify-self: center;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.agenda-date-controls > .glass-button:first-child { grid-column: 1; }
+.agenda-date-controls > .glass-button:last-child { grid-column: 3; }
+
+.agenda-toolbar-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .5rem;
+}
+
+.agenda-toolbar-controls > .field,
+.agenda-toolbar-controls > .segmented-field {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.agenda-toolbar-controls > .field {
+  display: grid;
+  grid-template-rows: auto 40px;
+  gap: .2rem;
+}
+
+.agenda-toolbar-controls > .field .field-control,
+.agenda-toolbar-controls .segmented-control {
+  width: 100%;
+  min-width: 0;
+}
+
+.agenda-toolbar-controls .segmented-control { min-height: 40px; }
+
+@media (max-width: 380px) {
+  .agenda-date-controls {
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    grid-template-rows: 38px;
+    gap: .35rem;
+  }
+
+  .agenda-date-controls > .glass-button {
+    width: 36px;
+    min-width: 36px;
+    min-height: 38px;
+  }
+}
+
+.admin-page-container,
+.admin-workspace > .admin-header {
+  width: min(1320px, calc(100% - var(--ag-page-gutter) * 2));
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.admin-workspace > .admin-header {
+  margin-block: .5rem .65rem;
+  padding-inline: clamp(.75rem, 1.6vw, 1.25rem);
+}
+
+.admin-workspace:has(.settings-page) > .admin-header {
+  width: min(var(--ag-page-width), calc(100% - var(--ag-page-gutter) * 2));
+}
+
+@media (min-width: 1101px) {
+  .admin-workspace:has(.dashboard-public-link) > .admin-header,
+  .admin-page-container:has(.dashboard-public-link) {
+    box-sizing: border-box;
+    width: min(1440px, calc(100% - var(--ag-page-gutter) * 2));
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .admin-workspace:has(.dashboard-public-link) > .admin-header {
+    min-height: 76px;
+    margin-block: .5rem .65rem;
+    padding-block: .55rem;
+    border-radius: var(--ag-r-md);
+  }
+
+  .admin-workspace:has(.dashboard-public-link) > .admin-header .header-context {
+    font-size: .62rem;
+  }
+
+  .admin-workspace:has(.dashboard-public-link) > .admin-header .admin-header-title h1 {
+    margin-top: .08rem;
+    font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+    line-height: 1.1;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: clamp(.75rem, 1.2vw, 1.1rem);
+  }
+
+  .dashboard-primary,
+  .dashboard-rail {
+    min-width: 0;
+  }
+
+  .dashboard-grid {
+    align-items: stretch;
+  }
+
+  .dashboard-primary,
+  .dashboard-rail {
+    align-content: stretch;
+  }
+}
+
+.dashboard-primary > .quick-actions-section {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 1rem;
+  border-top: 0;
+}
+
+.quick-actions-section .dashboard-section-header {
+  margin-bottom: .7rem;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(.5rem, 1.2vw, .85rem);
+}
+
+.quick-actions > .glass-button {
+  min-width: 0;
+  justify-content: center;
+  padding-inline: .55rem;
+}
+
+.customer-header,
+.employee-header,
+.employee-desktop-nav {
+  box-sizing: border-box;
+  width: min(var(--ag-page-width), calc(100% - var(--ag-page-gutter) * 2));
+  margin-inline: auto;
+}
+
+.customer-header,
+.employee-header {
+  margin-block-start: .5rem;
+}
+
+.auth-shell {
+  min-width: 0;
+  overflow: visible;
+}
+
+.auth-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 500px);
+  gap: clamp(1.25rem, 4vw, 4rem);
+}
+
+.auth-intro,
+.auth-intro-copy,
+.auth-form-column,
+.auth-card {
+  min-width: 0;
+}
+
+.admin-placeholder {
+  min-height: 0;
+  flex-wrap: wrap;
+}
+
+.glass-modal {
+  box-sizing: border-box;
+  width: min(560px, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.glass-popover,
+.customer-profile-menu,
+.mobile-more-sheet {
+  box-sizing: border-box;
+  max-width: min(360px, calc(100vw - 2rem));
+  overflow-wrap: anywhere;
+}
+
+.admin-notifications-popover {
+  box-sizing: border-box;
+  width: min(22rem, calc(100vw - 2rem));
+  min-width: min(19rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 1.5rem);
+  padding: .8rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.admin-notifications-popover .notification-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  min-width: 0;
+  padding: 0 0 .65rem;
+}
+
+.admin-notifications-popover .notification-heading > strong {
+  min-width: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.admin-notifications-popover .notification-heading > .glass-button {
+  display: inline-grid;
+  flex: 0 0 2.25rem;
+  width: 2.25rem;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  margin: 0;
+  padding: 0;
+  place-items: center;
+}
+
+.admin-notifications-popover .notification-heading > .notification-clear-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  gap: .4rem;
+  padding: 0 .65rem;
+  white-space: nowrap;
+}
+
+.admin-notifications-popover .notification-list {
+  min-width: 0;
+}
+
+.admin-notifications-popover .notification-item {
+  display: grid;
+  grid-template-columns: 7px minmax(0, 1fr);
+  align-items: start;
+  gap: .65rem;
+  min-width: 0;
+  padding: .7rem .25rem;
+}
+
+.admin-notifications-popover .notification-item > div {
+  min-width: 0;
+}
+
+.admin-notifications-popover .notification-item strong,
+.admin-notifications-popover .notification-item p {
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.admin-notifications-popover .notification-empty {
+  margin: .85rem .25rem .2rem;
+  color: var(--text-secondary, var(--ink-soft));
+  font-size: .78rem;
+}
+
+.service-filters,
+.employee-filters,
+.customer-filters {
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 280px);
+}
+
+.service-row,
+.employee-row,
+.customer-row,
+.customer-records li,
+.employee-detail-grid,
+.customer-profile-grid {
+  min-width: 0;
+}
+
+@media (min-width: 801px) and (max-width: 1120px) {
+  .admin-workspace,
+  .admin-shell-collapsed .admin-workspace {
+    width: calc(100% - var(--admin-sidebar-compact-space));
+    margin-inline-start: var(--admin-sidebar-compact-space);
+  }
+
+  .admin-main {
+    padding-bottom: 3rem;
+  }
+
+  .auth-shell {
+    padding-inline: clamp(1rem, 3vw, 2rem);
+  }
+
+  .auth-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 440px);
+    gap: clamp(1rem, 2.5vw, 2rem);
+  }
+}
+
+@media (max-width: 900px) {
+  .auth-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .auth-intro {
+    min-height: 0;
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+
+  .auth-form-column {
+    width: min(560px, 100%);
+    margin-inline: auto;
+  }
+
+  .auth-disclaimer {
+    margin-top: .75rem;
+  }
+
+  .service-filters,
+  .employee-filters,
+  .customer-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .8fr);
+  }
+
+  .employee-detail-grid,
+  .customer-profile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .customer-records {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 800px) {
+  .quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .45rem;
+  }
+
+  .admin-workspace,
+  .admin-shell-collapsed .admin-workspace {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+
+  .admin-main {
+    padding: 0 0 calc(6.5rem + env(safe-area-inset-bottom));
+  }
+
+  .admin-page-container,
+  .admin-workspace > .admin-header {
+    width: min(1320px, calc(100% - var(--ag-page-gutter) * 2));
+  }
+
+  .admin-workspace > .admin-header {
+    margin-block: .5rem .65rem;
+    padding-inline: .75rem;
+  }
+
+  .admin-page-container {
+    padding-block-start: .8rem;
+  }
+
+  .customer-main,
+  .employee-main,
+  .booking-shell,
+  .public-content,
+  .settings-page {
+    width: min(var(--ag-page-width), calc(100% - var(--ag-page-gutter) * 2));
+  }
+
+  .customer-header,
+  .employee-header,
+  .employee-desktop-nav {
+    width: min(var(--ag-page-width), calc(100% - var(--ag-page-gutter) * 2));
+  }
+
+  .admin-page-header {
+    gap: .75rem;
+    margin-block-end: .85rem;
+  }
+
+  .admin-page-header > :is(div, .glass-button) {
+    min-width: 0;
+  }
+
+  .service-filters,
+  .employee-filters,
+  .customer-filters {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .55rem;
+  }
+
+  .service-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: .45rem .65rem;
+    padding-block: .75rem;
+  }
+
+  .service-row > .service-main { grid-column: 1; grid-row: 1; }
+  .service-row > .service-price { grid-column: 2; grid-row: 1; }
+  .service-row > .employee-status { grid-column: 1 / -1; grid-row: 2; }
+  .service-row > .service-actions { grid-column: 1 / -1; grid-row: 3; flex-wrap: wrap; }
+
+  .employee-row {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    align-items: start;
+    gap: .45rem .65rem;
+    padding-block: .75rem;
+  }
+
+  .employee-row > :first-child { grid-column: 1; grid-row: 1 / span 2; }
+  .employee-row > .employee-main { grid-column: 2; grid-row: 1; }
+  .employee-row > .employee-status { grid-column: 2; grid-row: 2; }
+  .employee-row > .employee-actions { grid-column: 1 / -1; grid-row: 3; flex-wrap: wrap; }
+
+  .customer-row {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    align-items: start;
+    gap: .45rem .65rem;
+    padding-block: .75rem;
+  }
+
+  .customer-row > .customer-avatar { grid-column: 1; grid-row: 1 / span 2; }
+  .customer-row > .customer-main { grid-column: 2; grid-row: 1; }
+  .customer-row > .customer-next { grid-column: 2; grid-row: 2; }
+  .customer-row > .glass-button { grid-column: 1 / -1; grid-row: 3; justify-self: start; }
+
+  .employee-detail-grid,
+  .customer-profile-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .customer-records {
+    grid-column: auto;
+  }
+
+  .customer-records li {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: .3rem;
+    padding-block: .65rem;
+  }
+
+  .customer-records li span,
+  .customer-records li small {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .employee-detail-section li {
+    align-items: flex-start;
+  }
+
+  .employee-detail-section li span {
+    min-width: 0;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .admin-placeholder {
+    align-items: flex-start;
+    gap: .75rem;
+  }
+
+  .admin-placeholder .glass-button {
+    margin: .25rem 0 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .auth-shell {
+    padding: 1rem .75rem;
+    place-items: start center;
+  }
+
+  .auth-intro-copy h1 {
+    font-size: clamp(2.2rem, 10vw, 3.5rem);
+    line-height: 1;
+  }
+
+  .auth-form-row {
+    flex-wrap: wrap;
+  }
+
+  .employee-detail-actions,
+  .customer-profile-actions,
+  .settings-public-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+  }
+
+  .employee-detail-actions > *,
+  .customer-profile-actions > *,
+  .settings-public-actions > * {
+    flex: 1 1 9rem;
+    min-width: 0;
+  }
+
+  .closure-form,
+  .employee-absence-form,
+  .schedule-edit-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .closure-form > *,
+  .employee-absence-form > *,
+  .schedule-edit-row > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-page-container,
+  .admin-workspace > .admin-header,
+  .customer-main,
+  .employee-main,
+  .booking-shell,
+  .public-content,
+  .settings-page,
+  .customer-header,
+  .employee-header,
+  .employee-desktop-nav {
+    width: min(var(--ag-page-width), calc(100% - var(--ag-page-gutter) * 2));
+  }
+
+  .admin-page-header {
+    padding: .75rem;
+  }
+
+  .admin-page-header > .glass-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .glass-modal {
+    width: calc(100vw - 1rem);
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem);
+  }
+}

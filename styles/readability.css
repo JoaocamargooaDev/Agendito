@@ -1,0 +1,263 @@
+/* Contrast layer shared by every route; component states use the same semantic tokens. */
+:root {
+  --text-primary: #172a33;
+  --text-secondary: #4e6068;
+  --text-muted: #5c6d73;
+  --text-on-dark: #f5f8f7;
+  --text-on-dark-secondary: #d3dfdd;
+  --surface-solid: rgba(250,252,251,.94);
+  --surface-soft: rgba(244,249,247,.82);
+  --surface-border-readable: rgba(41,75,79,.2);
+  --status-success-text: #145c48;
+  --status-warning-text: #73500c;
+  --status-danger-text: #913d40;
+  --status-info-text: #22576a;
+}
+
+body { color:var(--text-primary); }
+h1, h2, h3, h4, h5, h6, strong, b, dt, th { color:var(--text-primary); }
+p, small, figcaption, dd { color:var(--text-secondary); }
+label, legend { color:#203640; }
+::placeholder { color:#62737a; opacity:1; }
+
+/* Most application panels are light frosted glass and therefore use dark ink. */
+.glass-surface, .frosted-panel,
+.admin-page-header, .settings-heading, .customer-page-intro, .booking-heading,
+.store-profile-copy, .dashboard-section, .dashboard-metric, .admin-placeholder,
+.platform-create, .platform-list, .platform-establishment-row, .platform-editor-panel,
+.customer-appointment-card, .customer-detail, .employee-row, .employee-detail,
+.employee-availability, .service-row, .customer-card, .public-professional,
+.public-hours, .public-empty, .public-booking-intent > .glass-surface,
+.booking-panel, .booking-review, .settings-public-preview, .settings-preview,
+.agenda-panel, .service-list-panel, .employee-list-panel, .customer-list-panel,
+.customer-overview, .customer-records, .employee-detail-section,
+.employee-detail-identity, .settings-panel {
+  color:var(--text-primary);
+}
+:is(.glass-surface,.frosted-panel,.dashboard-section,.dashboard-metric,.admin-placeholder,
+  .platform-create,.platform-list,.platform-establishment-row,.platform-editor-panel,
+  .customer-appointment-card,.customer-detail,.employee-row,.employee-detail,
+  .employee-availability,.service-row,.customer-card,.public-professional,.public-hours,
+  .public-empty,.public-booking-intent > .glass-surface,.booking-panel,.booking-review,
+  .settings-public-preview,.settings-preview,.agenda-panel,.service-list-panel,
+  .employee-list-panel,.customer-list-panel,.customer-overview,.customer-records,
+  .employee-detail-section,.employee-detail-identity,.settings-panel) {
+  background-color:var(--surface-solid);
+  border-color:var(--surface-border-readable);
+}
+:is(.glass-surface,.frosted-panel,.dashboard-section,.dashboard-metric,.admin-placeholder,
+  .platform-create,.platform-list,.platform-establishment-row,.platform-editor-panel,
+  .customer-appointment-card,.customer-detail,.employee-row,.employee-detail,
+  .employee-availability,.service-row,.customer-card,.public-professional,.public-hours,
+  .public-empty,.booking-panel,.booking-review,.settings-panel) :is(p,small,span,li,dd,dt,label,.settings-muted,.customer-hint,.dashboard-subtle,.token-label,.eyebrow) {
+  color:var(--text-secondary);
+}
+:is(.glass-surface,.frosted-panel,.dashboard-section,.dashboard-metric,.admin-placeholder,
+  .platform-create,.platform-list,.platform-establishment-row,.platform-editor-panel,
+  .customer-appointment-card,.customer-detail,.employee-row,.employee-detail,
+  .employee-availability,.service-row,.customer-card,.public-professional,.public-hours,
+  .public-empty,.booking-panel,.booking-review,.settings-panel) :is(h1,h2,h3,h4,strong,b,th,dt) {
+  color:var(--text-primary);
+}
+
+/* Light shells must not retain pale legacy navigation/profile text. */
+.admin-sidebar .admin-nav-item,
+.admin-sidebar .sidebar-user-copy small,
+.admin-sidebar .establishment-copy small,
+.customer-desktop-nav a, .employee-desktop-nav a,
+.customer-user-name, .employee-context,
+.admin-header .header-context { color:#40545c; }
+.admin-sidebar .admin-nav-item:hover,
+.admin-sidebar .admin-nav-item:focus-visible,
+.customer-desktop-nav a:hover, .employee-desktop-nav a:hover { color:#153e44; }
+.admin-sidebar .nav-item-active,
+.customer-desktop-nav a.is-active, .employee-desktop-nav a.is-active { color:#115d58; }
+.profile-trigger { color:var(--text-primary); border-color:var(--surface-border-readable); background:rgba(255,255,255,.68); }
+.profile-trigger-copy strong, .profile-trigger-copy small { color:var(--text-primary); }
+.profile-trigger-copy small, .header-context, .sidebar-user-copy small { color:var(--text-secondary); }
+.admin-header h1 { color:var(--text-primary); }
+
+/* Popovers and sheets are pale glass; tooltips remain intentionally dark. */
+.glass-popover, .customer-profile-menu, .mobile-more-sheet, .glass-modal,
+.notification-item, .profile-menu-link { color:var(--text-primary); }
+.glass-popover :is(p,small,span), .customer-profile-menu :is(p,small,span),
+.mobile-more-sheet :is(p,small,span), .notification-item :is(p,small,span),
+.profile-menu-heading small { color:var(--text-secondary); }
+.notification-item strong, .profile-menu-heading strong, .mobile-more-heading,
+.customer-profile-menu strong, .glass-popover strong { color:var(--text-primary); }
+.notification-item:hover, .profile-menu-link:hover, .profile-menu-link:focus-visible,
+.mobile-more-sheet a:hover, .mobile-more-sheet a:focus-visible { color:#123f46; background:rgba(212,239,234,.82); }
+.profile-menu-role { color:#175f58; }
+.glass-tooltip, .glass-tooltip :is(span,p,strong) { color:#f6f8f7; }
+.glass-tooltip { background:#173640; border-color:rgba(255,255,255,.28); }
+
+/* Public-store hero text is on photography; the text panel itself stays opaque enough. */
+.store-profile-copy {
+  color:var(--text-primary);
+  background:linear-gradient(145deg,rgba(250,252,251,.91),rgba(231,241,239,.84));
+  border-color:rgba(255,255,255,.9);
+  box-shadow:inset 0 1px 0 #fff,0 20px 52px rgba(12,33,42,.22);
+}
+.store-profile-copy :is(h1,h2,h3,strong) { color:#142932; }
+.store-profile-copy :is(p,small,.eyebrow,.store-location) { color:#3e565d; }
+.public-page .public-section-heading :is(h1,h2,h3) { color:#152b34; }
+.public-page .public-section-heading > span { color:#52656c; }
+.public-page .public-service-row h3,
+.public-page .public-professional h3,
+.public-page .public-contact-grid h3,
+.platform-establishment-copy strong { color:#172a33; }
+.public-page .public-service-row :is(p,small),
+.public-page .public-professional :is(p,span,small),
+.public-page .public-contact-grid p,
+.public-page .public-hours :is(p,span,dd),
+.public-page .public-footer,
+.dashboard-section p, .dashboard-metric span, .dashboard-subtle,
+.admin-placeholder p { color:#4f6168; }
+.public-page .public-service-row > strong,
+.dashboard-metric strong, .platform-establishment-copy strong { color:#173d45; }
+
+/* The booking progress capsule and selected options have dark, high-contrast labels. */
+.booking-progress { color:#e6eeec; background:#18333d; border-color:rgba(255,255,255,.26); }
+.booking-progress span { color:#d3e0de; }
+.booking-progress span.is-current { color:#fff; }
+.booking-progress span.is-current b { color:#18333d; background:#b7e8de; border-color:#b7e8de; }
+.booking-panel :is(h1,h2,h3,.eyebrow,.token-label) { color:#172a33; }
+.booking-option, .booking-time { color:#18313a; background:rgba(255,255,255,.83); }
+.booking-option :is(p,small,span), .booking-summary span, .booking-note, .booking-hint { color:#4b5e65; }
+.booking-option.is-selected, .booking-time.is-selected { color:#123d40; background:linear-gradient(135deg,#d7f2eb,#f7fbf8); }
+.booking-option.is-selected :is(p,small,span), .booking-time.is-selected :is(p,small,span) { color:#214c4c; }
+.booking-summary { color:#17343c; background:rgba(221,241,236,.9); }
+.booking-confirmation p { color:#4b5e65; }
+.booking-confirmation-icon { color:#fff; background:#17776c; }
+
+/* Dense schedule/status colors have explicit foreground/background pairs. */
+.agenda-event { color:#20343b; background:rgba(229,244,237,.96); border-color:rgba(28,103,79,.3); }
+.agenda-event :is(time,strong,span,small) { color:#20343b; }
+.event-in_progress { color:#1d4656; background:#e4f1f4; border-color:#8eb6c2; }
+.event-completed { color:#285b47; background:#e8f2e9; border-color:#94b59d; }
+.event-cancelled, .event-no_show { color:#743c3b; background:#fae9e6; border-color:#d99b91; }
+.agenda-blocked { color:#5e4c24; background:repeating-linear-gradient(-45deg,#f5efd9,#f5efd9 6px,#fff9e9 6px,#fff9e9 12px); }
+.agenda-week-day, .agenda-toolbar, .agenda-column-header,
+.employee-date-nav, .employee-service-picker, .service-people-picker,
+.employee-schedule-editor, .employee-absence-row, .employee-block-row,
+.closure-row, .schedule-edit-row input, .customer-filter-row button,
+.agenda-form-summary { color:#213840; background:var(--surface-soft); }
+.agenda-week-day :is(span,small,em), .agenda-toolbar :is(span,small),
+.agenda-column-header :is(span,small), .agenda-form-summary { color:#4b6067; }
+.week-event { color:#1c3d43; background:#dff1ec; }
+.week-event :is(b,small) { color:#33595d; }
+.agenda-feedback, .form-error, .feedback-error { color:var(--status-danger-text); background:#fff0ed; border-color:rgba(168,64,67,.3); }
+.feedback-success { color:var(--status-success-text); background:#e8f5ee; border-color:rgba(35,109,88,.25); }
+.feedback-info { color:var(--status-info-text); background:#e8f2f5; border-color:rgba(34,87,106,.24); }
+.status-scheduled, .customer-status.status-scheduled { color:var(--status-warning-text); background:#fff2d5; border-color:#e8c979; }
+.status-confirmed, .customer-status.status-confirmed { color:var(--status-success-text); background:#e4f3e9; border-color:#9bc9aa; }
+.status-in_progress, .customer-status.status-in_progress, .status-in-progress { color:var(--status-info-text); background:#e5f1f5; border-color:#a2c7d4; }
+.status-completed, .customer-status.status-completed { color:#385534; background:#edf3df; border-color:#bdce9f; }
+.status-cancelled, .status-no_show, .customer-status.status-cancelled, .customer-status.status-no_show { color:var(--status-danger-text); background:#fbe9e7; border-color:#dda7a1; }
+
+/* Settings previews intentionally show a dark public sample; give every label light ink there. */
+.settings-public-preview-content { color:var(--text-on-dark); background:rgba(19,39,47,.95); }
+.settings-public-preview-content :is(h1,h2,h3,strong,span,p,small) { color:var(--text-on-dark); }
+.settings-public-preview-content :is(p,small,span) { color:var(--text-on-dark-secondary); }
+.settings-logo-preview, .settings-cover-preview { color:var(--text-primary); background-color:rgba(255,255,255,.85); border-color:var(--surface-border-readable); }
+.settings-upload :is(small,button), .settings-add-interval, .customer-detail-grid :is(span,b),
+.customer-detail-price, .customer-appointment-content p, .customer-hint,
+.customer-feedback, .settings-muted, .settings-tabs button,
+.business-hours-day > label, .employee-availability :is(p,span),
+.employee-client-row :is(p,span), .employee-block-row span { color:#4d6067; }
+.settings-tabs button.is-active { color:#155a55; border-bottom-color:#168077; }
+.customer-feedback[role="status"] { color:var(--status-success-text); }
+.customer-avatar-large, .customer-establishment-mark, .employee-avatar.avatar-fallback,
+.avatar-fallback, .booking-avatar { color:#fff; background:#176f67; }
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-button, .booking-option, .booking-time, .agenda-week-day { transition:none; }
+}
+
+/*
+ * The legacy refinement layer sets `background` shorthands on these materials.
+ * A later `background-color` alone cannot cover those gradients, which caused
+ * dark ink to sit on dark glass. Keep the material translucent, but make its
+ * base luminance explicit. Opt-in dark surfaces keep their own light ink.
+ */
+.glass-surface:not(.glass-dark),
+.frosted-panel:not(.glass-dark) {
+  color: var(--text-primary);
+  background: linear-gradient(145deg, rgba(250,252,251,.96), rgba(231,241,239,.93));
+  border-color: rgba(41,75,79,.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.98), 0 12px 32px rgba(15,36,42,.1), inset 0 -1px 0 rgba(41,75,79,.06);
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
+  backdrop-filter: blur(22px) saturate(135%);
+}
+.glass-surface:not(.glass-dark) :where(h1,h2,h3,h4,h5,h6,p,small,span,strong,b,label,legend,li,dt,dd,th,td,time,figcaption),
+.frosted-panel:not(.glass-dark) :where(h1,h2,h3,h4,h5,h6,p,small,span,strong,b,label,legend,li,dt,dd,th,td,time,figcaption) {
+  color: inherit;
+}
+.glass-surface:not(.glass-dark) :where(p,small,li,dd,figcaption),
+.frosted-panel:not(.glass-dark) :where(p,small,li,dd,figcaption) {
+  color: var(--text-secondary);
+}
+.glass-surface:not(.glass-dark) :where(h1,h2,h3,h4,h5,h6,strong,b,label,legend,dt,th),
+.frosted-panel:not(.glass-dark) :where(h1,h2,h3,h4,h5,h6,strong,b,label,legend,dt,th) {
+  color: var(--text-primary);
+}
+
+/* Non-glass data boxes have the same readable surface contract. */
+:is(.dashboard-section,.dashboard-metric,.admin-placeholder,.platform-create,.platform-list,
+  .platform-establishment-row,.platform-editor-panel,.customer-appointment-card,.customer-detail,
+  .employee-row,.employee-detail,.employee-availability,.service-row,.customer-card,
+  .public-professional,.public-hours,.public-empty,.booking-panel,.booking-review,.settings-panel,
+  .agenda-week-day,.agenda-toolbar,.agenda-column-header,.employee-date-nav,
+  .employee-service-picker,.service-people-picker,.employee-schedule-editor,
+  .employee-absence-row,.employee-block-row,.closure-row) {
+  color: var(--text-primary);
+  background: linear-gradient(145deg, rgba(250,252,251,.96), rgba(231,241,239,.93));
+  border-color: var(--surface-border-readable);
+}
+:is(.dashboard-section,.dashboard-metric,.admin-placeholder,.platform-create,.platform-list,
+  .platform-establishment-row,.platform-editor-panel,.customer-appointment-card,.customer-detail,
+  .employee-row,.employee-detail,.employee-availability,.service-row,.customer-card,
+  .public-professional,.public-hours,.public-empty,.booking-panel,.booking-review,.settings-panel)
+  :where(h1,h2,h3,h4,h5,h6,strong,b,label,legend,dt,th) { color: var(--text-primary); }
+:is(.dashboard-section,.dashboard-metric,.admin-placeholder,.platform-create,.platform-list,
+  .platform-establishment-row,.platform-editor-panel,.customer-appointment-card,.customer-detail,
+  .employee-row,.employee-detail,.employee-availability,.service-row,.customer-card,
+  .public-professional,.public-hours,.public-empty,.booking-panel,.booking-review,.settings-panel)
+  :where(p,small,span,li,dd,figcaption) { color: var(--text-secondary); }
+
+/* Fields keep dark readable ink regardless of their surrounding glass panel. */
+.glass-surface:not(.glass-dark) :is(input,select,textarea),
+.frosted-panel:not(.glass-dark) :is(input,select,textarea),
+.field-control :is(input,select,textarea), .glass-field textarea {
+  color: #172a33;
+  -webkit-text-fill-color: #172a33;
+}
+.glass-surface:not(.glass-dark) :is(input,select,textarea)::placeholder,
+.frosted-panel:not(.glass-dark) :is(input,select,textarea)::placeholder,
+.field-control :is(input,select,textarea)::placeholder,
+.glass-field textarea::placeholder { color: #5b6a70; opacity: 1; }
+.field-control, .glass-field textarea { background-color: rgba(255,255,255,.94); border-color: rgba(41,75,79,.25); }
+.field-control:focus-within, .glass-field textarea:focus-visible { background-color: #fff; }
+
+/* Preserve intentional dark compositions, including the public hero/header. */
+.glass-dark { color: var(--text-on-dark); }
+.glass-dark :where(h1,h2,h3,h4,h5,h6,p,small,span,strong,b,label,li,dt,dd,th,td,time) { color: inherit; }
+.public-hero-panel, .public-header, .public-glass-bar,
+.public-hero-panel :where(h1,h2,h3,p,small,span,strong,.eyebrow) { color: var(--text-on-dark); }
+.glass-surface.public-hero-panel {
+  color: var(--text-on-dark);
+  background: linear-gradient(145deg, rgba(20,37,27,.94), rgba(29,48,34,.91));
+  border-color: rgba(255,255,255,.46);
+}
+.glass-surface.public-hero-panel :where(h1,h2,h3,p,small,span,strong,.eyebrow) { color: var(--text-on-dark); }
+
+/* Statuses must retain both their semantic fill and matching readable ink. */
+.customer-status.status-scheduled, .status-scheduled { color:var(--status-warning-text); background:#fff2d5; border-color:#e8c979; }
+.customer-status.status-confirmed, .status-confirmed { color:var(--status-success-text); background:#e4f3e9; border-color:#9bc9aa; }
+.customer-status.status-in_progress, .status-in_progress, .status-in-progress { color:var(--status-info-text); background:#e5f1f5; border-color:#a2c7d4; }
+.customer-status.status-completed, .status-completed { color:#385534; background:#edf3df; border-color:#bdce9f; }
+.customer-status.status-cancelled, .customer-status.status-no_show,
+.status-cancelled, .status-no_show { color:var(--status-danger-text); background:#fbe9e7; border-color:#dda7a1; }
+.employee-status.is-active { color:var(--status-success-text); background:#e4f3e9; border-color:#9bc9aa; }
+.employee-status.is-inactive { color:#58656a; background:#edf0ef; border-color:#c8d0ce; }
+input, select, textarea { color-scheme:light; }
