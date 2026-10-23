@@ -1,6 +1,7 @@
 import { ensureLocalDataMigration } from "@/features/platform";
 import { createLocalTenantRepository } from "@/features/platform/tenant-repository";
 import { listEmployees, updateEmployee } from "@/features/employees";
+import { listAppointments } from "@/features/agenda/repository";
 import type { Service } from "@/types";
 import { listAllEstablishments } from "@/features/platform/storage";
 import { canModifyEstablishmentData, isFeatureEnabled } from "@/features/platform/policies";
@@ -101,6 +102,33 @@ export function updateService(id: string, patch: Partial<Omit<Service, "id" | "e
 export function activateService(id: string, establishmentId: string) { return updateService(id, { active: true, status: "ACTIVE", archivedAt: undefined }, establishmentId); }
 export function deactivateService(id: string, establishmentId: string) { return updateService(id, { active: false, status: "INACTIVE" }, establishmentId); }
 export function archiveService(id: string, establishmentId: string) { return updateService(id, { active: false, status: "ARCHIVED", archivedAt: new Date().toISOString() }, establishmentId); }
+/** Hard deletion is allowed only when no appointment refers to this service. */
+export function deleteService(id: string, establishmentId: string) {
+  if (!canEditServices(establishmentId) || !servicesRepository.findForEstablishment(establishmentId, id)) return false;
+  const hasAppointmentHistory = listAppointments(establishmentId).some((appointment) => appointment.serviceId === id || appointment.serviceSnapshots?.some((service) => service.id === id));
+  if (hasAppointmentHistory) return false;
+
+  const linkedEmployees = listEmployees(establishmentId).filter((employee) => employee.serviceIds.includes(id));
+  const updatedEmployees: typeof linkedEmployees = [];
+  for (const employee of linkedEmployees) {
+    const updated = updateEmployee(employee.id, { serviceIds: employee.serviceIds.filter((serviceId) => serviceId !== id) }, establishmentId);
+    if (!updated) {
+      updatedEmployees.forEach((item) => updateEmployee(item.id, { serviceIds: item.serviceIds }, establishmentId));
+      return false;
+    }
+    updatedEmployees.push(employee);
+  }
+
+  const nextServices = servicesRepository.listAll()
+    .filter((service) => service.establishmentId !== establishmentId || service.id !== id)
+    .map((service) => service.establishmentId === establishmentId && service.complementaryServiceIds?.includes(id)
+      ? { ...service, complementaryServiceIds: service.complementaryServiceIds.filter((serviceId) => serviceId !== id) }
+      : service);
+  if (servicesRepository.replaceAll(nextServices)) return true;
+
+  updatedEmployees.forEach((item) => updateEmployee(item.id, { serviceIds: item.serviceIds }, establishmentId));
+  return false;
+}
 export function reorderServices(establishmentId: string, orderedIds: string[]) {
   const current = listServices(establishmentId);
   if (orderedIds.length !== current.length || new Set(orderedIds).size !== current.length || orderedIds.some((id) => !current.some((service) => service.id === id))) return false;

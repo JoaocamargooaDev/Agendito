@@ -45,14 +45,14 @@ export function PublicBookingPage({ establishment, serviceParam, employeeParam }
   const [showWaitlist, setShowWaitlist] = useState(false); const [waitlistFeedback, setWaitlistFeedback] = useState("");
   const [waitlistDays, setWaitlistDays] = useState<number[]>([]); const [waitlistStart, setWaitlistStart] = useState(""); const [waitlistEnd, setWaitlistEnd] = useState("");
   const [localAppointments, setLocalAppointments] = useState(() => listAppointments(establishment.id));
-  const pageContent = useMemo(() => getPublishedPageContent(getPageConfig(establishment.id)), [establishment.id]);
+  const [pageContent, setPageContent] = useState(() => getPublishedPageContent(getPageConfig(establishment.id)));
   const tenantPageStyle = {
     ...getPublicThemeTokens(pageContent),
     fontFamily: pageContent?.typography === "editorial" ? 'Georgia, "Times New Roman", serif' : pageContent?.typography === "rounded" ? 'ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif' : undefined,
   } as CSSProperties;
-  const services = useMemo(() => listServices(establishment.id).filter((item) => serviceIsActive(item) && item.publicVisible !== false).sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)), [establishment.id]);
-  const config = useMemo(() => getEstablishmentSettings(establishment.id), [establishment.id]);
-  const employees = useMemo(() => listEmployees(establishment.id).filter((item) => item.active), [establishment.id]);
+  const [services, setServices] = useState(() => listServices(establishment.id).filter((item) => serviceIsActive(item) && item.publicVisible !== false).sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)));
+  const [config, setConfig] = useState(() => getEstablishmentSettings(establishment.id));
+  const [employees, setEmployees] = useState(() => listEmployees(establishment.id).filter((item) => item.active));
   const service = services.find((item) => item.id === serviceId) ?? null;
   const additionalServices = useMemo(() => service ? (service.complementaryServiceIds ?? []).map((id) => services.find((item) => item.id === id)).filter((item): item is NonNullable<typeof item> => Boolean(item && additionalServiceIds.includes(item.id))) : [], [additionalServiceIds, service, services]);
   const chosenServices = useMemo(() => service ? [service, ...additionalServices] : [], [additionalServices, service]);
@@ -73,11 +73,17 @@ export function PublicBookingPage({ establishment, serviceParam, employeeParam }
     });
   }, [dateKey, eligibleEmployees, employeeId, localAppointments, config.booking.anyEmployeeStrategy, establishment.id, establishment.timezone]);
   useEffect(() => {
-    const refresh = () => setLocalAppointments(listAppointments(establishment.id));
+    const refresh = () => {
+      setLocalAppointments(listAppointments(establishment.id));
+      setPageContent(getPublishedPageContent(getPageConfig(establishment.id)));
+      setServices(listServices(establishment.id).filter((item) => serviceIsActive(item) && item.publicVisible !== false).sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)));
+      setConfig(getEstablishmentSettings(establishment.id));
+      setEmployees(listEmployees(establishment.id).filter((item) => item.active));
+    };
     refresh();
-    window.addEventListener("agendito:agenda-updated", refresh);
-    window.addEventListener("storage", refresh);
-    return () => { window.removeEventListener("agendito:agenda-updated", refresh); window.removeEventListener("storage", refresh); };
+    const events = ["agendito:agenda-updated", "agendito:services-updated", "agendito:employees-updated", "agendito:settings-updated", "agendito:public-page-updated", "storage"];
+    events.forEach((event) => window.addEventListener(event, refresh));
+    return () => events.forEach((event) => window.removeEventListener(event, refresh));
   }, [establishment.id]);
   useEffect(() => {
     const timer = window.setTimeout(() => {

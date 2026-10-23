@@ -1,13 +1,13 @@
 "use client";
 
-import { Archive, ArrowDown, ArrowRight, ArrowUp, Check, Clock3, ImagePlus, Pencil, Plus, Search, Users, X } from "lucide-react";
+import { Archive, ArrowDown, ArrowRight, ArrowUp, Check, Clock3, ImagePlus, Pencil, Plus, Search, Trash2, Users, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AdminPageContainer, AdminPageHeader } from "@/components/admin";
 import { GlassButton, GlassInput, GlassModal, GlassSelect, GlassSurface, useConfirmation } from "@/components/ui";
 import { listAllEstablishments } from "@/features/platform";
 import { isFeatureEnabled } from "@/features/platform/policies";
 import { useAuth } from "@/features/auth";
-import { archiveService, activateService, createService, deactivateService, getServiceEmployees, listServices, reorderServices, updateService } from "./index";
+import { archiveService, activateService, createService, deactivateService, deleteService, getServiceEmployees, listServices, reorderServices, updateService } from "./index";
 import { listEmployees } from "@/features/employees";
 import { isActiveAppointmentStatus, listAppointments } from "@/features/agenda";
 import { formatCurrency } from "@/lib/utils";
@@ -30,11 +30,11 @@ type ServiceForm = {
 };
 function emptyForm(order = 0): ServiceForm { return { name: "", category: "Geral", description: "", imageUrl: "", duration: "60", price: "0,00", preparation: "0", cleanup: "0", employeeIds: [], employeeOverrides: {}, availableWeekdays: [], availabilityStart: "", availabilityEnd: "", complementaryServiceIds: [], packageSessions: "", packageDiscount: "0", groupCapacity: "1", displayOrder: String(order), publicVisible: true, active: true }; }
 
-function ServiceDetails({ service, establishmentId, onClose, onEdit }: { service: Service; establishmentId: string; onClose: () => void; onEdit: () => void }) {
+function ServiceDetails({ service, establishmentId, onClose, onEdit, onDelete }: { service: Service; establishmentId: string; onClose: () => void; onEdit: () => void; onDelete: () => void }) {
   const people = getServiceEmployees(service.id, establishmentId);
   const related = listServices(establishmentId).filter((item) => service.complementaryServiceIds?.includes(item.id));
   const futureBookings = listAppointments(establishmentId).filter((item) => item.serviceId === service.id && item.startsAt > new Date().toISOString() && isActiveAppointmentStatus(item.status)).length;
-  return <GlassModal open onClose={onClose} title={service.name} description={service.description || "Sem descrição cadastrada."} footer={<><GlassButton variant="quiet" onClick={onClose}>Fechar</GlassButton><GlassButton variant="primary" onClick={onEdit}><Pencil size={15} />Editar</GlassButton></>}>
+  return <GlassModal open onClose={onClose} title={service.name} description={service.description || "Sem descrição cadastrada."} footer={<><GlassButton variant="destructive" onClick={onDelete}><Trash2 size={15} />Excluir</GlassButton><GlassButton variant="quiet" onClick={onClose}>Fechar</GlassButton><GlassButton variant="primary" onClick={onEdit}><Pencil size={15} />Editar</GlassButton></>}>
     <div className="service-details"><div><span className="token-label">Categoria</span><strong>{service.category || "Geral"}</strong></div><div><span className="token-label">Preço base</span><strong>{formatCurrency(service.priceInCents)}</strong></div><div><span className="token-label">Duração</span><strong>{durationLabel(service.durationMinutes)}</strong></div><div><span className="token-label">Status</span><strong>{serviceStatus(service)}</strong></div><div><span className="token-label">Profissionais</span><strong>{people.length ? people.map((person) => person.displayName).join(", ") : "Nenhum associado"}</strong></div><div><span className="token-label">Agendamentos futuros</span><strong>{futureBookings} · histórico preservado</strong></div><div><span className="token-label">Preparação / finalização</span><strong>{service.preparationMinutes ?? 0} / {service.cleanupMinutes ?? 0} min</strong></div>{service.groupCapacity && service.groupCapacity > 1 && <div><span className="token-label">Capacidade por horário</span><strong>{service.groupCapacity} pessoas</strong></div>}{service.packageOffer && <div><span className="token-label">Pacote</span><strong>{service.packageOffer.sessions} sessões · {service.packageOffer.discountPercent}% de desconto</strong></div>}{related.length > 0 && <div><span className="token-label">Complementares</span><strong>{related.map((item) => item.name).join(", ")}</strong></div>}</div>
   </GlassModal>;
 }
@@ -45,24 +45,25 @@ export function ServicesPage() {
   const establishment = listAllEstablishments().find((item) => item.id === user?.establishmentId);
   const [items, setItems] = useState<Service[]>([]); const [query, setQuery] = useState(""); const [filter, setFilter] = useState("all"); const [categoryFilter, setCategoryFilter] = useState("all"); const [sort, setSort] = useState("manual");
   const [selected, setSelected] = useState<Service | null>(null); const [editing, setEditing] = useState<Service | null>(null); const [openForm, setOpenForm] = useState(false); const [error, setError] = useState("");
+  const [newServiceId, setNewServiceId] = useState("");
   const establishmentId = user?.establishmentId;
   const hasPackages = Boolean(establishment && isFeatureEnabled(establishment, "packages"));
   const refresh = () => setItems(establishmentId ? listServices(establishmentId) : []);
   useEffect(() => { const update = () => setItems(establishmentId ? listServices(establishmentId) : []); const timer = window.setTimeout(update, 0); window.addEventListener("agendito:services-updated", update); window.addEventListener("agendito:employees-updated", update); return () => { window.clearTimeout(timer); window.removeEventListener("agendito:services-updated", update); window.removeEventListener("agendito:employees-updated", update); }; }, [establishmentId]);
-  const people = useMemo(() => listEmployees(establishment?.id).filter((employee) => employee.active), [establishment?.id]);
+  const people = listEmployees(establishment?.id).filter((employee) => employee.active);
   const categories = useMemo(() => [...new Set(items.map((item) => item.category?.trim() || "Geral"))].sort((a, b) => a.localeCompare(b, "pt-BR")), [items]);
   const filtered = useMemo(() => {
     const text = normalize(query);
     const matches = items.filter((service) => {
       const isArchived = service.status === "ARCHIVED";
-      const matchesStatus = filter === "all" || (filter === "active" ? serviceIsActive(service) : filter === "inactive" ? !serviceIsActive(service) && !isArchived : filter === "archived" ? isArchived : filter === "unassigned" ? !getServiceEmployees(service.id, establishment?.id ?? "").length : getServiceEmployees(service.id, establishment?.id ?? "").some((employee) => employee.id === filter));
+      const matchesStatus = filter === "all" || (filter === "active" ? serviceIsActive(service) : filter === "inactive" ? !serviceIsActive(service) && !isArchived : filter === "archived" ? isArchived : filter === "unassigned" ? !getServiceEmployees(service.id, establishmentId ?? "").length : getServiceEmployees(service.id, establishmentId ?? "").some((employee) => employee.id === filter));
       const matchesText = !text || normalize(`${service.name} ${service.description} ${service.category ?? ""}`).includes(text);
       return matchesStatus && matchesText && (categoryFilter === "all" || (service.category || "Geral") === categoryFilter);
     });
     return matches.sort((a, b) => sort === "name" ? a.name.localeCompare(b.name, "pt-BR") : sort === "price" ? a.priceInCents - b.priceInCents : sort === "duration" ? a.durationMinutes - b.durationMinutes : (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
-  }, [categoryFilter, establishment?.id, filter, items, query, sort]);
+  }, [categoryFilter, establishmentId, filter, items, query, sort]);
   const [form, setForm] = useState<ServiceForm>(emptyForm());
-  const openCreate = () => { setEditing(null); setSelected(null); setForm(emptyForm(items.length)); setError(""); setOpenForm(true); };
+  const openCreate = () => { setEditing(null); setSelected(null); setNewServiceId(`srv-${crypto.randomUUID()}`); setForm(emptyForm(items.length)); setError(""); setOpenForm(true); };
   const openEdit = (service: Service) => {
     setSelected(null); setEditing(service);
     const schedule = service.availabilityWindows?.[0];
@@ -86,7 +87,7 @@ export function ServicesPage() {
     const futureBookings = editing ? listAppointments(establishment.id).filter((item) => item.serviceId === editing.id && item.startsAt > new Date().toISOString() && isActiveAppointmentStatus(item.status)).length : 0;
     const hasCommercialChange = editing && (editing.priceInCents !== price || editing.durationMinutes !== duration || JSON.stringify(editing.employeeOverrides ?? {}) !== JSON.stringify(employeeOverrides));
     if (futureBookings && hasCommercialChange && !await confirm({ title: "Salvar novas condições?", description: `${futureBookings} agendamento(s) futuro(s) já usam o preço e a duração registrados originalmente. As novas condições valerão somente para reservas futuras.` })) return;
-    const saved = editing ? updateService(editing.id, payload, establishment.id, form.employeeIds) : createService({ id: `srv-${Date.now()}`, establishmentId: establishment.id, ...payload }, form.employeeIds);
+    const saved = editing ? updateService(editing.id, payload, establishment.id, form.employeeIds) : createService({ id: newServiceId, establishmentId: establishment.id, ...payload }, form.employeeIds);
     if (!saved) return setError("Não foi possível salvar. Verifique nome, profissionais, pacote e valores.");
     setOpenForm(false); refresh();
   };
@@ -102,6 +103,22 @@ export function ServicesPage() {
   const archive = async (service: Service) => {
     if (!establishment || !await confirm({ title: `Arquivar “${service.name}”?`, description: "O serviço sai de novas reservas, mas histórico e agendamentos já existentes serão preservados.", destructive: true, confirmLabel: "Arquivar serviço" })) return;
     if (!archiveService(service.id, establishment.id)) setError("Não foi possível arquivar este serviço."); else refresh();
+  };
+  const remove = async (service: Service) => {
+    if (!establishment) return;
+    const historyCount = listAppointments(establishment.id).filter((item) => item.serviceId === service.id || item.serviceSnapshots?.some((snapshot) => snapshot.id === service.id)).length;
+    if (historyCount) {
+      if (!await confirm({ title: "Preservar o histórico deste serviço?", description: `Existem ${historyCount} agendamento(s) associado(s). O serviço será arquivado e deixará de aceitar novas reservas, mas seus registros serão preservados.`, destructive: true, confirmLabel: "Arquivar serviço" })) return;
+      if (!archiveService(service.id, establishment.id)) { setError("Não foi possível arquivar este serviço."); return; }
+      setSelected(null); setError(""); refresh(); return;
+    }
+    if (!await confirm({ title: `Excluir “${service.name}”?`, description: "Este serviço não possui agendamentos associados. A exclusão remove também seus vínculos com profissionais e serviços complementares.", destructive: true, confirmLabel: "Excluir serviço" })) return;
+    if (!deleteService(service.id, establishment.id)) {
+      const nowHasHistory = listAppointments(establishment.id).some((item) => item.serviceId === service.id || item.serviceSnapshots?.some((snapshot) => snapshot.id === service.id));
+      setError(nowHasHistory ? "Este serviço recebeu um agendamento e foi preservado. Arquive-o para impedir novas reservas." : "Não foi possível excluir o serviço.");
+      refresh(); return;
+    }
+    setSelected(null); setError(""); refresh();
   };
   const move = (service: Service, direction: -1 | 1) => {
     if (!establishment) return;
@@ -138,5 +155,5 @@ export function ServicesPage() {
     <GlassButton className="service-create-button" variant="primary" onClick={openCreate}><Plus size={16} />Novo serviço</GlassButton>{error && !openForm && <div className="agenda-feedback" role="alert"><X size={16} />{error}</div>}
     <GlassSurface material="frosted" className="service-list-panel"><div className="service-filters"><GlassInput label="Pesquisar" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nome, categoria ou descrição" leadingIcon={<Search size={16} />} /><GlassSelect label="Status" value={filter} onChange={(event) => setFilter(event.target.value)} options={[{ value: "all", label: "Todos" }, { value: "active", label: "Ativos" }, { value: "inactive", label: "Inativos" }, { value: "archived", label: "Arquivados" }, { value: "unassigned", label: "Sem profissional" }, ...people.map((person) => ({ value: person.id, label: person.displayName }))]} /><GlassSelect label="Categoria" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)} options={[{ value: "all", label: "Todas as categorias" }, ...categories.map((category) => ({ value: category, label: category }))]} /><GlassSelect label="Ordenar por" value={sort} onChange={(event) => setSort(event.target.value)} options={[{ value: "manual", label: "Ordem personalizada" }, { value: "name", label: "Nome" }, { value: "price", label: "Preço" }, { value: "duration", label: "Duração" }]} /></div>
       {filtered.length ? <div className="service-categories">{[...new Set(filtered.map((item) => item.category || "Geral"))].map((category) => <section className="service-category" key={category}><h2>{category}</h2><div className="service-list">{filtered.filter((service) => (service.category || "Geral") === category).map((service) => { const servicePeople = getServiceEmployees(service.id, establishment.id); const futureBookings = listAppointments(establishment.id).filter((item) => item.serviceId === service.id && item.startsAt > new Date().toISOString() && ["SCHEDULED", "CONFIRMED", "IN_PROGRESS"].includes(item.status)).length; return <article className={`service-row${service.status === "ARCHIVED" ? " is-archived" : ""}`} key={service.id}>{service.imageUrl && <div className="service-row-image" style={{ backgroundImage: `url(${service.imageUrl})` }} role="img" aria-label={service.name} />}<div className="service-main"><strong>{service.name}</strong><span>{service.description || "Sem descrição cadastrada."}</span><small><Clock3 size={13} />{durationLabel(service.durationMinutes)} <Users size={13} />{servicePeople.length} profissional{servicePeople.length === 1 ? "" : "is"}{futureBookings > 0 && <> · {futureBookings} reserva{futureBookings === 1 ? "" : "s"} futura{futureBookings === 1 ? "" : "s"}</>}</small></div><strong className="service-price">{formatCurrency(service.priceInCents)}</strong><span className={`employee-status ${serviceIsActive(service) ? "is-active" : "is-inactive"}`}>{serviceStatus(service)}{service.publicVisible === false && " · Oculto"}</span><div className="service-actions"><GlassButton variant="quiet" size="sm" onClick={() => setSelected(service)}>Detalhes <ArrowRight size={14} /></GlassButton><GlassButton variant="quiet" size="icon" onClick={() => openEdit(service)} aria-label={`Editar ${service.name}`}><Pencil size={15} /></GlassButton>{sort === "manual" && <><GlassButton variant="quiet" size="icon" onClick={() => move(service, -1)} aria-label={`Mover ${service.name} para cima`}><ArrowUp size={15} /></GlassButton><GlassButton variant="quiet" size="icon" onClick={() => move(service, 1)} aria-label={`Mover ${service.name} para baixo`}><ArrowDown size={15} /></GlassButton></>}{service.status === "ARCHIVED" ? <GlassButton variant="quiet" size="icon" onClick={() => toggle(service)} aria-label={`Reativar ${service.name}`}><Check size={15} /></GlassButton> : <><GlassButton variant="quiet" size="icon" onClick={() => toggle(service)} aria-label={serviceIsActive(service) ? `Desativar ${service.name}` : `Ativar ${service.name}`}>{serviceIsActive(service) ? <X size={15} /> : <Check size={15} />}</GlassButton><GlassButton variant="quiet" size="icon" onClick={() => archive(service)} aria-label={`Arquivar ${service.name}`}><Archive size={15} /></GlassButton></>}</div></article>; })}</div></section>)}</div> : <div className="dashboard-empty"><p>{items.length ? "Nenhum serviço corresponde aos filtros atuais." : "Você ainda não cadastrou serviços."}</p><GlassButton variant="ghost" onClick={() => { setQuery(""); setFilter("all"); setCategoryFilter("all"); }}>{items.length ? "Limpar filtros" : "Cadastrar primeiro serviço"}</GlassButton></div>}
-    </GlassSurface>{selected && <ServiceDetails service={selected} establishmentId={establishment.id} onClose={() => setSelected(null)} onEdit={() => openEdit(selected)} />}{formModal}</AdminPageContainer>;
+    </GlassSurface>{selected && <ServiceDetails service={selected} establishmentId={establishment.id} onClose={() => setSelected(null)} onEdit={() => openEdit(selected)} onDelete={() => void remove(selected)} />}{formModal}</AdminPageContainer>;
 }
