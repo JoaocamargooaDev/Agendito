@@ -841,7 +841,40 @@ label:not(.segment){background:transparent!important;box-shadow:none!important}
 .owner-history time{color:var(--ag-text-secondary);white-space:nowrap}
 .owner-history p{margin:0;color:var(--ag-text-secondary);font-size:.78rem}
 @media(max-width:900px){.owner-metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-dashboard-lower{grid-template-columns:minmax(0,1fr)}.owner-establishment-table{min-width:970px}}
-@media(max-width:600px){.owner-section-heading{align-items:flex-start}.owner-section-heading h2{font-size:1.05rem}.owner-section-heading>.glass-button{flex:0 0 auto}.owner-metric-grid{gap:.5rem}.owner-metric{padding:.78rem;border-radius:15px}.owner-metric>span{max-width:80%;font-size:.7rem}.owner-metric>small{font-size:.64rem}.owner-metric>svg{top:.72rem;right:.72rem;width:16px}.owner-list-toolbar{grid-template-columns:minmax(0,1fr);align-items:stretch}.owner-list-toolbar .glass-button{width:100%;justify-content:center}.owner-establishment-table{min-width:0;display:block}.owner-establishment-table thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.owner-establishment-table tbody{display:grid;gap:.6rem;padding:.55rem}.owner-establishment-table tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:hidden;border:1px solid var(--ag-line);border-radius:14px;background:rgba(19,32,51,.58)}.owner-establishment-table td{display:grid;align-content:start;gap:.12rem;min-width:0;padding:.62rem .55rem;border:0;font-size:.72rem;overflow-wrap:anywhere}.owner-establishment-table td::before{content:"";color:var(--ag-text-secondary);font-size:.61rem;font-weight:700}.owner-establishment-table td:nth-child(1){grid-column:1/-1;border-bottom:1px solid rgba(191,215,240,.12)}.owner-establishment-table td:nth-child(1)::before{content:"Estabelecimento"}.owner-establishment-table td:nth-child(2)::before{content:"Identificador / segmento"}.owner-establishment-table td:nth-child(3)::before{content:"Responsável"}.owner-establishment-table td:nth-child(4)::before{content:"Operação"}.owner-establishment-table td:nth-child(5)::before{content:"Página pública"}.owner-establishment-table td:nth-child(6)::before{content:"Cadastro / plano"}.owner-establishment-table td:nth-child(7)::before{content:"Agendamentos"}.owner-establishment-table td:nth-child(8){grid-column:1/-1;border-top:1px solid rgba(191,215,240,.12)}.owner-establishment-table td:nth-child(8)::before{content:"Ações"}.owner-row-actions{min-width:0;flex-wrap:wrap}.owner-row-actions .glass-button{flex:1 1 34px}.owner-pagination{align-items:flex-start;flex-direction:column}.owner-detail-grid{grid-template-columns:minmax(0,1fr)}.owner-history>div{align-items:flex-start;flex-direction:column}.owner-history time{white-space:normal}}
+@media(max-width:600px){
+  .owner-section-heading{align-items:flex-start}
+  .owner-section-heading h2{font-size:1.05rem}
+  .owner-section-heading>.glass-button{flex:0 0 auto}
+  .owner-metric-grid{gap:.5rem}
+  .owner-metric{padding:.78rem;border-radius:15px}
+  .owner-metric>span{max-width:80%;font-size:.7rem}
+  .owner-metric>small{font-size:.64rem}
+  .owner-metric>svg{top:.72rem;right:.72rem;width:16px}
+  .owner-list-toolbar{grid-template-columns:minmax(0,1fr);align-items:stretch}
+  .owner-list-toolbar .glass-button{width:100%;justify-content:center}
+  .owner-establishment-table{min-width:0;display:block}
+  .owner-establishment-table thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .owner-establishment-table tbody{display:grid;gap:.6rem;padding:.55rem}
+  .owner-establishment-table tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:hidden;border:1px solid var(--ag-line);border-radius:14px;background:rgba(19,32,51,.58)}
+  .owner-establishment-table td{display:grid;align-content:start;gap:.12rem;min-width:0;padding:.62rem .55rem;border:0;font-size:.72rem;overflow-wrap:anywhere}
+  .owner-establishment-table td::before{content:"";color:var(--ag-text-secondary);font-size:.61rem;font-weight:700}
+  .owner-establishment-table td:nth-child(1){grid-column:1/-1;border-bottom:1px solid rgba(191,215,240,.12)}
+  .owner-establishment-table td:nth-child(1)::before{content:"Estabelecimento"}
+  .owner-establishment-table td:nth-child(2)::before{content:"Identificador / segmento"}
+  .owner-establishment-table td:nth-child(3)::before{content:"Responsável"}
+  .owner-establishment-table td:nth-child(4)::before{content:"Operação"}
+  .owner-establishment-table td:nth-child(5)::before{content:"Página pública"}
+  .owner-establishment-table td:nth-child(6)::before{content:"Cadastro"}
+  .owner-establishment-table td:nth-child(7)::before{content:"Agendamentos"}
+  .owner-establishment-table td:nth-child(8){grid-column:1/-1;border-top:1px solid rgba(191,215,240,.12)}
+  .owner-establishment-table td:nth-child(8)::before{content:"Ações"}
+  .owner-row-actions{min-width:0;flex-wrap:wrap}
+  .owner-row-actions .glass-button{flex:1 1 34px}
+  .owner-pagination{align-items:flex-start;flex-direction:column}
+  .owner-detail-grid{grid-template-columns:minmax(0,1fr)}
+  .owner-history>div{align-items:flex-start;flex-direction:column}
+  .owner-history time{white-space:normal}
+}
 @media(min-width:680px){.entry-layout{transform:translateY(-1.75rem)}.entry-header{transform:translateY(2rem)}.entry-brand .agendito-logo-medium{width:clamp(380px,30vw,480px);height:clamp(253px,20vw,320px)}}
 @media(max-width:679px){.entry-layout{transform:translateY(-.75rem)}}
 

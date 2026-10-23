@@ -358,4 +358,10 @@ input, select, textarea { accent-color: var(--moss); }
 .platform-form-feedback.is-error { color:#793f36; border-color:rgba(153,70,58,.24); background:rgba(174,76,61,.08); }
 .platform-form-feedback.is-success { color:#315e3a; border-color:rgba(60,111,72,.24); background:rgba(74,126,84,.09); }
 
+.auth-guard-state { min-height:100svh; display:grid; place-items:center; padding:var(--ag-page-padding-inline, 1.5rem); }
+.auth-guard-card { width:min(36rem,100%); padding:clamp(1.25rem,4vw,2rem); }
+.auth-guard-card h1 { margin:.6rem 0; }
+.auth-guard-card p { color:var(--ag-text-secondary,var(--ink-soft)); line-height:1.6; }
+.auth-guard-actions { display:flex; flex-wrap:wrap; gap:.75rem; margin-top:1.25rem; }
+
 

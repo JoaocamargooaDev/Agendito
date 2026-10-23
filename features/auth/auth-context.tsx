@@ -6,6 +6,7 @@ import type { AuthContext as AuthFlowContext, AuthResult, AuthStatus, AuthUser, 
 
 interface AuthContextValue {
   user: AuthUser | null;
+  activeEstablishmentId: string | null;
   status: AuthStatus;
   login: (email: string, password: string, context: AuthFlowContext, remember: boolean) => Promise<AuthResult>;
   registerCustomer: (input: RegistrationInput, remember: boolean) => Promise<AuthResult>;
@@ -27,7 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const changeAdminPassword = useCallback((currentPassword: string, newPassword: string) => user ? mockAuthService.changeAdminPassword(user.id, currentPassword, newPassword) : Promise.resolve({ ok: false as const, message: "Entre na sua conta para alterar a senha." }), [user]);
   const logout = useCallback(() => { mockAuthService.logout(); setUser(null); setStatus("ready"); }, []);
   const refresh = useCallback(async () => { const restored = await mockAuthService.restoreSession(); setUser(restored); setStatus(restored ? "authenticated" : "ready"); }, []);
-  const value = useMemo(() => ({ user, status, login, registerCustomer, requestPasswordReset, changeAdminPassword, logout, refresh }), [user, status, login, registerCustomer, requestPasswordReset, changeAdminPassword, logout, refresh]);
+  const activeEstablishmentId = user?.establishmentId ?? null;
+  const value = useMemo(() => ({ user, activeEstablishmentId, status, login, registerCustomer, requestPasswordReset, changeAdminPassword, logout, refresh }), [user, activeEstablishmentId, status, login, registerCustomer, requestPasswordReset, changeAdminPassword, logout, refresh]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

@@ -5,6 +5,7 @@ import { REGISTERED_CUSTOMERS_KEY } from "@/features/auth/constants";
 import { ensureDemoAccountMigration, findEstablishmentForDemoSetup, listAllUsersForAuthentication, saveEstablishment, savePlatformUser, type StoredPlatformUser } from "@/features/platform/storage";
 import type { Establishment } from "@/types";
 import { runLocalAccountBootstrap } from "./capabilities";
+export { DEMO_ACCOUNT_CREDENTIALS } from "./demo-account-profiles";
 
 const DEMO_SEED_KEY = "agendito.mock.demo-accounts.v1";
 const DEMO_SEED_VERSION = "four-profiles-local-v1";
@@ -143,10 +144,3 @@ export function ensureDemoAccounts() {
   } catch { /* Retry during the next login if local storage is unavailable. */ }
   });
 }
-
-export const DEMO_ACCOUNT_CREDENTIALS = [
-  { role: "Dono", email: "joao@gmail.com", password: "Dono@Agendito2026" },
-  { role: "Gestor de estabelecimento", email: "gestor@agendito.test", password: "Gestor@Agendito2026" },
-  { role: "Funcionário", email: "funcionario@agendito.test", password: "Funcionario@Agendito2026" },
-  { role: "Cliente", email: "cliente@agendito.test", password: "Cliente@Agendito2026" },
-] as const;

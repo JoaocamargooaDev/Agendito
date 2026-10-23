@@ -1,13 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { evaluateCapabilityAccess } from "./capability-policy.mjs";
-import { capabilityForPath } from "./route-capabilities.mjs";
+import { canAccessPath, capabilityForPath } from "./route-capabilities.mjs";
 
 const roleCapabilities = {
-  PLATFORM_ADMIN: ["platform.establishments.manage", "platform.pages.manage", "platform.features.manage"],
-  ADMIN: ["establishment.console.access", "establishment.appointments.manage", "establishment.services.manage"],
-  EMPLOYEE: ["employee.appointments.manage", "employee.schedule.view"],
-  CUSTOMER: ["customer.profile.manage", "customer.appointments.view"],
+  PLATFORM_ADMIN: ["platform.console.access", "platform.establishments.manage", "platform.pages.manage", "platform.features.manage", "platform.settings.manage", "platform.manager-access.manage"],
+  ADMIN: ["establishment.console.access", "establishment.dashboard.view", "establishment.agenda.manage", "establishment.appointments.manage", "establishment.customers.manage", "establishment.employees.manage", "establishment.services.manage", "establishment.reports.view", "establishment.settings.manage", "establishment.notifications.view", "establishment.advanced-use"],
+  EMPLOYEE: ["employee.appointments.manage", "employee.schedule.view", "employee.clients.view", "employee.availability.manage", "employee.profile.manage"],
+  CUSTOMER: ["customer.profile.manage", "customer.appointments.view", "public.booking.create"],
 };
 const access = (role, capability, tenant, target) => evaluateCapabilityAccess({ role, capability, allowedCapabilities: roleCapabilities[role] ?? [], boundEstablishmentId: tenant, targetEstablishmentId: target });
 
@@ -44,4 +44,34 @@ test("direct operational URLs resolve to the same capability gates as navigation
   assert.equal(capabilityForPath("/platform/establishments/est-1/page-builder"), "platform.pages.manage");
   assert.equal(capabilityForPath("/platform/pages"), "platform.pages.manage");
   assert.equal(capabilityForPath("/customer/appointments/apt-1"), "customer.appointments.view");
+});
+
+test("all profile route families are isolated and public booking remains reachable", () => {
+  const routes = [
+    ["PLATFORM_ADMIN", "/platform/establishments", true],
+    ["PLATFORM_ADMIN", "/platform/pages/est-1/preview", true],
+    ["PLATFORM_ADMIN", "/platform/establishments/est-1/page-builder", true],
+    ["PLATFORM_ADMIN", "/dashboard", false],
+    ["ADMIN", "/dashboard", true],
+    ["ADMIN", "/agenda", true],
+    ["ADMIN", "/customers/customer-1", true],
+    ["ADMIN", "/employees/employee-1", true],
+    ["ADMIN", "/settings/access", true],
+    ["ADMIN", "/platform/establishments", false],
+    ["ADMIN", "/employee/schedule", false],
+    ["EMPLOYEE", "/employee", true],
+    ["EMPLOYEE", "/employee/availability", true],
+    ["EMPLOYEE", "/employee/appointments/apt-1", true],
+    ["EMPLOYEE", "/services", false],
+    ["CUSTOMER", "/customer", true],
+    ["CUSTOMER", "/customer/appointments/apt-1/reschedule", true],
+    ["CUSTOMER", "/customer/history", true],
+    ["CUSTOMER", "/appointments", false],
+    ["CUSTOMER", "/platform/pages", false],
+  ];
+  for (const [role, path, expected] of routes) {
+    assert.equal(canAccessPath(path, roleCapabilities[role] ?? []), expected, `${role} → ${path}`);
+  }
+  assert.equal(canAccessPath("/e/barbearia-demo/booking", []), true);
+  assert.equal(canAccessPath("/dashboardish", roleCapabilities.ADMIN), false);
 });

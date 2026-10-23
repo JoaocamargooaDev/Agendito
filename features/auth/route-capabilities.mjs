@@ -15,6 +15,14 @@ const routeCapabilities = [
 ];
 
 export function capabilityForPath(pathname) {
-  if (/^\/platform\/establishments\/[^/]+\/page-builder(?:\/|$)/.test(pathname)) return "platform.pages.manage";
-  return routeCapabilities.find(([base]) => pathname === base || pathname.startsWith(`${base}/`))?.[1] ?? null;
+  const path = pathname.split(/[?#]/, 1)[0];
+  if (/^\/platform\/establishments\/[^/]+\/page-builder(?:\/|$)/.test(path)) return "platform.pages.manage";
+  return routeCapabilities.find(([base]) => path === base || path.startsWith(`${base}/`))?.[1] ?? null;
+}
+
+export function canAccessPath(pathname, allowedCapabilities) {
+  const path = pathname.split(/[?#]/, 1)[0];
+  const required = capabilityForPath(path);
+  if (required) return allowedCapabilities.includes(required);
+  return /^\/e\/[^/]+(?:\/booking)?(?:\/|$)/.test(path);
 }

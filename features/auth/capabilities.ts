@@ -1,7 +1,7 @@
 import type { UserRole } from "@/types";
 import { PLATFORM_USERS_KEY, REMEMBERED_SESSION_KEY, SESSION_STORAGE_KEY } from "./constants";
 import { evaluateCapabilityAccess } from "./capability-policy.mjs";
-import { capabilityForPath } from "./route-capabilities.mjs";
+import { canAccessPath, capabilityForPath } from "./route-capabilities.mjs";
 
 /** Mock authorization catalog. These checks organize UI and local actions; they are not a production security boundary. */
 export const CAPABILITIES = {
@@ -72,6 +72,28 @@ export function hasCapability(role: UserRole | null | undefined, capability: Cap
 
 export function capabilitiesForRole(role: UserRole): readonly Capability[] {
   return ROLE_CAPABILITIES[role];
+}
+
+export const PROFILE_HOME_PATH: Record<UserRole, string> = {
+  PLATFORM_ADMIN: "/platform/establishments",
+  ADMIN: "/dashboard",
+  EMPLOYEE: "/employee",
+  CUSTOMER: "/customer",
+};
+
+export const PROFILE_LABEL: Record<UserRole, string> = {
+  PLATFORM_ADMIN: "Administrador da plataforma",
+  ADMIN: "Proprietário do estabelecimento",
+  EMPLOYEE: "Funcionário",
+  CUSTOMER: "Cliente",
+};
+
+export function profileHomePath(role: UserRole): string {
+  return PROFILE_HOME_PATH[role];
+}
+
+export function canRoleAccessPath(role: UserRole, pathname: string): boolean {
+  return canAccessPath(pathname, capabilitiesForRole(role));
 }
 
 let bootstrapDepth = 0;

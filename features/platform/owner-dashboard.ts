@@ -28,7 +28,6 @@ export function getOwnerDashboardSnapshot() {
   ));
   const templateForPage = (index: number) => pageRecords[index]?.template ?? "editorial";
   const templateUsage = [...new Set(establishments.map((_, index) => templateForPage(index)))].map((template) => ({ template, count: establishments.filter((_, index) => templateForPage(index) === template).length }));
-  const simulatedPlans = [...new Set(establishments.map((item) => item.simulatedPlan?.trim() || "Não definido"))].map((plan) => ({ plan, count: establishments.filter((item) => (item.simulatedPlan?.trim() || "Não definido") === plan).length }));
   const contractStatuses = ["ACTIVE", "INACTIVE", "SUSPENDED", "NOT_CONFIGURED"] as const;
   return {
     establishments,
@@ -43,7 +42,6 @@ export function getOwnerDashboardSnapshot() {
     unpublishedPages: pageStatuses.filter((status) => status === "UNPUBLISHED").length,
     pagesCreated: establishments.length,
     templateUsage,
-    simulatedPlans,
     contractStatusUsage: contractStatuses.map((status) => ({ status, count: establishments.filter((item) => (item.simulatedContractStatus ?? "NOT_CONFIGURED") === status).length })),
     featureUsage: PLATFORM_FEATURES.map((feature) => ({
       featureId: feature.id,

@@ -130,7 +130,6 @@ export function EstablishmentProvisioningWizard({ onCreated }: { onCreated: (mes
         logoUrl: form.logoUrl || undefined,
         createdAt: now,
         timezone: form.timezone,
-        simulatedPlan: "Essencial",
         enabledFeatures: [...form.enabledFeatures],
         featureConfigVersion: 2,
         adminUserIds: [managerId],
