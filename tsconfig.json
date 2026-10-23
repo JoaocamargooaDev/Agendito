@@ -37,7 +37,9 @@
     ".next-validation/types/**/*.ts",
     ".next-validation/dev/types/**/*.ts",
     ".next-iphone/types/**/*.ts",
-    ".next-iphone/dev/types/**/*.ts"
+    ".next-iphone/dev/types/**/*.ts",
+    ".next-preview/types/**/*.ts",
+    ".next-preview/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

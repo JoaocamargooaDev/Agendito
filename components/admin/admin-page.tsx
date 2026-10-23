@@ -3,8 +3,9 @@ import Link from "next/link";
 import { ArrowLeft, Construction } from "lucide-react";
 import { GlassButton, GlassSurface } from "@/components/ui";
 import { AdminHeaderActionSlot } from "./admin-header-actions";
+import { PageShell } from "./page-layout";
 
-export function AdminPageContainer({ children }: { children: ReactNode }) { return <div className="admin-page-container">{children}</div>; }
+export function AdminPageContainer({ children }: { children: ReactNode }) { return <PageShell className="admin-page-container">{children}</PageShell>; }
 
 export function AdminPageHeader({ action }: { eyebrow?: string; title: string; description: string; action?: ReactNode }) {
   if (!action) return null;

@@ -4,4 +4,4 @@ export const REGISTERED_CUSTOMERS_KEY = "agendito.mock.registered-customers";
 export const PLATFORM_USERS_KEY = "agendito.mock.platform-users";
 export const PLATFORM_ESTABLISHMENTS_KEY = "agendito.mock.platform-establishments";
 export const ACCOUNT_DATA_VERSION_KEY = "agendito.mock.account-data-version";
-export const ACCOUNT_DATA_VERSION = "production-empty-state-v3";
+export const ACCOUNT_DATA_VERSION = "tenant-data-preserving-v4";

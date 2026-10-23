@@ -7,7 +7,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test features/auth/capability-policy.test.mjs features/platform/data-projections.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

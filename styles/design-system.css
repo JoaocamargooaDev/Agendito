@@ -1,0 +1,170 @@
+/* Shared interface foundations. Public page themes remain owned by .public-page. */
+html,
+body {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-synthesis: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(button, [role="button"], a.glass-button, input, select, textarea) {
+  touch-action: manipulation;
+}
+
+:where(button, [role="button"], a.glass-button):not(.page-builder-preview-sizes button) {
+  min-height: var(--ag-height-touch);
+}
+
+:where(input, select, textarea, .field-control, .glass-input, .glass-select) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+:where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  scroll-margin-block: 1rem;
+}
+
+:where(button, [role="button"], a, input, select, textarea, summary):focus-visible {
+  outline: var(--ag-focus-outline);
+  outline-offset: var(--ag-focus-outline-offset);
+}
+
+.glass-modal {
+  max-width: min(560px, calc(100vw - 2rem));
+  max-height: var(--ag-modal-max-height);
+  border: var(--ag-border-default);
+  border-radius: var(--ag-r-modal);
+  box-shadow: var(--ag-shadow-modal);
+  overscroll-behavior: contain;
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+.owner-establishment-table-wrap {
+  max-width: 100%;
+  overscroll-behavior-inline: contain;
+  scrollbar-gutter: stable;
+}
+
+.owner-establishment-table {
+  min-width: var(--ag-table-min-width);
+}
+
+.owner-establishment-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ag-bg-secondary);
+}
+
+@media (max-width: 600px) {
+  :root {
+    --ag-modal-max-height: min(88dvh, 850px);
+    --ag-table-min-width: 700px;
+  }
+
+  .glass-modal {
+    max-width: calc(100vw - 1rem);
+    margin-block: auto;
+  }
+}
+
+/* Keep the global reduced-motion policy here; other sheets only handle component exceptions. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* Touch layouts keep frequently used controls large enough without changing
+   their desktop geometry or the visual theme of tenant public pages. */
+@media (max-width: 600px), (pointer: coarse) {
+  .admin-header-actions :is(.icon-trigger, .profile-trigger),
+  .mobile-menu-button {
+    box-sizing: border-box;
+    width: var(--ag-height-touch);
+    min-width: var(--ag-height-touch);
+    height: var(--ag-height-touch);
+    min-height: var(--ag-height-touch);
+  }
+
+  .auth-shell .password-toggle,
+  .platform-create-form .password-toggle {
+    box-sizing: border-box;
+    width: var(--ag-height-touch);
+    min-width: var(--ag-height-touch);
+    height: var(--ag-height-touch);
+    min-height: var(--ag-height-touch);
+    flex-basis: var(--ag-height-touch);
+  }
+
+  .agenda-existing-blocks button,
+  .agenda-alternatives > button,
+  .owner-row-actions .glass-button,
+  .page-builder-section-toolbar button,
+  .page-builder-faq-row button,
+  .page-builder-preview-sizes button,
+  .notification-item-actions button {
+    box-sizing: border-box;
+    min-width: var(--ag-height-touch);
+    min-height: var(--ag-height-touch);
+  }
+
+  .owner-row-actions .glass-button,
+  .page-builder-section-toolbar button,
+  .page-builder-faq-row button,
+  .page-builder-preview-sizes button,
+  .notification-item-actions button {
+    width: var(--ag-height-touch);
+    height: var(--ag-height-touch);
+  }
+
+  .notification-text-action,
+  .notification-save-preferences,
+  .dashboard-filter-bar select,
+  .dashboard-filter-bar input,
+  .notification-filter-row select,
+  .notification-filter-row input,
+  .notification-settings select,
+  .notification-settings input:not([type="checkbox"]) {
+    min-height: var(--ag-height-touch);
+  }
+
+  .quick-actions > .glass-button,
+  .dashboard-quick-actions > .glass-button,
+  .public-pages-actions .glass-button,
+  .platform-establishment-actions > *,
+  .admin-header-page-actions > .glass-button,
+  .admin-header-page-actions .settings-public-actions > .glass-button {
+    min-height: var(--ag-height-touch);
+  }
+
+  .agendito-app-layer :is(.admin-shell, .auth-shell, .customer-app, .employee-app, .platform-shell, .public-tenant-page)
+    :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), select, textarea) {
+    font-size: 16px;
+  }
+
+  .public-tenant-page .booking-alternatives button {
+    min-height: var(--ag-height-touch);
+  }
+}

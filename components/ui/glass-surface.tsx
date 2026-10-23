@@ -10,5 +10,5 @@ export interface GlassSurfaceProps extends HTMLAttributes<HTMLDivElement> {
 export const GlassSurface = forwardRef<HTMLDivElement, GlassSurfaceProps>(function GlassSurface(
   { className, material = "regular", depth = "flat", tone = "neutral", ...props }, ref,
 ) {
-  return <div ref={ref} className={cn("glass-surface", "liquid-glass__surface", "liquid-glass__refractive", `glass-material-${material}`, `glass-${depth}`, `glass-${tone}`, className)} {...props} />;
+  return <div ref={ref} className={cn("glass-surface", "surface-card", "liquid-glass__surface", "liquid-glass__refractive", `glass-material-${material}`, `glass-${depth}`, `glass-${tone}`, className)} {...props} />;
 });

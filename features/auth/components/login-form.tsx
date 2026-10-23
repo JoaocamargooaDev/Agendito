@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { ArrowRight, Mail } from "lucide-react";
-import { GlassButton, GlassInput } from "@/components/ui";
+import { CheckboxField, GlassButton, GlassInput } from "@/components/ui";
 import { getReturnPathFromLocation, useAuth, type AuthContext } from "@/features/auth";
 import { PasswordField } from "@/components/auth";
 import { AuthFeedback } from "@/components/auth";
@@ -32,7 +32,7 @@ export function LoginForm({ context }: { context: AuthContext }) {
     {error && <AuthFeedback tone="error">{error}</AuthFeedback>}{success && <AuthFeedback tone="success">{success}</AuthFeedback>}
     <GlassInput label="E-mail" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" leadingIcon={<Mail size={16} />} required />
     <PasswordField label="Senha" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Digite sua senha" required />
-    <div className="auth-form-row"><label className="check-control"><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} /> <span>Lembrar acesso</span></label><Link href="/forgot-password">Esqueci minha senha</Link></div>
+    <div className="auth-form-row"><CheckboxField label="Lembrar acesso" checked={remember} onChange={(event) => setRemember(event.target.checked)} /><Link href="/forgot-password">Esqueci minha senha</Link></div>
     <GlassButton type="submit" variant="primary" size="lg" loading={submitting} className="auth-submit">Entrar <ArrowRight size={17} /></GlassButton>
     {(context === "CUSTOMER" || context === "UNIFIED") && <p className="auth-switch">Ainda não possui conta? <Link href="/customer/register">Criar conta de cliente</Link></p>}
   </form>;

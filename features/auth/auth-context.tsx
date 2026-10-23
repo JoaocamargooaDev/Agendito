@@ -21,11 +21,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<AuthStatus>("loading");
   useEffect(() => { mockAuthService.restoreSession().then((restored) => { setUser(restored); setStatus(restored ? "authenticated" : "ready"); }); }, []);
-  const login = useCallback(async (...args: Parameters<AuthContextValue["login"]>) => { const result = await mockAuthService.login(...args); if (result.ok) setUser(result.user); return result; }, []);
-  const registerCustomer = useCallback(async (...args: Parameters<AuthContextValue["registerCustomer"]>) => { const result = await mockAuthService.registerCustomer(...args); if (result.ok) setUser(result.user); return result; }, []);
+  const login = useCallback(async (...args: Parameters<AuthContextValue["login"]>) => { const result = await mockAuthService.login(...args); if (result.ok) { setUser(result.user); setStatus("authenticated"); } return result; }, []);
+  const registerCustomer = useCallback(async (...args: Parameters<AuthContextValue["registerCustomer"]>) => { const result = await mockAuthService.registerCustomer(...args); if (result.ok) { setUser(result.user); setStatus("authenticated"); } return result; }, []);
   const requestPasswordReset = useCallback((...args: Parameters<AuthContextValue["requestPasswordReset"]>) => mockAuthService.requestPasswordReset(...args), []);
   const changeAdminPassword = useCallback((currentPassword: string, newPassword: string) => user ? mockAuthService.changeAdminPassword(user.id, currentPassword, newPassword) : Promise.resolve({ ok: false as const, message: "Entre na sua conta para alterar a senha." }), [user]);
-  const logout = useCallback(() => { mockAuthService.logout(); setUser(null); }, []);
+  const logout = useCallback(() => { mockAuthService.logout(); setUser(null); setStatus("ready"); }, []);
   const refresh = useCallback(async () => { const restored = await mockAuthService.restoreSession(); setUser(restored); setStatus(restored ? "authenticated" : "ready"); }, []);
   const value = useMemo(() => ({ user, status, login, registerCustomer, requestPasswordReset, changeAdminPassword, logout, refresh }), [user, status, login, registerCustomer, requestPasswordReset, changeAdminPassword, logout, refresh]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

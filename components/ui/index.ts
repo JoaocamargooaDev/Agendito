@@ -1,11 +1,15 @@
 export * from "./frosted-panel";
 export * from "./glass-button";
 export * from "./glass-input";
+export * from "./form-controls";
+export * from "./confirmation-provider";
 export * from "./glass-modal";
 export * from "./glass-navigation";
 export * from "./glass-popover";
 export * from "./glass-segmented-control";
 export * from "./glass-select";
 export * from "./glass-surface";
+export * from "./content-cards";
 export * from "./glass-tooltip";
 export * from "./liquid-glass";
+export { DataTable, TableHeader, TableRow, TableCell, TableActions, FilterToolbar, SearchField, Pagination, StatusBadge, EmptyState } from "./data-list";

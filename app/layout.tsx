@@ -3,8 +3,13 @@ import "@/styles/globals.css";
 import "@/styles/base.css";
 import "@/styles/agendito.css";
 import "@/styles/layout-audit.css";
+import "@/styles/design-system.css";
+import "@/styles/public-storefront.css";
+import "@/styles/customer-dashboard.css";
 import { AuthProvider } from "@/features/auth";
 import { GlassFilterDefinitions } from "@/components/ui/glass-filter-definitions";
+import { NotificationRuntime } from "@/features/notifications/notification-runtime";
+import { ConfirmationProvider } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Agendito — agendamentos para estabelecimentos e clientes",
@@ -24,7 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <span className="background-art-planner" />
           <span className="background-art-calendar-clock" />
         </div>
-        <AuthProvider><div className="agendito-app-layer">{children}</div></AuthProvider>
+        <AuthProvider><ConfirmationProvider><NotificationRuntime /><div className="agendito-app-layer">{children}</div></ConfirmationProvider></AuthProvider>
       </body>
     </html>
   );

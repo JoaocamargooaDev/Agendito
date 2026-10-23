@@ -1,9 +1,11 @@
 import { customers } from "@/mocks";
-import { listEmployees } from "@/features/employees/repository";
-import { ensureDemoAccountMigration, listAllEstablishments, listAllUsers, savePlatformUser, type StoredPlatformUser } from "@/features/platform";
+import { employeeAccountBinding } from "@/features/employees/repository";
+import { ensureDemoAccountMigration, establishmentIdForAccount, listAllUsersForAuthentication, savePlatformUser, type StoredPlatformUser } from "@/features/platform";
 import type { Customer, User } from "@/types";
 import { REGISTERED_CUSTOMERS_KEY, REMEMBERED_SESSION_KEY, SESSION_STORAGE_KEY } from "./constants";
 import type { AuthRepository, AuthUser, RegistrationInput, SessionReference } from "./types";
+import { ensureDemoAccounts } from "./demo-accounts";
+import { sha256Hex } from "@/lib/sha256";
 const CUSTOMER_PROFILE_OVERRIDES_KEY = "agendito.mock.customer-profile-overrides.v1";
 const INITIAL_OWNER_ID = "usr-agendito-admin";
 // Mock-only verifier; replace with server-side authentication before production.
@@ -11,12 +13,7 @@ const INITIAL_OWNER_PASSWORD_HASH = "f673f9618c364eba3879d57169cc21cd1de7185404b
 
 interface StoredCustomer extends Customer { email: string; passwordHash: string }
 
-const encoder = new TextEncoder();
-
-async function hashPassword(password: string) {
-  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(password));
-  return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
-}
+const hashPassword = sha256Hex;
 
 function readJson<T>(key: string): T | null {
   try { const value = localStorage.getItem(key); return value ? JSON.parse(value) as T : null; } catch { return null; }
@@ -36,7 +33,7 @@ function publicCustomer(customer: StoredCustomer): Customer {
 }
 
 function findUserById(userId: string, registered: StoredCustomer[]): AuthUser | null {
-  const user = listAllUsers().find((candidate) => candidate.id === userId);
+  const user = listAllUsersForAuthentication().find((candidate) => candidate.id === userId);
   if (user) return enrichUser(user);
   const registeredCustomer = registered.find((customer) => customer.userId === userId);
   if (!registeredCustomer) return null;
@@ -48,21 +45,20 @@ function enrichUser(user: User): AuthUser {
   const customer = customers.find((candidate) => candidate.userId === user.id);
   let override: { name?: string; email?: string; phone?: string } | undefined;
   try { const overrides = JSON.parse(localStorage.getItem(CUSTOMER_PROFILE_OVERRIDES_KEY) ?? "{}"); override = customer ? overrides[customer.id] : undefined; } catch { /* storage may be unavailable */ }
-  const employee = listEmployees().find((candidate) => candidate.userId === user.id && candidate.active);
-  const establishment = employee
-    ? listAllEstablishments().find((candidate) => candidate.id === employee.establishmentId)
-    : listAllEstablishments().find((candidate) => candidate.adminUserIds.includes(user.id));
-  return { ...user, ...(override?.name ? { name: override.name } : {}), ...(override?.email ? { email: override.email } : {}), customer: customer ? { ...customer, ...(override?.phone ? { phone: override.phone } : {}) } : customer, establishmentId: employee?.establishmentId ?? establishment?.id };
+  const employee = user.role === "EMPLOYEE" ? employeeAccountBinding(user.id) : null;
+  const establishmentId = employee?.establishmentId ?? establishmentIdForAccount(user.id) ?? undefined;
+  return { ...user, ...(override?.name ? { name: override.name } : {}), ...(override?.email ? { email: override.email } : {}), customer: customer ? { ...customer, ...(override?.phone ? { phone: override.phone } : {}) } : customer, establishmentId };
 }
 
 function accountEmailFor(user: User) { return user.email.trim().toLowerCase(); }
 
 export const mockAuthService: AuthRepository = {
   async login(email, password, context, remember) {
+    ensureDemoAccounts();
     const normalizedEmail = email.trim().toLowerCase();
     const registered = getStoredCustomers();
     const registeredCustomer = registered.find((customer) => customer.email.toLowerCase() === normalizedEmail);
-    const localUsers = listAllUsers();
+    const localUsers = listAllUsersForAuthentication();
     const user = localUsers.find((candidate) => accountEmailFor(candidate) === normalizedEmail) ?? (registeredCustomer ? { id: registeredCustomer.userId, name: registeredCustomer.preferredName ?? "Cliente", email: registeredCustomer.email, role: "CUSTOMER" as const, createdAt: new Date().toISOString() } : null);
     if (!user) return { ok: false, code: "INVALID_CREDENTIALS", message: "Não foi possível entrar com esses dados." };
     if (context === "CUSTOMER" && user.role !== "CUSTOMER") return { ok: false, code: "ADMIN_ON_CUSTOMER_LOGIN", message: "Esta é uma conta profissional. Use o acesso administrativo." };
@@ -73,7 +69,7 @@ export const mockAuthService: AuthRepository = {
     const storedHash = registeredCustomer?.passwordHash ?? platformUser?.passwordHash ?? (isInitialOwner ? INITIAL_OWNER_PASSWORD_HASH : undefined);
     if (!storedHash || (await hashPassword(password)) !== storedHash) return { ok: false, code: "INVALID_CREDENTIALS", message: "E-mail ou senha inválidos." };
     const authUser = registeredCustomer ? findUserById(registeredCustomer.userId, registered) : enrichUser(user);
-    if (!authUser || (["ADMIN", "EMPLOYEE"].includes(authUser.role) && !authUser.establishmentId)) return { ok: false, code: "INVALID_CREDENTIALS", message: "Esta conta não possui um estabelecimento ativo." };
+    if (!authUser || (["ADMIN", "EMPLOYEE"].includes(authUser.role) && !authUser.establishmentId) || (authUser.role === "EMPLOYEE" && !employeeAccountBinding(authUser.id)?.active)) return { ok: false, code: "INVALID_CREDENTIALS", message: "Esta conta não possui um estabelecimento ativo." };
     if (isInitialOwner && !platformUser?.passwordHash && !savePlatformUser({ ...user, passwordHash: storedHash })) {
       return { ok: false, code: "STORAGE_ERROR", message: "Não foi possível preparar a conta neste navegador." };
     }
@@ -88,8 +84,9 @@ export const mockAuthService: AuthRepository = {
   },
 
   async registerCustomer(input: RegistrationInput, remember) {
+    ensureDemoAccounts();
     const normalizedEmail = input.email.trim().toLowerCase();
-    const duplicate = listAllUsers().some((user) => accountEmailFor(user) === normalizedEmail) || getStoredCustomers().some((customer) => customer.email.toLowerCase() === normalizedEmail);
+    const duplicate = listAllUsersForAuthentication().some((user) => accountEmailFor(user) === normalizedEmail) || getStoredCustomers().some((customer) => customer.email.toLowerCase() === normalizedEmail);
     if (duplicate) return { ok: false, code: "EMAIL_ALREADY_REGISTERED", message: "Já existe uma conta com este e-mail." };
     const id = `usr-customer-${crypto.randomUUID()}`;
     const customerId = `cus-${crypto.randomUUID()}`;
@@ -106,6 +103,7 @@ export const mockAuthService: AuthRepository = {
 
   async restoreSession() {
     try {
+      ensureDemoAccounts();
       const session = readJson<SessionReference>(REMEMBERED_SESSION_KEY) ?? readJson<SessionReference>(SESSION_STORAGE_KEY);
       if (!session) return null;
       const user = findUserById(session.userId, getStoredCustomers());
@@ -117,7 +115,8 @@ export const mockAuthService: AuthRepository = {
   async requestPasswordReset() { return { ok: false, message: "A recuperação de senha não está disponível no momento. Entre em contato com o administrador do estabelecimento." }; },
 
   async changeAdminPassword(userId, currentPassword, newPassword) {
-    const user = listAllUsers().find((candidate) => candidate.id === userId);
+    ensureDemoAccounts();
+    const user = listAllUsersForAuthentication().find((candidate) => candidate.id === userId);
     if (!user || user.role !== "ADMIN") return { ok: false, message: "Conta administrativa não encontrada." };
     if (newPassword.length < 10 || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword)) {
       return { ok: false, message: "Use ao menos 10 caracteres, uma letra maiúscula e um número." };
@@ -125,9 +124,9 @@ export const mockAuthService: AuthRepository = {
     const stored = "passwordHash" in user ? user as StoredPlatformUser : null;
     if (!stored?.passwordHash || await hashPassword(currentPassword) !== stored.passwordHash) return { ok: false, message: "A senha atual está incorreta." };
     if (currentPassword === newPassword) return { ok: false, message: "Escolha uma senha diferente da atual." };
-    const establishment = listAllEstablishments().find((item) => item.adminUserIds.includes(user.id));
-    if (!establishment) return { ok: false, message: "Estabelecimento administrativo não encontrado." };
-    const updated: StoredPlatformUser = { ...user, passwordHash: await hashPassword(newPassword), establishmentId: establishment.id };
+    const establishmentId = establishmentIdForAccount(user.id);
+    if (!establishmentId) return { ok: false, message: "Estabelecimento administrativo não encontrado." };
+    const updated: StoredPlatformUser = { ...user, passwordHash: await hashPassword(newPassword), establishmentId };
     if (!savePlatformUser(updated)) return { ok: false, message: "Não foi possível salvar a nova senha neste navegador." };
     return { ok: true };
   },

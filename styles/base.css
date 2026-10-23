@@ -1,7 +1,7 @@
 /* Agendito design foundations — semantic tokens and global accessibility. */
 :root {
   color-scheme: dark;
-  --font-sans: "Aptos", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-sans: var(--ag-font-family);
   --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
   --font-size-xs: .75rem;
   --font-size-sm: .875rem;
@@ -11,9 +11,21 @@
   --space-2: .5rem;
   --space-3: .75rem;
   --space-4: 1rem;
+  --space-5: 1.25rem;
   --space-6: 1.5rem;
+  --space-10: 2.5rem;
   --space-8: 2rem;
   --space-12: 3rem;
+  --ag-space-1: var(--space-1);
+  --ag-space-2: var(--space-2);
+  --ag-space-3: var(--space-3);
+  --ag-space-4: var(--space-4);
+  --ag-space-5: var(--space-5);
+  --ag-space-6: var(--space-6);
+  --ag-space-8: var(--space-8);
+  --ag-space-10: var(--space-10);
+  --ag-space-12: var(--space-12);
+  --ag-space-16: 4rem;
 
   --ag-bg: #101827;
   --ag-bg-secondary: #17263d;
@@ -36,6 +48,8 @@
   --ag-success: #79d9b5;
   --ag-warning: #f2c879;
   --ag-danger: #ff858b;
+  --ag-danger-surface: #49252f;
+  --ag-danger-border: rgba(255, 133, 139, .38);
   --ag-info: var(--ag-cyan);
   --ag-success-text: #9de8c9;
   --ag-warning-text: #f2d18f;
@@ -45,20 +59,92 @@
   --ag-glass-strong: rgba(28, 51, 82, .94);
   --ag-glass-dark: rgba(16, 24, 39, .88);
   --ag-line: rgba(187, 201, 220, .26);
+  --ag-line-strong: rgba(187, 201, 220, .48);
   --ag-line-dark: rgba(187, 201, 220, .2);
+  --ag-border-width: 1px;
+  --ag-border-width-accent: 2px;
+  --ag-border-default: var(--ag-border-width) solid var(--ag-line);
+  --ag-border-strong: var(--ag-border-width) solid var(--ag-line-strong);
+  --ag-surface-page: var(--ag-bg);
+  --ag-surface-raised: var(--ag-bg-secondary);
+  --ag-surface-card: var(--ag-glass);
+  --ag-surface-overlay: var(--ag-glass-strong);
+  --ag-surface-control: rgba(16, 24, 39, .68);
+  --ag-button-surface: linear-gradient(180deg, rgba(57, 121, 189, .38), rgba(23, 38, 61, .84));
+  --ag-button-primary-surface: var(--ag-primary);
+  --ag-button-secondary-surface: var(--ag-surface);
+  --ag-button-hover-surface: var(--ag-bg-secondary);
+  --ag-state-hover: rgba(102, 216, 232, .12);
+  --ag-state-active: rgba(57, 121, 189, .32);
+  --ag-state-focus: rgba(102, 216, 232, .2);
+  --ag-state-disabled: rgba(37, 51, 72, .82);
+  --ag-border-disabled: rgba(187, 201, 220, .16);
+  --ag-focus-outline: 2px solid var(--ag-cyan);
+  --ag-focus-outline-offset: 2px;
+  --ag-focus-ring: 0 0 0 3px var(--ag-state-focus);
   --ag-shadow: 0 24px 70px rgba(3, 9, 19, .42);
   --ag-shadow-small: 0 10px 28px rgba(3, 9, 19, .28);
+  --ag-shadow-card: 0 12px 32px rgba(3, 9, 19, .22);
+  --ag-shadow-dropdown: 0 18px 45px rgba(3, 9, 19, .34);
+  --ag-shadow-modal: 0 32px 90px rgba(3, 9, 19, .42);
+  --ag-shadow-button: 0 8px 24px rgba(3, 9, 19, .25);
+  --ag-shadow-button-primary: 0 4px 12px rgba(21, 80, 140, .22);
   --ag-r-xs: 10px;
   --ag-r-sm: 15px;
   --ag-r-md: 22px;
   --ag-r-lg: 30px;
   --ag-r-pill: 999px;
+  --ag-r-button: var(--ag-r-pill);
+  --ag-r-field: var(--ag-r-sm);
+  --ag-r-card: var(--ag-r-md);
+  --ag-r-modal: var(--ag-r-lg);
+  --ag-r-menu: 18px;
+  --ag-r-badge: var(--ag-r-pill);
+  --ag-height-button: 46px;
+  --ag-height-button-compact: 36px;
+  --ag-height-button-sm: 40px;
+  --ag-height-button-lg: 54px;
+  --ag-height-admin-header: 72px;
+  --ag-height-field: 48px;
+  --ag-height-field-input: 44px;
+  --ag-height-touch: 44px;
+  --ag-page-padding-inline: 16px;
+  --ag-page-padding-block: clamp(1rem, 2.6vw, 2.25rem);
+  --ag-card-padding: clamp(1rem, 2vw, 1.5rem);
+  --ag-stat-card-padding: var(--ag-space-4);
+  --ag-grid-gap: var(--ag-space-4);
+  --ag-section-gap: 1.5rem;
+  --ag-page-header-gap: 1rem;
+  --ag-content-width: 1440px;
+  --ag-sidebar-width: 274px;
+  --ag-sidebar-collapsed-width: 108px;
+  --ag-sidebar-padding: var(--ag-space-4);
+  --ag-navigation-item-height: 44px;
+  --ag-navigation-item-gap: var(--ag-space-2);
+  --ag-navigation-icon-size: 18px;
+  --ag-navigation-icon-gap: var(--ag-space-3);
+  --ag-navigation-item-padding: var(--ag-space-3);
+  --ag-navigation-item-radius: var(--ag-r-sm);
+  --ag-navigation-transition: var(--ag-motion) var(--ag-ease);
+  --ag-header-border: var(--ag-border-default);
+  --ag-header-padding-inline: var(--ag-space-4);
+  --ag-modal-max-height: min(90dvh, 850px);
+  --ag-table-min-width: 760px;
+  --ag-font-family: "Aptos", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --ag-font-size-page-title: clamp(1.25rem, 1.8vw, 1.65rem);
+  --ag-font-size-section-title: 1.25rem;
+  --ag-font-size-card-title: 1rem;
+  --ag-font-size-body: .875rem;
+  --ag-font-size-label: .75rem;
+  --ag-font-size-caption: .6875rem;
+  --ag-line-height-heading: 1.15;
+  --ag-line-height-body: 1.5;
   --ag-motion-fast: 140ms;
   --ag-motion: 230ms;
   --ag-motion-slow: 420ms;
   --ag-ease: cubic-bezier(.2, .75, .2, 1);
-  --ag-page-width: 1440px;
-  --ag-page-gutter: clamp(1rem, 3vw, 2.5rem);
+  --ag-page-width: var(--ag-content-width);
+  --ag-page-gutter: var(--ag-page-padding-inline);
 
   --ink: var(--ag-text);
   --ink-soft: var(--ag-text-secondary);
@@ -86,8 +172,8 @@
   --color-muted: var(--ag-text-secondary);
   --surface-solid: var(--ag-surface);
   --surface-muted: var(--ag-bg-secondary);
-  --border-subtle: rgba(187, 201, 220, .2);
-  --focus-ring: 0 0 0 3px rgba(102, 216, 232, .2);
+  --border-subtle: var(--ag-line-dark);
+  --focus-ring: var(--ag-focus-ring);
   --glass-white: 28 51 82;
   --glass-dark: 16 24 39;
   --glass-alpha: .76;
@@ -115,15 +201,39 @@
   --app-backdrop: linear-gradient(145deg, rgba(16, 24, 39, .92), rgba(16, 24, 39, .96)), url("/images/agendito-wallpaper.jpg") center / cover no-repeat;
 }
 
+@media (min-width: 600px) {
+  :root { --ag-page-padding-inline: 24px; }
+}
+
+@media (min-width: 1100px) {
+  :root { --ag-page-padding-inline: 32px; }
+}
+
 @theme inline {
+  --spacing: 0.25rem;
+  --font-sans: var(--ag-font-family);
+  --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  --radius-button: var(--ag-r-button);
+  --radius-field: var(--ag-r-field);
+  --radius-card: var(--ag-r-card);
+  --radius-modal: var(--ag-r-modal);
+  --shadow-card: var(--ag-shadow-card);
+  --shadow-dropdown: var(--ag-shadow-dropdown);
+  --shadow-modal: var(--ag-shadow-modal);
   --color-background: var(--ag-bg);
   --color-background-secondary: var(--ag-bg-secondary);
   --color-surface: var(--ag-surface);
+  --color-surface-raised: var(--ag-surface-raised);
+  --color-surface-overlay: var(--ag-surface-overlay);
+  --color-border: var(--ag-line);
+  --color-border-strong: var(--ag-line-strong);
   --color-primary: var(--ag-primary);
+  --color-primary-hover: var(--ag-primary-hover);
   --color-accent-cyan: var(--ag-cyan);
   --color-accent-lavender: var(--ag-lavender);
   --color-foreground: var(--ag-text);
   --color-muted: var(--ag-text-secondary);
+  --color-focus: var(--ag-cyan);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
@@ -148,7 +258,3 @@ button, a { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 ::selection { color: var(--ag-bg); background: var(--ag-cyan); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-}

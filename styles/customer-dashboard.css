@@ -1,0 +1,90 @@
+/* Customer home dashboard: light, compact information surfaces within the existing brand. */
+.customer-home-dashboard {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  min-width: 0;
+}
+
+.customer-home-dashboard .customer-page-intro { margin-bottom: 0; }
+
+.customer-home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+  align-items: stretch;
+  gap: clamp(.85rem, 1.6vw, 1.25rem);
+  min-width: 0;
+}
+
+.customer-home-next,
+.customer-home-activity {
+  min-width: 0;
+  padding: clamp(1rem, 2vw, 1.4rem);
+  border: 1px solid rgba(139, 166, 195, .3);
+  border-radius: 24px;
+  color: #243346;
+  background: linear-gradient(145deg, #fff 0%, #f7f9ff 62%, #f1f6ff 100%);
+  box-shadow: 0 18px 42px rgba(7, 19, 36, .14);
+}
+
+.customer-home-next { display: flex; flex-direction: column; gap: 1rem; }
+.customer-home-section-heading { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-width: 0; }
+.customer-home-section-heading > a { display: inline-flex; align-items: center; gap: .35rem; flex: 0 0 auto; color: #3978bc; font-size: .84rem; font-weight: 700; text-decoration: none; }
+.customer-home-kicker { display: inline-flex; align-items: center; gap: .45rem; color: #52708d; font-size: .7rem; font-weight: 800; letter-spacing: .09em; }
+.customer-home-next .customer-appointment-card { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 1rem; padding: 1rem; border: 1px solid #dce6f1; border-radius: 18px; color: #26384b; background: #fff; box-shadow: 0 8px 20px rgba(23, 51, 82, .06); }
+.customer-home-next .customer-appointment-content { min-width: 0; }
+.customer-home-next .customer-card-heading { align-items: flex-start; gap: .7rem; }
+.customer-home-next .customer-card-heading :is(h3,.eyebrow),
+.customer-home-next .customer-appointment-content > p,
+.customer-home-next .customer-appointment-content > strong { color: #26384b; }
+.customer-home-next .customer-appointment-content > p { display: flex; align-items: center; gap: .45rem; color: #60758d; }
+.customer-home-next .customer-appointment-content > strong { font-size: 1.05rem; }
+.customer-home-next .customer-establishment-mark { border: 0; border-radius: 16px; color: #fff; background: linear-gradient(145deg, #50c4e7, #4979e7 60%, #aa78e8); }
+.customer-home-next-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: auto; }
+.customer-home-next-actions > * { min-height: 44px; }
+.customer-home-empty { display: grid; align-content: center; justify-items: start; gap: .8rem; min-height: 230px; }
+.customer-home-empty h2 { max-width: 16ch; margin: 0; color: #223449; font-size: clamp(1.65rem, 3vw, 2.3rem); line-height: 1.08; letter-spacing: -.04em; }
+.customer-home-empty p { max-width: 44ch; margin: 0; color: #61758c; line-height: 1.55; }
+
+.customer-home-insights { display: grid; align-content: start; gap: .85rem; min-width: 0; }
+.customer-home-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; }
+.customer-home-metrics article { display: grid; align-content: start; gap: .3rem; min-width: 0; padding: .9rem .85rem; border: 1px solid #dde6f1; border-radius: 18px; color: #26384b; background: #fff; box-shadow: 0 8px 20px rgba(23, 51, 82, .06); }
+.customer-home-metrics article > span { display: flex; align-items: center; gap: .35rem; color: #647c96; font-size: .72rem; font-weight: 700; }
+.customer-home-metrics article > span svg { color: #6b79db; }
+.customer-home-metrics article > strong { color: #21344b; font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1; }
+.customer-home-metrics article > small { color: #73859a; font-size: .7rem; line-height: 1.3; }
+.customer-home-activity { padding: 1rem; }
+.customer-home-activity .customer-home-section-heading { align-items: flex-start; }
+.customer-home-activity h2 { max-width: 20ch; margin: .35rem 0 0; color: #26384b; font-size: 1.02rem; line-height: 1.25; }
+.customer-home-activity .customer-home-section-heading > a { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #dce6f1; border-radius: 12px; color: #5676cf; background: #fff; }
+.customer-home-chart { display: flex; align-items: end; justify-content: space-between; gap: .5rem; height: 142px; margin-top: 1rem; padding: .6rem .2rem 0; border-bottom: 1px solid #e3eaf3; }
+.customer-home-chart-column { display: grid; grid-template-rows: 18px minmax(0, 1fr) 20px; justify-items: center; align-items: end; gap: .3rem; width: 100%; height: 100%; min-width: 0; }
+.customer-home-chart-column > strong { color: #59718d; font-size: .7rem; }
+.customer-home-chart-column > span { display: flex; align-items: end; width: min(26px, 68%); height: 100%; }
+.customer-home-chart-column i { display: block; width: 100%; min-height: 6px; border-radius: 8px 8px 3px 3px; background: linear-gradient(180deg, #59c9e8, #6482eb 68%, #ad7ce9); box-shadow: 0 5px 12px rgba(98, 133, 224, .2); }
+.customer-home-chart-column > small { color: #8291a5; font-size: .68rem; text-transform: capitalize; }
+.customer-home-chart-empty { margin: 1.4rem 0 .35rem; color: #71839a; font-size: .84rem; line-height: 1.5; }
+.customer-home-dashboard > .customer-section { display: grid; gap: .75rem; min-width: 0; }
+.customer-home-dashboard > .customer-section .customer-section-heading { margin-bottom: 0; }
+
+@media (max-width: 920px) {
+  .customer-home-grid { grid-template-columns: minmax(0, 1fr); }
+  .customer-home-insights { grid-template-columns: minmax(0, 1fr) minmax(260px, .8fr); align-items: stretch; }
+  .customer-home-activity { display: flex; flex-direction: column; justify-content: space-between; }
+}
+
+@media (max-width: 560px) {
+  .customer-home-dashboard { gap: 1rem; }
+  .customer-home-next,
+  .customer-home-activity { padding: .9rem; border-radius: 20px; }
+  .customer-home-insights { grid-template-columns: minmax(0, 1fr); }
+  .customer-home-metrics { gap: .45rem; }
+  .customer-home-metrics article { padding: .7rem .55rem; border-radius: 15px; }
+  .customer-home-metrics article > span { align-items: flex-start; font-size: .65rem; }
+  .customer-home-metrics article > strong { font-size: 1.45rem; }
+  .customer-home-metrics article > small { font-size: .64rem; }
+  .customer-home-next .customer-appointment-card { grid-template-columns: 42px minmax(0, 1fr); gap: .65rem; padding: .75rem; }
+  .customer-home-next .customer-establishment-mark { width: 42px; height: 42px; }
+  .customer-home-next .customer-card-heading { flex-direction: column; }
+  .customer-home-next-actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .customer-home-next-actions > * { width: 100%; justify-content: center; }
+}

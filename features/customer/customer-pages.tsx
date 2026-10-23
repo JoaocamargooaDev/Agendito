@@ -3,12 +3,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, MapPin, UserRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Building2, CalendarDays, CalendarCheck2, Check, Clock3, History, MapPin, UserRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { GlassButton, GlassInput, GlassSurface } from "@/components/ui";
+import { PageHeader } from "@/components/admin/page-layout";
 import { useAuth } from "@/features/auth";
 import { formatCurrency } from "@/lib/utils";
-import { listAppointments, listBlockedPeriods } from "@/features/agenda";
+import { isActiveAppointmentStatus, listAppointments, listBlockedPeriods } from "@/features/agenda";
 import { getAvailableSlots, validateSlot } from "@/features/agenda/availability";
 import { getEmployee } from "@/features/employees";
 import { getService } from "@/features/services";
@@ -22,7 +23,7 @@ function dayLabel(value: string) { return new Intl.DateTimeFormat("pt-BR", { dat
 function statusLabel(status: Appointment["status"]) { return ({ SCHEDULED: "Agendado", CONFIRMED: "Confirmado", IN_PROGRESS: "Em atendimento", COMPLETED: "Concluído", CANCELLED: "Cancelado", NO_SHOW: "Não compareceu" })[status]; }
 function appointmentData(appointment: Appointment) { const establishment = listAllEstablishments().find((item) => item.id === appointment.establishmentId); return { establishment, employee: employeeNameForAppointment(appointment) }; }
 function AppointmentCard({ appointment, onCancel }: { appointment: Appointment; onCancel?: (appointment: Appointment) => void }) { const { establishment, employee } = appointmentData(appointment); if (!establishment) return null; return <article className="customer-appointment-card"><div className="customer-establishment-mark">{establishment.logoUrl ? <img src={establishment.logoUrl} alt="" /> : establishment.name.slice(0, 1)}</div><div className="customer-appointment-content"><div className="customer-card-heading"><div><span className="eyebrow">{establishment.name}</span><h3>{appointment.serviceNameSnapshot}</h3></div><span className={`customer-status status-${appointment.status.toLowerCase()}`}>{statusLabel(appointment.status)}</span></div><p><CalendarDays size={15} />{dateLabel(appointment.startsAt, establishment.timezone)}</p><p><UserRound size={15} />{employee} · {appointment.durationMinutesSnapshot} min</p><strong>{formatCurrency(appointment.priceInCentsSnapshot)}</strong><div className="customer-card-actions"><GlassButton asChild variant="quiet" size="sm"><Link href={`/customer/appointments/${appointment.id}`}>Ver detalhes</Link></GlassButton>{onCancel && <GlassButton variant="quiet" size="sm" onClick={() => onCancel(appointment)}>Cancelar</GlassButton>}</div></div></article>; }
-function PageIntro({ eyebrow, title, description }: { eyebrow: string; title: string; description?: string }) { return <div className="customer-page-intro"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1>{description && <p>{description}</p>}</div>; }
+function PageIntro({ eyebrow, title, description }: { eyebrow: string; title: string; description?: string }) { return <PageHeader variant="content" className="customer-page-intro" eyebrow={eyebrow} title={title} description={description} />; }
 function Empty({ message, action }: { message: string; action?: React.ReactNode }) { return <GlassSurface material="frosted" className="customer-empty"><p>{message}</p>{action}</GlassSurface>; }
 
 export function CustomerHome() {
@@ -36,22 +37,52 @@ export function CustomerHome() {
     return () => window.removeEventListener("agendito:agenda-updated", handler);
   }, [user]);
   const upcoming = items
-    .filter((item) => ["SCHEDULED", "CONFIRMED", "IN_PROGRESS"].includes(item.status) && new Date(item.startsAt) >= new Date())
+    .filter((item) => isActiveAppointmentStatus(item.status) && new Date(item.startsAt) >= new Date())
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const recent = items
     .filter((item) => item.status === "COMPLETED")
     .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
     .slice(0, 3);
-  return <>
-    <PageIntro eyebrow="Área do cliente" title={`Olá, ${user?.name?.split(" ")[0] ?? "cliente"}.`} description="Confira seus próximos horários e seu histórico no Agendito." />
-    {upcoming[0] ? <section className="customer-featured">
-      <span className="eyebrow">Próximo agendamento</span>
-      <AppointmentCard appointment={upcoming[0]} />
-      <div className="customer-inline-actions">
-        <GlassButton asChild variant="primary"><Link href={`/customer/appointments/${upcoming[0].id}`}>Ver detalhes <ArrowRight size={16} /></Link></GlassButton>
-        <GlassButton asChild variant="quiet"><Link href={`/e/${appointmentData(upcoming[0]).establishment?.slug ?? ""}`}>Ver estabelecimento</Link></GlassButton>
-      </div>
-    </section> : <Empty message="Você ainda não possui próximos agendamentos." action={publicEstablishment ? <GlassButton asChild variant="primary"><Link href={`/e/${publicEstablishment.slug}/booking`}>Agendar um horário</Link></GlassButton> : <span>Não há estabelecimentos disponíveis para agendamento no momento.</span>} />}
+  const completed = items.filter((item) => item.status === "COMPLETED");
+  const visitedEstablishments = new Set(completed.map((item) => item.establishmentId)).size;
+  const monthActivity = Array.from({ length: 6 }, (_, index) => {
+    const month = new Date();
+    month.setDate(1);
+    month.setMonth(month.getMonth() - (5 - index));
+    const count = completed.filter((item) => {
+      const date = new Date(item.startsAt);
+      return date.getFullYear() === month.getFullYear() && date.getMonth() === month.getMonth();
+    }).length;
+    return { label: new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(month).replace(".", ""), count };
+  });
+  const maximumActivity = Math.max(1, ...monthActivity.map((month) => month.count));
+  return <div className="customer-home-dashboard">
+    <PageIntro eyebrow="Seu espaço Agendito" title={`Olá, ${user?.name?.split(" ")[0] ?? "cliente"}.`} description="Sua rotina de cuidados, em um só lugar." />
+    <div className="customer-home-grid">
+      <section className="customer-home-next">
+        {upcoming[0] ? <>
+          <div className="customer-home-section-heading"><span className="customer-home-kicker"><CalendarCheck2 size={15} /> SEU PRÓXIMO HORÁRIO</span><Link href="/customer/appointments">Ver agenda <ArrowRight size={15} /></Link></div>
+          <AppointmentCard appointment={upcoming[0]} />
+          <div className="customer-home-next-actions">
+            <GlassButton asChild variant="primary"><Link href={`/customer/appointments/${upcoming[0].id}`}>Abrir agendamento <ArrowRight size={16} /></Link></GlassButton>
+            {appointmentData(upcoming[0]).establishment?.slug && <GlassButton asChild variant="quiet"><Link href={`/e/${appointmentData(upcoming[0]).establishment.slug}`}>Ver estabelecimento</Link></GlassButton>}
+          </div>
+        </> : <div className="customer-home-empty"><span className="customer-home-kicker"><CalendarDays size={15} /> SUA AGENDA</span><h2>Seu próximo momento começa aqui.</h2><p>Escolha um serviço e encontre um horário que combine com a sua rotina.</p>{publicEstablishment ? <GlassButton asChild variant="primary"><Link href={`/e/${publicEstablishment.slug}`}>Explorar estabelecimento <ArrowRight size={16} /></Link></GlassButton> : <span>Não há estabelecimentos disponíveis para agendamento no momento.</span>}</div>}
+      </section>
+      <aside className="customer-home-insights" aria-label="Resumo da sua atividade">
+        <div className="customer-home-metrics">
+          <article><span><CalendarDays size={16} /> Próximos</span><strong>{upcoming.length}</strong><small>{upcoming.length === 1 ? "horário reservado" : "horários reservados"}</small></article>
+          <article><span><History size={16} /> Concluídos</span><strong>{completed.length}</strong><small>{completed.length === 1 ? "atendimento" : "atendimentos"}</small></article>
+          <article><span><Building2 size={16} /> Espaços visitados</span><strong>{visitedEstablishments}</strong><small>{visitedEstablishments === 1 ? "estabelecimento" : "estabelecimentos"}</small></article>
+        </div>
+        <section className="customer-home-activity">
+          <div className="customer-home-section-heading"><div><span className="customer-home-kicker">SUA JORNADA</span><h2>Atendimentos ao longo do tempo</h2></div><Link href="/customer/history" aria-label="Abrir histórico"><ArrowUpRight size={18} /></Link></div>
+          {completed.length ? <div className="customer-home-chart" role="img" aria-label={`Atendimentos concluídos nos últimos seis meses: ${monthActivity.map((month) => `${month.label}: ${month.count}`).join(", ")}`}>
+            {monthActivity.map((month) => <div className="customer-home-chart-column" key={`${month.label}-${month.count}`}><strong>{month.count || ""}</strong><span><i style={{ height: `${Math.max(6, (month.count / maximumActivity) * 100)}%` }} /></span><small>{month.label}</small></div>)}
+          </div> : <p className="customer-home-chart-empty">Seus atendimentos concluídos aparecerão aqui.</p>}
+        </section>
+      </aside>
+    </div>
     {upcoming.length > 1 && <section className="customer-section">
       <div className="customer-section-heading"><div><span className="eyebrow">A seguir</span><h2>Próximos compromissos</h2></div><Link href="/customer/appointments">Ver todos</Link></div>
       {upcoming.slice(1, 4).map((item) => <AppointmentCard key={item.id} appointment={item} />)}
@@ -60,7 +91,7 @@ export function CustomerHome() {
       <div className="customer-section-heading"><div><span className="eyebrow">Memórias</span><h2>Histórico recente</h2></div><Link href="/customer/history">Ver histórico</Link></div>
       {recent.map((item) => <AppointmentCard key={item.id} appointment={item} />)}
     </section>}
-  </>;
+  </div>;
 }
 export function CustomerAppointments() { const { user } = useAuth(); const [filter, setFilter] = useState<"all" | "confirmed">("all"); const [items, setItems] = useState<Appointment[]>([]); const [feedback, setFeedback] = useState(""); useEffect(() => { if (user?.customer) setItems(customerAppointments(user.customer.id)); const handler = () => user?.customer && setItems(customerAppointments(user.customer.id)); window.addEventListener("agendito:agenda-updated", handler); return () => window.removeEventListener("agendito:agenda-updated", handler); }, [user]); const upcoming = items.filter((item) => ["SCHEDULED", "CONFIRMED", "IN_PROGRESS"].includes(item.status) && new Date(item.startsAt) >= new Date()).filter((item) => filter === "all" || item.status === "CONFIRMED").sort((a, b) => a.startsAt.localeCompare(b.startsAt)); function cancel(item: Appointment) { if (!user?.customer) return; const result = cancelOwnedAppointment(user.customer.id, item.id); setFeedback(result.ok ? "Agendamento cancelado." : result.reason ?? "Não foi possível cancelar."); if (result.ok) setItems(customerAppointments(user.customer.id)); } return <><PageIntro eyebrow="Sua agenda" title="Meus agendamentos" description="Acompanhe compromissos em todos os estabelecimentos que você utiliza." /><div className="customer-filter-row"><button className={filter === "all" ? "is-selected" : ""} onClick={() => setFilter("all")}>Todos</button><button className={filter === "confirmed" ? "is-selected" : ""} onClick={() => setFilter("confirmed")}>Confirmados</button></div>{feedback && <p className="customer-feedback" role="status">{feedback}</p>}{upcoming.length ? <div className="customer-list">{upcoming.map((item) => <AppointmentCard appointment={item} onCancel={item.status !== "IN_PROGRESS" ? cancel : undefined} key={item.id} />)}</div> : <Empty message="Você não possui próximos agendamentos." />}</>; }
 export function CustomerHistory() { const { user } = useAuth(); const items = user?.customer ? customerHistory(user.customer.id) : []; return <><PageIntro eyebrow="Seu histórico" title="Atendimentos anteriores" description="Veja seus serviços realizados, cancelamentos e faltas." />{items.length ? <div className="customer-list">{items.map((item) => <AppointmentCard appointment={item} key={item.id} />)}</div> : <Empty message="Seu histórico aparecerá aqui depois do primeiro atendimento." />}</>; }

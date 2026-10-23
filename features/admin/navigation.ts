@@ -1,4 +1,4 @@
-import { BarChart3, CalendarDays, Cog, Scissors, Users, UsersRound, type LucideIcon } from "lucide-react";
+import { BarChart3, CalendarDays, Cog, Globe2, Scissors, Sparkles, Users, UsersRound, type LucideIcon } from "lucide-react";
 import type { UserRole } from "@/types";
 
 export interface AdminNavItem {
@@ -16,6 +16,8 @@ export const adminNavigation: AdminNavItem[] = [
   { id: "customers", title: "Clientes", path: "/customers", icon: Users, roles: ["ADMIN"] },
   { id: "employees", title: "Equipe", path: "/employees", icon: UsersRound, roles: ["ADMIN"] },
   { id: "services", title: "Serviços", path: "/services", icon: Scissors, roles: ["ADMIN"] },
+  { id: "my-page", title: "Minha página", path: "/my-page", icon: Globe2, roles: ["ADMIN"] },
+  { id: "features", title: "Recursos", path: "/features", icon: Sparkles, roles: ["ADMIN"] },
   { id: "settings", title: "Configurações", path: "/settings", icon: Cog, roles: ["ADMIN"] },
 ];
 

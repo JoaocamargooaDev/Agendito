@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { ArrowRight, Mail, Phone, UserRound } from "lucide-react";
-import { GlassButton, GlassInput } from "@/components/ui";
+import { CheckboxField, GlassButton, GlassInput } from "@/components/ui";
 import { AuthFeedback, PasswordField } from "@/components/auth";
 import { useAuth, getReturnPathFromLocation } from "@/features/auth";
 
@@ -38,7 +38,7 @@ export function CustomerRegistrationForm() {
     <GlassInput label="E-mail" type="email" autoComplete="email" value={form.email} onChange={(event) => update("email", event.target.value)} error={fieldErrors.email} placeholder="voce@exemplo.com" leadingIcon={<Mail size={16} />} required />
     <PasswordField label="Senha" autoComplete="new-password" value={form.password} onChange={(event) => update("password", event.target.value)} error={fieldErrors.password} placeholder="Crie uma senha segura" required hint="Mínimo de 8 caracteres, com uma maiúscula e um número." />
     <PasswordField label="Confirmar senha" autoComplete="new-password" value={form.confirmPassword} onChange={(event) => update("confirmPassword", event.target.value)} error={fieldErrors.confirmPassword} placeholder="Repita sua senha" required />
-    <label className="check-control terms-control"><input type="checkbox" checked={terms} onChange={(event) => setTerms(event.target.checked)} /> <span>Li e aceito os termos de uso.</span></label>{fieldErrors.terms && <span className="field-message field-message-error">{fieldErrors.terms}</span>}
+    <CheckboxField className="terms-control" label="Li e aceito os termos de uso." checked={terms} onChange={(event) => setTerms(event.target.checked)} error={fieldErrors.terms} />
     <GlassButton type="submit" variant="primary" size="lg" loading={submitting} className="auth-submit">Criar conta <ArrowRight size={17} /></GlassButton>
     <p className="auth-switch">Já possui uma conta? <Link href="/login">Entrar</Link></p>
   </form>;
