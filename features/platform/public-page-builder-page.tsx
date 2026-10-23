@@ -14,6 +14,7 @@ import type { PageDesignConfig, PublicSectionId } from "@/types";
 import type { PlatformEstablishmentRecord } from "./repository-contracts";
 import { applyPublicPageTemplate, applySavedPublicPageTemplate, getCatalogTemplateId, listSavedPublicPageTemplates, PUBLIC_PAGE_TEMPLATES, savePublicPageTemplate, type SavedPublicPageTemplate } from "@/features/platform/public-page-templates";
 import { PLATFORM_PAGE_PREVIEW_ESTABLISHMENT, PLATFORM_PAGE_PREVIEW_OPERATIONAL_DATA } from "@/features/platform/public-page-preview-data";
+import { safePublicImageReference } from "@/features/public-establishment/theme";
 
 type EditorTab = "templates" | "identity" | "sections" | "booking";
 type PreviewSize = "desktop" | "tablet" | "mobile";
@@ -33,7 +34,7 @@ export function PublicPageBuilderPage({ establishmentId }: { establishmentId: st
   const [previewSize, setPreviewSize] = useState<PreviewSize>("desktop");
   const [feedback, setFeedback] = useState("");
   const [feedbackError, setFeedbackError] = useState(false);
-  const [galleryInput, setGalleryInput] = useState("");
+  const [galleryInput, setGalleryInput] = useState<string | null>(null);
   const [faqQuestion, setFaqQuestion] = useState("");
   const [faqAnswer, setFaqAnswer] = useState("");
   const [savedTemplates, setSavedTemplates] = useState<SavedPublicPageTemplate[]>([]);
@@ -63,26 +64,45 @@ export function PublicPageBuilderPage({ establishmentId }: { establishmentId: st
   }
   function announce(message: string, error = false) { setFeedback(message); setFeedbackError(error); }
 
+  function validateDraft() {
+    if (!draft) return null;
+    if (!draft.heroTitle.trim() || !draft.publicName?.trim()) { announce("Informe o nome público e o título principal.", true); return null; }
+    if (draft.publicName.length > 80 || draft.heroTitle.length > 120 || draft.heroSubtitle.length > 280 || draft.aboutText.length > 2000 || (draft.bookingButtonLabel?.length ?? 0) > 40 || (draft.faq ?? []).some((item) => item.question.length > 140 || item.answer.length > 800)) {
+      announce("Revise os textos: alguns ultrapassam o limite permitido.", true); return null;
+    }
+    if (![draft.backgroundColor, draft.primaryColor, draft.secondaryColor, draft.buttonColor].every((color) => !color || isColor(color))) { announce("Revise as cores: use o formato hexadecimal, como #3979bd.", true); return null; }
+    const gallery = galleryInput === null ? draft.galleryImages ?? [] : parseGallery(galleryInput);
+    if (!gallery) { announce("Use até 12 imagens válidas. Aceitamos links HTTPS ou caminhos locais de imagem.", true); return null; }
+    const images = [draft.logoUrl, draft.profileImageUrl, draft.coverUrl, draft.backgroundImageUrl, ...gallery];
+    if (images.some((image) => image && !safePublicImageReference(image))) { announce("Revise as imagens: use HTTPS, um caminho local ou envie um arquivo de imagem.", true); return null; }
+    return { ...draft, galleryImages: gallery };
+  }
+
   function saveDraft() {
-    if (!establishment || !draft) return;
-    if (!draft.heroTitle.trim() || !draft.publicName?.trim()) { announce("Informe o título principal e o nome público.", true); return; }
-    if (![draft.backgroundColor, draft.primaryColor, draft.secondaryColor, draft.buttonColor].every((color) => !color || isColor(color))) { announce("Revise as cores: use o formato hexadecimal, como #3979bd.", true); return; }
-    const saved = savePublicPageDraft(establishment, draft);
+    if (!establishment) return;
+    const content = validateDraft();
+    if (!content) return;
+    const saved = savePublicPageDraft(establishment, content);
     if (!saved) { announce("Não foi possível salvar o rascunho neste navegador.", true); return; }
     recordPlatformAction(establishment, "Rascunho da página pública salvo");
     setStatus(saved.status ?? "DRAFT");
     setPublished(getPlatformPublishedPageContent(saved));
+    setDraft(content);
+    setGalleryInput(null);
     announce("Rascunho salvo. A página pública continua com a última versão publicada.");
   }
 
   function publish() {
-    if (!establishment || !draft) return;
-    if (!draft.heroTitle.trim() || !draft.publicName?.trim()) { announce("Informe o título principal e o nome público antes de publicar.", true); return; }
-    const saved = publishPublicPageDraft(establishment, draft);
+    if (!establishment) return;
+    const content = validateDraft();
+    if (!content) return;
+    const saved = publishPublicPageDraft(establishment, content);
     if (!saved) { announce("Não foi possível publicar as alterações neste navegador.", true); return; }
     recordPlatformAction(establishment, "Alterações da página pública publicadas");
     setStatus("PUBLISHED");
     setPublished(getPlatformPublishedPageContent(saved));
+    setDraft(content);
+    setGalleryInput(null);
     announce("Alterações publicadas. A página pública já usa esta versão.");
   }
 
@@ -98,7 +118,15 @@ export function PublicPageBuilderPage({ establishmentId }: { establishmentId: st
   async function restoreDefaults() {
     if (!establishment || !await confirm({ title: "Restaurar configurações padrão?", description: "O rascunho atual será substituído, mas a versão publicada continuará intacta até você publicar novamente.", destructive: true, confirmLabel: "Restaurar padrão" })) return;
     setDraft(createDefaultPageDesignConfig(establishment));
+    setGalleryInput(null);
     announce("Configuração padrão carregada no editor. Salve como rascunho ou publique para aplicar.");
+  }
+
+  async function restorePublishedDraft() {
+    if (!published || !await confirm({ title: "Restaurar a versão publicada?", description: "A versão publicada será copiada para o rascunho. Nada muda para os clientes até você publicar novamente.", confirmLabel: "Restaurar rascunho" })) return;
+    setDraft({ ...published, sections: published.sections?.map((section) => ({ ...section })), galleryImages: [...(published.galleryImages ?? [])], faq: [...(published.faq ?? [])] });
+    setGalleryInput(null);
+    announce("Versão publicada restaurada no rascunho. Publique para aplicar novamente.");
   }
 
   function duplicateFrom(sourceId: string) {
@@ -109,17 +137,25 @@ export function PublicPageBuilderPage({ establishmentId }: { establishmentId: st
     announce(`Configuração visual copiada de ${source.name}. As imagens e a estrutura agora podem ser ajustadas para este estabelecimento.`);
   }
 
-  async function uploadImage(file: File | undefined, field: "logoUrl" | "coverUrl") {
+  async function uploadImage(file: File | undefined, field: "logoUrl" | "profileImageUrl" | "coverUrl" | "backgroundImageUrl") {
     if (!file) return;
+    if (!["image/png", "image/jpeg", "image/webp", "image/gif", "image/avif"].includes(file.type)) { announce("Escolha uma imagem PNG, JPEG, WebP, GIF ou AVIF.", true); return; }
     if (file.size > 700_000) { announce("Escolha uma imagem de até 700 KB para manter o armazenamento local disponível.", true); return; }
     const data = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Arquivo inválido")); reader.onerror = () => reject(reader.error); reader.readAsDataURL(file); }).catch(() => null);
     if (!data) { announce("Não foi possível carregar esta imagem.", true); return; }
-    update({ [field]: data }); announce("Imagem carregada. Salve como rascunho para manter a alteração.");
+    if (!safePublicImageReference(data)) { announce("Este arquivo de imagem não pôde ser validado.", true); return; }
+    update({ [field]: data }); announce("Imagem carregada e aplicada à prévia. Salve como rascunho para manter a alteração.");
   }
 
-  function setGallery() {
-    const urls = galleryInput.split("\n").map((value) => value.trim()).filter(Boolean).slice(0, 12);
-    update({ galleryImages: urls }); announce(`${urls.length} imagem(ns) de apresentação adicionada(s) ao rascunho.`);
+  function parseGallery(value: string) {
+    const urls = value.split("\n").map((item) => item.trim()).filter(Boolean);
+    return urls.length <= 12 && urls.every((item) => Boolean(safePublicImageReference(item))) ? urls : null;
+  }
+
+  function setGallery(value = galleryInput ?? draft?.galleryImages?.join("\n") ?? "") {
+    const urls = parseGallery(value);
+    if (!urls) { announce("Use até 12 imagens válidas. Aceitamos links HTTPS ou caminhos locais de imagem.", true); return; }
+    update({ galleryImages: urls }); setGalleryInput(null); announce(`${urls.length} imagem(ns) de apresentação adicionada(s) à prévia.`);
   }
 
   function addFaq() {
@@ -142,6 +178,7 @@ export function PublicPageBuilderPage({ establishmentId }: { establishmentId: st
   function applyPendingTemplate() {
     if (!pendingTemplate || !draft) return;
     setDraft(pendingTemplate.apply(draft));
+    setGalleryInput(null);
     announce(`Template “${pendingTemplate.name}” aplicado ao rascunho. Sua identidade e os dados do estabelecimento foram preservados.`);
     setPendingTemplate(null);
   }
@@ -201,9 +238,11 @@ export function PublicPageBuilderPage({ establishmentId }: { establishmentId: st
             <GlassInput label="Título principal" value={draft.heroTitle} onChange={(event) => update({ heroTitle: event.target.value })} />
             <GlassInput label="Subtítulo" value={draft.heroSubtitle} onChange={(event) => update({ heroSubtitle: event.target.value })} />
             <label className="page-builder-field"><span>Descrição comercial</span><textarea rows={4} value={draft.aboutText} onChange={(event) => update({ aboutText: event.target.value })} /></label>
-            <div className="page-builder-media-row"><GlassInput label="URL do logotipo" value={draft.logoUrl ?? ""} onChange={(event) => update({ logoUrl: event.target.value })} placeholder="https://... ou /imagens/logo.png" /><label className="page-builder-upload"><Upload size={15} />Enviar<input type="file" accept="image/*" onChange={(event) => void uploadImage(event.target.files?.[0], "logoUrl")} /></label></div>
-            <div className="page-builder-media-row"><GlassInput label="Imagem de capa" value={draft.coverUrl ?? ""} onChange={(event) => update({ coverUrl: event.target.value })} placeholder="https://... ou /imagens/capa.jpg" /><label className="page-builder-upload"><Upload size={15} />Enviar<input type="file" accept="image/*" onChange={(event) => void uploadImage(event.target.files?.[0], "coverUrl")} /></label></div>
-            <label className="page-builder-field"><span>Imagens de apresentação (uma URL por linha)</span><textarea rows={3} value={galleryInput || draft.galleryImages?.join("\n") || ""} onChange={(event) => setGalleryInput(event.target.value)} onBlur={setGallery} placeholder="https://..." /></label>
+            <div className="page-builder-media-row"><GlassInput label="URL do logotipo" value={draft.logoUrl ?? ""} onChange={(event) => update({ logoUrl: event.target.value })} placeholder="https://... ou /imagens/logo.png" /><label className="page-builder-upload"><Upload size={15} />Enviar<input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" onChange={(event) => void uploadImage(event.target.files?.[0], "logoUrl")} /></label></div>
+            <div className="page-builder-media-row"><GlassInput label="Imagem de perfil" value={draft.profileImageUrl ?? ""} onChange={(event) => update({ profileImageUrl: event.target.value })} placeholder="https://... ou /imagens/perfil.jpg" /><label className="page-builder-upload"><Upload size={15} />Enviar<input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" onChange={(event) => void uploadImage(event.target.files?.[0], "profileImageUrl")} /></label></div>
+            <div className="page-builder-media-row"><GlassInput label="Imagem de capa" value={draft.coverUrl ?? ""} onChange={(event) => update({ coverUrl: event.target.value })} placeholder="https://... ou /imagens/capa.jpg" /><label className="page-builder-upload"><Upload size={15} />Enviar<input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" onChange={(event) => void uploadImage(event.target.files?.[0], "coverUrl")} /></label></div>
+            <div className="page-builder-media-row"><GlassInput label="Imagem de fundo" value={draft.backgroundImageUrl ?? ""} onChange={(event) => update({ backgroundImageUrl: event.target.value })} placeholder="https://... ou /imagens/fundo.jpg" /><label className="page-builder-upload"><Upload size={15} />Enviar<input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" onChange={(event) => void uploadImage(event.target.files?.[0], "backgroundImageUrl")} /></label></div>
+            <label className="page-builder-field"><span>Imagens de apresentação (uma URL por linha)</span><textarea rows={3} value={galleryInput ?? draft.galleryImages?.join("\n") ?? ""} onChange={(event) => setGalleryInput(event.target.value)} onBlur={(event) => setGallery(event.currentTarget.value)} placeholder="https://..." /></label>
             <div className="page-builder-color-grid"><GlassInput type="color" label="Cor principal" value={draft.primaryColor ?? "#3f5845"} onChange={(event) => update({ primaryColor: event.target.value })} /><GlassInput type="color" label="Cor secundária" value={draft.secondaryColor ?? "#758276"} onChange={(event) => update({ secondaryColor: event.target.value })} /><GlassInput type="color" label="Fundo" value={draft.backgroundColor} onChange={(event) => update({ backgroundColor: event.target.value })} /><GlassInput type="color" label="Botões" value={draft.buttonColor ?? draft.primaryColor ?? "#3f5845"} onChange={(event) => update({ buttonColor: event.target.value })} /></div>
             <GlassSelect label="Modelo de página" value={getCatalogTemplateId(draft.template)} onChange={(event) => update(applyPublicPageTemplate(draft, event.target.value as "essential" | "premium" | "professionals" | "services" | "clinic"))} options={PUBLIC_PAGE_TEMPLATES.map(({ id, name }) => ({ value: id, label: name }))} />
             <GlassSelect label="Paleta base" value={draft.palette} onChange={(event) => { const palette = event.target.value as keyof typeof paletteColors; const [primaryColor, secondaryColor] = paletteColors[palette]; update({ palette, primaryColor, secondaryColor, buttonColor: primaryColor }); }} options={[{ value: "moss", label: "Verde natural" }, { value: "copper", label: "Terracota" }, { value: "sand", label: "Areia" }, { value: "ink", label: "Grafite" }, { value: "sage", label: "Sálvia" }]} />
@@ -211,7 +250,7 @@ export function PublicPageBuilderPage({ establishmentId }: { establishmentId: st
             <GlassSelect label="Estilo dos cartões" value={draft.cardStyle ?? "glass"} onChange={(event) => update({ cardStyle: event.target.value as PageDesignConfig["cardStyle"] })} options={[{ value: "glass", label: "Vidro" }, { value: "solid", label: "Sólido" }, { value: "outline", label: "Contornado" }]} />
             <GlassSelect label="Espaçamento das seções" value={draft.sectionSpacing ?? "comfortable"} onChange={(event) => update({ sectionSpacing: event.target.value as PageDesignConfig["sectionSpacing"] })} options={[{ value: "compact", label: "Compacto" }, { value: "comfortable", label: "Confortável" }, { value: "airy", label: "Amplo" }]} />
             <label className="page-builder-field"><span>Arredondamento: {draft.cornerRadius ?? 20}px</span><input type="range" min={0} max={36} step={2} value={draft.cornerRadius ?? 20} onChange={(event) => update({ cornerRadius: Number(event.target.value) })} /></label>
-            <GlassButton variant="quiet" onClick={restoreDefaults}><RotateCcw size={15} />Restaurar configuração padrão</GlassButton>
+            <div className="page-builder-identity-actions"><GlassButton variant="quiet" onClick={restoreDefaults}><RotateCcw size={15} />Restaurar configuração padrão</GlassButton><GlassButton variant="quiet" onClick={restorePublishedDraft} disabled={!published}><RotateCcw size={15} />Restaurar versão publicada</GlassButton></div>
           </GlassSurface>
           <GlassSurface material="frosted" className="page-builder-panel"><h2>Reaproveitar aparência</h2><p>Copie a estrutura e identidade visual. Informações e configurações do estabelecimento de destino permanecem vinculadas a ele.</p><div className="page-builder-duplicate-list">{listPlatformEstablishments().filter((item) => item.id !== establishment.id).map((item) => <GlassButton key={item.id} variant="quiet" onClick={() => duplicateFrom(item.id)}>{item.name} · Copiar visual</GlassButton>)}</div></GlassSurface>
         </div>}

@@ -1675,6 +1675,7 @@ body .agendito-app-layer :is(h1, h2, h3, h4, h5, h6) {
 .page-builder-saved-template-list article { padding: .65rem .75rem; border: 1px solid var(--ag-line); border-radius: 11px; background: rgba(10,20,36,.24); }
 .page-builder-saved-template-list article>div:first-child { display: grid; gap: .15rem; }
 .page-builder-media-row { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: .45rem; }
+.page-builder-identity-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 .page-builder-upload { position: relative; display: inline-flex; align-items: center; gap: .35rem; min-height: 42px; padding: .55rem .7rem; border: 1px solid var(--ag-line); border-radius: 12px; color: var(--ag-text); font-size: .74rem; cursor: pointer; }
 .page-builder-upload input { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
 .page-builder-color-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .6rem; }

@@ -7,7 +7,7 @@ import { GlassButton, GlassSurface } from "@/components/ui";
 import type { EstablishmentOperationalData, PageDesignConfig } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 import type { Establishment } from "@/types";
-import { getPublicThemeTokens, isPublicThemeDark } from "./theme";
+import { getPublicThemeTokens, isPublicThemeDark, safePublicImageReference } from "./theme";
 
 type EstablishmentPublicProfile = Pick<Establishment, "id" | "name" | "slug" | "description" | "logoUrl" | "coverUrl" | "phone" | "instagram" | "address">;
 
@@ -32,7 +32,7 @@ function PublicHeader({ establishment, config, compact, bookingAllowed }: { esta
   return <header className={`public-header ${compact ? "public-header-compact" : ""}`}>
     <div className="public-glass-bar">
       <Link href={`/e/${establishment.slug}`} className="public-brand">
-        <span className="public-brand-mark">{(config?.logoUrl ?? establishment.logoUrl) ? <img src={config?.logoUrl ?? establishment.logoUrl} alt="" /> : initials(config?.publicName || establishment.name)}</span>
+        <span className="public-brand-mark">{safePublicImageReference(config?.logoUrl ?? establishment.logoUrl) ? <img src={safePublicImageReference(config?.logoUrl ?? establishment.logoUrl)} alt="" /> : initials(config?.publicName || establishment.name)}</span>
         <span>{config?.publicName || establishment.name}</span>
       </Link>
       <nav className={`public-nav ${open ? "is-open" : ""}`} aria-label="Navegação pública">
@@ -52,12 +52,12 @@ function StoreProfile({ establishment, config, bookingAllowed, hasServices, styl
   const location = [establishment.address.city, establishment.address.district].filter(Boolean).join(" · ");
   const title = config?.heroTitle || establishment.name;
   const subtitle = config?.heroSubtitle || establishment.description;
-  const coverUrl = config?.coverUrl ?? establishment.coverUrl;
-  const logoUrl = config?.logoUrl ?? establishment.logoUrl;
+  const coverUrl = safePublicImageReference(config?.coverUrl ?? establishment.coverUrl);
+  const profileImageUrl = safePublicImageReference(config?.profileImageUrl ?? config?.logoUrl ?? establishment.logoUrl);
   return <section className="store-profile" aria-labelledby="store-title" style={style}>
     <div className="store-cover" role="img" aria-label={coverUrl ? `Capa de ${establishment.name}` : `Capa ilustrativa de ${establishment.name}`} style={coverUrl ? { backgroundImage: `url("${coverUrl}")` } : undefined} />
     <div className="store-avatar" role="img" aria-label={`Foto ou logo de ${establishment.name}`}>
-      {logoUrl ? <img src={logoUrl} alt="" /> : <span>{initials(establishment.name)}</span>}
+      {profileImageUrl ? <img src={profileImageUrl} alt="" /> : <span>{initials(establishment.name)}</span>}
     </div>
     <div className="store-profile-copy">
       <span className="eyebrow">{config?.publicName || "Estabelecimento no Agendito"}</span>

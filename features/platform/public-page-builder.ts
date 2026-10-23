@@ -29,7 +29,7 @@ export function createDefaultPageDesignConfig(establishment: PageEstablishmentCo
     template: "editorial", palette: "moss", heroTitle: establishment.name, publicName: establishment.name,
     heroSubtitle: establishment.description, aboutText: establishment.description, backgroundColor: "#f4f2ec",
     primaryColor: "#3f5845", secondaryColor: "#758276", buttonColor: "#3f5845", logoUrl: establishment.logoUrl,
-    coverUrl: establishment.coverUrl, cardStyle: "glass", typography: "modern", cornerRadius: 20,
+    profileImageUrl: establishment.logoUrl, coverUrl: establishment.coverUrl, cardStyle: "glass", typography: "modern", cornerRadius: 20,
     sectionSpacing: "comfortable", sections: DEFAULT_PUBLIC_PAGE_SECTIONS.map((section) => section.id === "hero" ? { ...section, title: establishment.name, description: establishment.description } : section.id === "footer" ? { ...section, title: establishment.name } : { ...section }),
     galleryImages: [], showPrices: true, showDurations: true,
     bookingButtonLabel: "Agendar horário", faq: [],
@@ -60,7 +60,7 @@ export function normalizePublicPageContent(content: PublicPageContent): PublicPa
 
 const PAGE_DESIGN_FIELDS = new Set<keyof PageDesignConfig>([
   "template", "palette", "heroTitle", "heroSubtitle", "aboutText", "primaryColor", "secondaryColor",
-  "backgroundColor", "backgroundImageUrl", "logoUrl", "coverUrl", "publicName", "buttonColor", "cardStyle",
+  "backgroundColor", "backgroundImageUrl", "logoUrl", "profileImageUrl", "coverUrl", "publicName", "buttonColor", "cardStyle",
   "typography", "cornerRadius", "sectionSpacing", "sections", "galleryImages", "showPrices", "showDurations",
   "bookingButtonLabel", "faq",
 ]);
@@ -87,7 +87,7 @@ export function getPlatformPublicPageDraft(establishment: PageEstablishmentConte
 }
 
 export function getPlatformPublishedPageContent(config: PlatformPageAdminRecord | null | undefined): PageDesignConfig | null {
-  if (!config || (config.status !== undefined && config.status !== "PUBLISHED")) return null;
+  if (!config || (!config.publishedSnapshot && config.status !== undefined && config.status !== "PUBLISHED")) return null;
   return normalizePageDesignConfig({ ...createDefaultPageDesignConfig({ id: config.establishmentId, name: "", slug: "", description: "", status: "ACTIVE" }), ...designOnly(config.publishedSnapshot ?? config) });
 }
 

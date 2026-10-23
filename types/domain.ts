@@ -136,6 +136,7 @@ export interface PublicPageCustomization {
   secondaryColor?: string;
   backgroundImageUrl?: string;
   logoUrl?: string;
+  profileImageUrl?: string;
   coverUrl?: string;
 }
 

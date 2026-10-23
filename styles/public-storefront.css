@@ -21,7 +21,10 @@
 .public-page[data-public-tone="light"],
 .public-tenant-page[data-public-tone="light"] { color-scheme: light; }
 .public-page[data-public-cards][data-public-tone] {
-  background-image: radial-gradient(ellipse at 12% 0%, color-mix(in srgb, var(--public-page-accent, #3f5845) 12%, transparent), transparent 38%), radial-gradient(ellipse at 90% 34%, color-mix(in srgb, var(--public-page-secondary, #758276) 10%, transparent), transparent 34%);
+  background-image: var(--public-page-background-image, radial-gradient(ellipse at 12% 0%, color-mix(in srgb, var(--public-page-accent, #3f5845) 12%, transparent), transparent 38%), radial-gradient(ellipse at 90% 34%, color-mix(in srgb, var(--public-page-secondary, #758276) 10%, transparent), transparent 34%));
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .public-page *,
 .public-tenant-page * { box-sizing: border-box; }

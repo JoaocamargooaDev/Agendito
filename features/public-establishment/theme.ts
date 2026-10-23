@@ -14,6 +14,7 @@ type PublicThemeTokens = {
   "--public-page-border": string;
   "--public-page-button-ink": string;
   "--public-page-radius": string;
+  "--public-page-background-image"?: string;
 };
 
 const paletteAccents = { moss: "#91b895", copper: "#e2a078", sand: "#e0bf83", ink: "#bac8be", sage: "#b7c9aa" } as const;
@@ -47,6 +48,7 @@ export function getPublicThemeTokens(config?: PageDesignConfig | null): PublicTh
     ? luminance(accent) < 0.22 ? "#c8d4cb" : accent
     : luminance(accent) > 0.34 ? darken(accent, 0.55) : accent;
 
+  const backgroundImage = safePublicImageReference(config?.backgroundImageUrl);
   return {
     "--public-page-custom-background": background,
     "--public-page-accent": accent,
@@ -61,7 +63,16 @@ export function getPublicThemeTokens(config?: PageDesignConfig | null): PublicTh
     "--public-page-border": dark ? "rgba(247,246,240,.16)" : "rgba(32,41,35,.13)",
     "--public-page-button-ink": luminance(button) < 0.4 ? "#ffffff" : "#17231b",
     "--public-page-radius": `${config?.cornerRadius ?? 20}px`,
+    ...(backgroundImage ? { "--public-page-background-image": `linear-gradient(${dark ? "rgba(0,0,0,.44)" : "rgba(255,255,255,.68)"},${dark ? "rgba(0,0,0,.44)" : "rgba(255,255,255,.68)"}),url(${JSON.stringify(backgroundImage)})` } : {}),
   };
+}
+
+export function safePublicImageReference(value?: string) {
+  const reference = value?.trim() ?? "";
+  if (!reference || /[\u0000-\u001f"'\\]/.test(reference)) return undefined;
+  if (/^data:image\/(?:png|jpe?g|webp|gif|avif);base64,[a-z0-9+/=]+$/i.test(reference)) return reference;
+  if (reference.startsWith("/") && !reference.startsWith("//")) return reference;
+  try { return new URL(reference).protocol === "https:" ? reference : undefined; } catch { return undefined; }
 }
 
 export function isPublicThemeDark(config?: PageDesignConfig | null) {
