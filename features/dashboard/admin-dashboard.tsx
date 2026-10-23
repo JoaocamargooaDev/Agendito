@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Check, CircleAlert, Clock3, Copy, Download, ExternalLink, Link2, Users, UserRound, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { AdminPageContainer, SectionHeader } from "@/components/admin";
 import { ActionCard, ContentGrid, EmptyCard, GlassButton, GlassSurface, StatCard } from "@/components/ui";
 import { profileForCustomer } from "@/features/customer/repository";
@@ -10,6 +10,7 @@ import { useAuth } from "@/features/auth";
 import { listAllEstablishments } from "@/features/platform";
 import { listEmployees } from "@/features/employees";
 import { listServices } from "@/features/services";
+import { isActiveAppointmentStatus } from "@/features/agenda/status";
 import { formatShortDate, formatTime, getDashboardSnapshot } from "./selectors";
 import { appointmentsToCsv, defaultDashboardFilters, getEstablishmentAnalytics, type DashboardFilters } from "./analytics";
 import { DashboardFilterBar } from "./dashboard-filter-bar";
@@ -44,15 +45,18 @@ export function AdminDashboard() {
     events.forEach((event) => window.addEventListener(event, refresh));
     return () => events.forEach((event) => window.removeEventListener(event, refresh));
   }, []);
-  const snapshot = useMemo(() => establishment ? getDashboardSnapshot(establishment.id, timezone) : null, [establishment, timezone]);
-  const analytics = useMemo(() => establishment ? getEstablishmentAnalytics(establishment.id, timezone, filters) : null, [establishment, timezone, filters]);
-  const employeeNames = useMemo(() => new Map(listEmployees(establishment?.id).map((employee) => [employee.id, employee.displayName])), [establishment]);
+  const snapshot = establishment ? getDashboardSnapshot(establishment.id, timezone) : null;
+  const analytics = establishment ? getEstablishmentAnalytics(establishment.id, timezone, filters) : null;
+  const employeeNames = new Map(listEmployees(establishment?.id).map((employee) => [employee.id, employee.displayName]));
 
   if (status === "loading") return <AdminPageContainer><div className="dashboard-loading" aria-live="polite">Carregando visão geral…</div></AdminPageContainer>;
   if (!establishment || !snapshot || !analytics) return <AdminPageContainer><header className="admin-page-header"><span className="eyebrow">Visão geral</span><h1>Estabelecimento indisponível</h1><p>Não foi possível carregar os dados administrativos desta sessão.</p></header><EmptyCard className="dashboard-empty" icon={<CircleAlert size={20} />} title="Não foi possível carregar" description="Verifique a sessão e tente novamente." /></AdminPageContainer>;
 
   const customerName = (customerId: string) => profileForCustomer(customerId)?.user.name ?? "Cliente";
   const employeeName = (employeeId: string) => employeeNames.get(employeeId) ?? "Profissional";
+  const upcomingAppointments = snapshot.todayAppointments
+    .filter((appointment) => isActiveAppointmentStatus(appointment.status) && new Date(appointment.startsAt).getTime() >= snapshot.date.now.getTime())
+    .slice(0, 4);
   const publicPath = `/e/${establishment.slug}`;
   const copyPublicLink = async () => {
     try { await navigator.clipboard.writeText(`${window.location.origin}${publicPath}`); setCopyFeedback("Link copiado."); }
@@ -73,6 +77,11 @@ export function AdminDashboard() {
     {establishment.name.trim() && <GlassSurface material="regular" className="dashboard-public-link"><span className="dashboard-public-link-icon" aria-hidden><Link2 size={19} /></span><div className="dashboard-public-link-copy"><span className="eyebrow">Link público para clientes</span><strong>Compartilhe sua página de agendamento</strong><code>{publicPath}</code><p>Por este endereço o cliente conhece o estabelecimento e agenda um horário.</p>{copyFeedback && <span className="dashboard-link-feedback" role="status">{copyFeedback}</span>}</div><div className="dashboard-public-link-actions"><GlassButton variant="secondary" size="sm" onClick={copyPublicLink}><Copy size={15} />Copiar link</GlassButton><GlassButton asChild variant="quiet" size="sm"><Link href={publicPath} target="_blank" rel="noreferrer"><ExternalLink size={15} />Abrir página</Link></GlassButton></div></GlassSurface>}
 
     <DashboardFilterBar filters={filters} onChange={setFilters} employees={employeeOptions} services={serviceOptions} actions={<GlassButton variant="secondary" size="sm" onClick={exportCsv}><Download size={15} />Exportar CSV</GlassButton>} />
+
+    <div className="dashboard-grid dashboard-today-overview">
+      <GlassSurface material="frosted" className="dashboard-section"><SectionHeader className="dashboard-section-header"><div><span className="eyebrow">Resumo de hoje</span><h2>Movimento do estabelecimento</h2></div><span className="dashboard-subtle">{snapshot.metrics.total} no total</span></SectionHeader><ol className="analytics-rank-list"><li><span>Agendados e confirmados</span><strong>{snapshot.metrics.pending}</strong></li><li><span>Em atendimento</span><strong>{snapshot.metrics.inProgress}</strong></li><li><span>Concluídos</span><strong>{snapshot.metrics.completed}</strong></li><li><span>Cancelados</span><strong>{snapshot.metrics.cancelled}</strong></li><li><span>Faltas</span><strong>{snapshot.metrics.noShow}</strong></li></ol></GlassSurface>
+      <GlassSurface material="frosted" className="dashboard-section"><SectionHeader className="dashboard-section-header"><div><span className="eyebrow">Agenda de hoje</span><h2>Próximos atendimentos</h2></div><GlassButton asChild variant="quiet" size="sm"><Link href="/agenda">Ver agenda <ArrowRight size={14} /></Link></GlassButton></SectionHeader>{upcomingAppointments.length ? <div className="today-appointments" role="list">{upcomingAppointments.map((appointment) => <article className="today-appointment" key={appointment.id} role="listitem"><time className="appointment-time" dateTime={appointment.startsAt}>{formatTime(appointment.startsAt, timezone)}</time><div className="appointment-main"><strong>{customerName(appointment.customerId)}</strong><span>{appointment.serviceNameSnapshot} · {employeeName(appointment.employeeId)}</span></div><StatusBadge status={appointment.status} /></article>)}</div> : <p className="dashboard-empty-copy">Não há próximos atendimentos para hoje.</p>}</GlassSurface>
+    </div>
 
     <ContentGrid as="section" className="dashboard-metric-grid dashboard-analytics-metrics" aria-label="Indicadores do período selecionado">
       <Metric label="Agendamentos" value={String(analytics.metrics.total)} detail={`${analytics.range.startDate} a ${analytics.range.endDate}`} tone="accent" />

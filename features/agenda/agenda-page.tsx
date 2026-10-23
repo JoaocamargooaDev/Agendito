@@ -89,7 +89,11 @@ export function AgendaPage() {
   const [form, setForm] = useState<AppointmentForm>({ customerId: "", serviceId: "", employeeId: "", date: today, time: "09:00", notes: "" });
   const [blockForm, setBlockForm] = useState({ employeeId: "", startDate: today, endDate: today, startTime: "12:00", endTime: "13:00", reason: "Pausa", allDay: false });
   const refresh = useCallback(() => { setData(listAppointments()); setBlocks(listBlockedPeriods()); }, []);
-  useEffect(() => { window.addEventListener("agendito:agenda-updated", refresh); return () => window.removeEventListener("agendito:agenda-updated", refresh); }, [refresh]);
+  useEffect(() => {
+    const events = ["agendito:agenda-updated", "agendito:services-updated", "agendito:employees-updated", "agendito:settings-updated"];
+    events.forEach((event) => window.addEventListener(event, refresh));
+    return () => events.forEach((event) => window.removeEventListener(event, refresh));
+  }, [refresh]);
   useEffect(() => { const timer = window.setTimeout(() => { const employee = new URLSearchParams(window.location.search).get("employee"); if (employee) setEmployeeId(employee); }, 0); return () => window.clearTimeout(timer); }, []);
   const establishmentEmployees = establishment ? listEmployees(establishment.id).filter((item) => item.active) : [];
   const establishmentServices = establishment ? listServices(establishment.id).filter((item) => item.active) : [];

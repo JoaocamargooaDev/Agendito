@@ -23,7 +23,12 @@ export function PublicEstablishmentRoute({ slug }: { slug: string }) {
     }, 0);
     return () => window.clearTimeout(timer);
   }, [slug]);
-  useEffect(() => { const refreshPage = () => { const next = findEstablishmentByPublicSlug(slug); setEstablishment(next); setConfig(next ? getPageConfig(next.id) : null); }; window.addEventListener("storage", refreshPage); window.addEventListener("agendito:public-page-updated", refreshPage); return () => { window.removeEventListener("storage", refreshPage); window.removeEventListener("agendito:public-page-updated", refreshPage); }; }, [slug]);
+  useEffect(() => {
+    const refreshPage = () => { const next = findEstablishmentByPublicSlug(slug); setEstablishment(next); setConfig(next ? getPageConfig(next.id) : null); };
+    const events = ["storage", "agendito:public-page-updated", "agendito:services-updated", "agendito:employees-updated", "agendito:settings-updated"];
+    events.forEach((event) => window.addEventListener(event, refreshPage));
+    return () => events.forEach((event) => window.removeEventListener(event, refreshPage));
+  }, [slug]);
   if (!establishment) return <main className="customer-loading"><GlassSurface material="frosted"><span className="eyebrow">Página pública</span><h1>Página não encontrada</h1><p>Confira se o endereço foi digitado corretamente.</p></GlassSurface></main>;
   if (!isEstablishmentPublic(establishment) || (getEstablishmentStatus(establishment) !== "SUSPENDED" && getPublicPageStatus(config, establishment) !== "PUBLISHED")) return <main className="customer-loading"><GlassSurface material="frosted"><span className="eyebrow">Página pública</span><h1>Esta página não está disponível</h1><p>Confira o link ou entre em contato com o estabelecimento.</p></GlassSurface></main>;
   if (getEstablishmentStatus(establishment) === "SUSPENDED") return <main className="customer-loading"><GlassSurface material="frosted"><span className="eyebrow">Página temporariamente indisponível</span><h1>Este estabelecimento está suspenso</h1><p>{establishment.suspensionReason || "A página e as operações estão temporariamente indisponíveis."}</p></GlassSurface></main>;
