@@ -49,7 +49,7 @@ export function getPublicThemeTokens(config?: PageDesignConfig | null): PublicTh
     ? luminance(accent) < 0.22 ? "#c8d4cb" : accent
     : luminance(accent) > 0.34 ? darken(accent, 0.55) : accent;
 
-  const backgroundImage = safePublicImageReference(config?.backgroundImageUrl);
+  const backgroundImage = safePublicImageReference(config?.backgroundImageUrl) ?? "/images/agendito/store-background.jpg";
   return {
     "--public-page-custom-background": background,
     "--public-page-accent": accent,

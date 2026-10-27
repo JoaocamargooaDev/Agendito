@@ -17,6 +17,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
   font-family: var(--font-sans);
 }
 
@@ -51,6 +52,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 .public-page *,
 .public-tenant-page * { box-sizing: border-box; }
@@ -412,6 +414,10 @@ main.public-page :is(.store-profile-copy > p,.public-section-heading p,.public-a
   padding: clamp(1rem, 4vw, 3rem) 0 calc(2.5rem + env(safe-area-inset-bottom));
   background-image: var(--public-page-background-image, none);
   background-color: var(--public-page-custom-background, #f4f2ec);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 .public-tenant-page .booking-shell { width: min(880px, calc(100% - 2 * clamp(1rem, 4vw, 2rem))); }
 .booking-start {
