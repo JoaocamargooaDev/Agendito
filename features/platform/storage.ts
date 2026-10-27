@@ -1,6 +1,6 @@
 import type { Establishment, PublicPageConfig, User } from "@/types";
 import type { PlatformEstablishmentRecord, PlatformManagerContact, PlatformPageAdminRecord, PlatformRepository } from "./repository-contracts";
-import { getPublicPageStatus, isEstablishmentPublic } from "./domain";
+import { getPublicPageStatus, isEstablishmentOperational, isEstablishmentPublic } from "./domain";
 import { establishments, users } from "@/mocks";
 import { ACCOUNT_DATA_VERSION, ACCOUNT_DATA_VERSION_KEY, PLATFORM_ESTABLISHMENTS_KEY, PLATFORM_USERS_KEY, REGISTERED_CUSTOMERS_KEY, REMEMBERED_SESSION_KEY, SESSION_STORAGE_KEY } from "@/features/auth/constants";
 import { sha256Hex } from "@/lib/sha256";
@@ -190,6 +190,13 @@ export function findEstablishmentByPublicSlug(slug: string) {
   const item = readAllEstablishments().find((candidate) => candidate.slug.toLowerCase() === normalized || candidate.publicSlugAliases?.some((alias) => alias.toLowerCase() === normalized));
   if (!item || !isEstablishmentPublic(item) || getPublicPageStatus(getPageConfig(item.id), item) !== "PUBLISHED") return null;
   return publicEstablishmentRecord(item) as Establishment;
+}
+/** Public booking directory: published, operational establishments with no administrative or operational settings. */
+export function listPublicBookingEstablishments(): Array<Pick<Establishment, "id" | "name" | "slug" | "address">> {
+  return readAllEstablishments()
+    .filter((item) => isEstablishmentOperational(item) && getPublicPageStatus(getPageConfig(item.id), item) === "PUBLISHED")
+    .map(({ id, name, slug, address }) => ({ id, name, slug, address }))
+    .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 }
 export function findPublishedEstablishmentById(establishmentId: string) {
   const item = readAllEstablishments().find((candidate) => candidate.id === establishmentId);

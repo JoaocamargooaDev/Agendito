@@ -14,6 +14,7 @@ type PublicThemeTokens = {
   "--public-page-border": string;
   "--public-page-button-ink": string;
   "--public-page-radius": string;
+  "--public-button-radius": string;
   "--public-page-background-image"?: string;
 };
 
@@ -63,7 +64,8 @@ export function getPublicThemeTokens(config?: PageDesignConfig | null): PublicTh
     "--public-page-border": dark ? "rgba(247,246,240,.16)" : "rgba(32,41,35,.13)",
     "--public-page-button-ink": luminance(button) < 0.4 ? "#ffffff" : "#17231b",
     "--public-page-radius": `${config?.cornerRadius ?? 20}px`,
-    ...(backgroundImage ? { "--public-page-background-image": `linear-gradient(${dark ? "rgba(0,0,0,.44)" : "rgba(255,255,255,.68)"},${dark ? "rgba(0,0,0,.44)" : "rgba(255,255,255,.68)"}),url(${JSON.stringify(backgroundImage)})` } : {}),
+    "--public-button-radius": `${config?.buttonCornerRadius ?? 18}px`,
+    ...(backgroundImage ? { "--public-page-background-image": `url(${JSON.stringify(backgroundImage)})` } : {}),
   };
 }
 

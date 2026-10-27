@@ -1,4 +1,4 @@
-import { createEmployee, listEmployees, updateEmployeeSchedule } from "@/features/employees/repository";
+import { createEmployee, listEmployees } from "@/features/employees/repository";
 import { createService, listServices, updateService } from "@/features/services/repository";
 import { getEstablishmentSettings, updateEstablishmentSettings } from "@/features/settings/repository";
 import { REGISTERED_CUSTOMERS_KEY } from "@/features/auth/constants";
@@ -44,9 +44,6 @@ function ensureDemoBarberService() {
 
   const allDay = { start: "00:00", end: "23:59" };
   const everyDay = [0, 1, 2, 3, 4, 5, 6] as const;
-  const schedule = Object.fromEntries(everyDay.map((weekday) => [weekday, [allDay]])) as Record<number, Array<{ start: string; end: string }>>;
-  if (!updateEmployeeSchedule(employee.id, establishmentId, schedule)) return;
-
   const settings = getEstablishmentSettings(establishmentId);
   const businessHours = everyDay.map((weekday) => ({ weekday, open: true, intervals: [allDay] }));
   if (!updateEstablishmentSettings(establishmentId, { ...settings, businessHours })) return;
@@ -82,8 +79,8 @@ function ensureDemoBarberService() {
     }, [employee.id]);
   if (!service) return;
 
-  // The blank service-specific time window means the service uses the full
-  // establishment and employee hours configured above.
+  // The blank service-specific time window means the service uses the
+  // establishment's configured business hours.
   localStorage.setItem(DEMO_BARBER_SERVICE_SEED_KEY, "v1");
 }
 
@@ -134,8 +131,6 @@ export function ensureDemoAccounts() {
     if (!listEmployees(establishment.id).some((employee) => employee.id === DEMO_EMPLOYEE_RECORD_ID)) {
       const employee = createEmployee({ id: DEMO_EMPLOYEE_RECORD_ID, userId: DEMO_EMPLOYEE_ID, establishmentId: establishment.id, displayName: "Funcionário Agendito", title: "Profissional", bio: "Atendimento e organização da agenda.", serviceIds: [], active: true });
       if (!employee) return;
-      const weekdays = Object.fromEntries([1, 2, 3, 4, 5].map((weekday) => [weekday, [{ start: "09:00", end: "17:00" }]])) as Record<number, Array<{ start: string; end: string }>>;
-      if (!updateEmployeeSchedule(DEMO_EMPLOYEE_RECORD_ID, establishment.id, weekdays)) return;
     }
 
     if (!saveJsonArray(REGISTERED_CUSTOMERS_KEY, demoCustomer, (candidate) => candidate.id === DEMO_CUSTOMER_ID || candidate.email?.toLowerCase() === demoCustomer.email)) return;

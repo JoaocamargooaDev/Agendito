@@ -1,43 +1,62 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutTemplate, Menu, Store, X } from "lucide-react";
+import { LayoutDashboard, LayoutTemplate, Layers3, Store, UserRoundPlus } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useCallback, useState } from "react";
-import { GlassButton } from "@/components/ui";
+import { useEffect, useState } from "react";
 import { AgenditoLogo } from "@/components/brand/agendito-logo";
 import { MobileNavigationDrawer } from "./mobile-navigation-drawer";
-import { LogoutButton } from "@/components/auth/logout-button";
 
 const ownerLinks = [
-  { href: "/platform/establishments", label: "Estabelecimentos", icon: Store },
-  { href: "/platform/pages", label: "Páginas públicas", icon: LayoutTemplate },
+  { id: "dashboard", href: "/platform/establishments#platform-dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "establishments", href: "/platform/establishments#platform-establishments", label: "Estabelecimentos", icon: Store },
+  { id: "registrations", href: "/platform/establishments#platform-new-establishment", label: "Cadastros", icon: UserRoundPlus },
+  { id: "pages", href: "/platform/pages", label: "Páginas públicas", icon: LayoutTemplate },
+  { id: "resources", href: "/platform/establishments#platform-features", label: "Recursos", icon: Layers3 },
 ];
 
-export function PlatformConsoleNavigation() {
+type PlatformConsoleNavigationProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
+export function PlatformConsoleNavigation({ open, onClose }: PlatformConsoleNavigationProps) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
-  const active = (href: string) => href === "/platform/establishments"
-    ? pathname === href || pathname.startsWith(`${href}/`)
-    : pathname === href;
+  const [activeId, setActiveId] = useState(pathname === "/platform/pages" ? "pages" : "dashboard");
+
+  useEffect(() => {
+    const syncActiveLink = () => {
+      if (pathname === "/platform/pages") setActiveId("pages");
+      else if (pathname.startsWith("/platform/establishments/")) setActiveId("establishments");
+      else if (pathname === "/platform/establishments") setActiveId(({ "#platform-establishments": "establishments", "#platform-new-establishment": "registrations", "#platform-features": "resources" } as Record<string, string>)[window.location.hash] ?? "dashboard");
+    };
+    syncActiveLink();
+    window.addEventListener("hashchange", syncActiveLink);
+    return () => window.removeEventListener("hashchange", syncActiveLink);
+  }, [pathname]);
+
+  function renderLinks(mobile = false) {
+    return ownerLinks.map(({ id, href, label, icon: Icon }) => <Link
+      key={id}
+      href={href}
+      className={`app-navigation-link ${activeId === id ? "is-active" : ""}`}
+      aria-current={activeId === id ? "page" : undefined}
+      onClick={() => { setActiveId(id); if (mobile) onClose(); }}
+    ><Icon size={18} />{label}</Link>);
+  }
 
   return <>
-    <div className="platform-console-navigation">
-      <Link href="/platform/establishments" className="platform-console-brand" aria-label="Agendito — painel do proprietário"><AgenditoLogo size="small" /><span>Proprietário</span></Link>
-      <nav className="app-navigation platform-console-links" aria-label="Navegação do proprietário">
-        {ownerLinks.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={`app-navigation-link ${active(href) ? "is-active" : ""}`} aria-current={active(href) ? "page" : undefined}><Icon size={18} />{label}</Link>)}
-      </nav>
-      <div className="platform-console-session"><LogoutButton redirectTo="/login" /></div>
-      <GlassButton variant="quiet" size="icon" className="platform-menu-toggle" aria-label={open ? "Fechar navegação" : "Abrir navegação"} aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? <X size={18} /> : <Menu size={18} />}</GlassButton>
-    </div>
-    <MobileNavigationDrawer open={open} label="Navegação do proprietário" onClose={close}>
+    <aside className="platform-console-sidebar" aria-label="Navegação da plataforma">
+      <Link href="/platform/establishments" className="platform-console-brand" aria-label="Agendito — painel da plataforma">
+        <AgenditoLogo size="small" /><span>Administrador da plataforma</span>
+      </Link>
+      <nav className="app-navigation platform-console-links" aria-label="Seções da plataforma">{renderLinks()}</nav>
+      <div className="platform-console-sidebar-footer"><span>Agendito</span><small>Administração da plataforma</small></div>
+    </aside>
+    <MobileNavigationDrawer open={open} label="Navegação da plataforma" onClose={onClose}>
       <div className="role-drawer">
-        <div className="role-drawer-heading"><strong>Agendito</strong><span>Painel do proprietário</span></div>
-        <nav className="role-drawer-nav app-navigation" aria-label="Seções do proprietário">
-          {ownerLinks.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={`app-navigation-link ${active(href) ? "is-active" : ""}`} aria-current={active(href) ? "page" : undefined} onClick={close}><Icon size={18} />{label}</Link>)}
-        </nav>
-        <LogoutButton redirectTo="/login" />
+        <div className="role-drawer-heading"><strong>Agendito</strong><span>Administrador da plataforma</span></div>
+        <nav className="role-drawer-nav app-navigation" aria-label="Seções da plataforma">{renderLinks(true)}</nav>
       </div>
     </MobileNavigationDrawer>
   </>;

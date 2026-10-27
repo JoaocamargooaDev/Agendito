@@ -60,6 +60,18 @@ export function listPlatformActions(establishmentId: string): PlatformActionReco
   } catch { return []; }
 }
 
+export function listRecentPlatformActions(limit = 5): PlatformActionRecord[] {
+  if (!canCurrentSession(CAPABILITIES.platformEstablishments) || typeof window === "undefined") return [];
+  try {
+    const establishmentIds = new Set(listRegisteredEstablishments().map((item) => item.id));
+    const records = JSON.parse(window.localStorage.getItem(PLATFORM_ACTIONS_KEY) ?? "[]") as PlatformActionRecord[];
+    return records
+      .filter((record) => establishmentIds.has(record.establishmentId))
+      .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))
+      .slice(0, Math.max(0, limit));
+  } catch { return []; }
+}
+
 export function recordPlatformAction(establishment: Pick<Establishment, "id" | "name">, action: string) {
   if (typeof window === "undefined" || !canCurrentSession(CAPABILITIES.platformEstablishments, establishment.id)) return false;
   try {
@@ -72,6 +84,7 @@ export function recordPlatformAction(establishment: Pick<Establishment, "id" | "
       occurredAt: new Date().toISOString(),
     };
     window.localStorage.setItem(PLATFORM_ACTIONS_KEY, JSON.stringify([record, ...existing].slice(0, 500)));
+    window.dispatchEvent(new Event("agendito:platform-updated"));
     return true;
   } catch { return false; }
 }

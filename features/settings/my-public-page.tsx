@@ -97,7 +97,7 @@ export function MyPublicPage() {
         <SectionHeader><div><span className="eyebrow">Identidade visual</span><h2>Apresentação atual</h2></div></SectionHeader>
         <p className="my-public-page-helper">Essas informações são somente leitura neste painel. Para solicitar alterações, entre em contato com o proprietário da plataforma.</p>
         <div className="my-public-page-identity-card">
-          {coverUrl ? <div className="my-public-page-cover" style={{ backgroundImage: `linear-gradient(0deg, rgba(12,20,32,.72), transparent), url("${coverUrl.replaceAll('"', "%22")}")` }} /> : <div className="my-public-page-cover my-public-page-cover-empty"><ImageIcon size={22} /><span>Sem imagem de capa</span></div>}
+          {coverUrl ? <div className="my-public-page-cover" style={{ backgroundImage: `url("${coverUrl.replaceAll('"', "%22")}")` }} /> : <div className="my-public-page-cover my-public-page-cover-empty"><ImageIcon size={22} /><span>Sem imagem de capa</span></div>}
           <div className="my-public-page-brand-row">{logoUrl ? <Image className="my-public-page-logo" src={logoUrl} alt={`Logotipo de ${publicName}`} width={56} height={56} unoptimized /> : <span className="my-public-page-logo my-public-page-logo-fallback">{publicName.slice(0, 1)}</span>}<div><strong>{publicName}</strong><span>{visibleDesign?.template ? `Template ${visibleDesign.template}` : "Template padrão"}</span></div></div>
         </div>
         <div className="my-public-page-identity-footnote"><ShieldCheck size={15} />O design e a publicação são gerenciados centralmente pelo Agendito.</div>

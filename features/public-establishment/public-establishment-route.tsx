@@ -15,20 +15,23 @@ import { getEstablishmentSettings } from "@/features/settings/repository";
 export function PublicEstablishmentRoute({ slug }: { slug: string }) {
   const [establishment, setEstablishment] = useState<Establishment | null>(null);
   const [config, setConfig] = useState<ReturnType<typeof getPageConfig>>(null);
+  const [loadedSlug, setLoadedSlug] = useState<string | null>(null);
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const next = findEstablishmentByPublicSlug(slug);
       setEstablishment(next);
       setConfig(next ? getPageConfig(next.id) : null);
+      setLoadedSlug(slug);
     }, 0);
     return () => window.clearTimeout(timer);
   }, [slug]);
   useEffect(() => {
-    const refreshPage = () => { const next = findEstablishmentByPublicSlug(slug); setEstablishment(next); setConfig(next ? getPageConfig(next.id) : null); };
+    const refreshPage = () => { const next = findEstablishmentByPublicSlug(slug); setEstablishment(next); setConfig(next ? getPageConfig(next.id) : null); setLoadedSlug(slug); };
     const events = ["storage", "agendito:public-page-updated", "agendito:services-updated", "agendito:employees-updated", "agendito:settings-updated"];
     events.forEach((event) => window.addEventListener(event, refreshPage));
     return () => events.forEach((event) => window.removeEventListener(event, refreshPage));
   }, [slug]);
+  if (loadedSlug !== slug) return <main className="customer-loading" role="status" aria-live="polite"><GlassSurface material="frosted"><span className="eyebrow">Página pública</span><p>Preparando a página do estabelecimento…</p></GlassSurface></main>;
   if (!establishment) return <main className="customer-loading"><GlassSurface material="frosted"><span className="eyebrow">Página pública</span><h1>Página não encontrada</h1><p>Confira se o endereço foi digitado corretamente.</p></GlassSurface></main>;
   if (!isEstablishmentPublic(establishment) || (getEstablishmentStatus(establishment) !== "SUSPENDED" && getPublicPageStatus(config, establishment) !== "PUBLISHED")) return <main className="customer-loading"><GlassSurface material="frosted"><span className="eyebrow">Página pública</span><h1>Esta página não está disponível</h1><p>Confira o link ou entre em contato com o estabelecimento.</p></GlassSurface></main>;
   if (getEstablishmentStatus(establishment) === "SUSPENDED") return <main className="customer-loading"><GlassSurface material="frosted"><span className="eyebrow">Página temporariamente indisponível</span><h1>Este estabelecimento está suspenso</h1><p>{establishment.suspensionReason || "A página e as operações estão temporariamente indisponíveis."}</p></GlassSurface></main>;

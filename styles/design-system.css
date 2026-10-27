@@ -27,6 +27,41 @@ textarea {
   min-height: var(--ag-height-touch);
 }
 
+.admin-mobile-nav a {
+  transition: color var(--ag-motion-quick) var(--ag-ease-fluid), background-color var(--ag-motion-quick) var(--ag-ease-fluid), transform var(--ag-motion-quick) var(--ag-ease-fluid), filter var(--ag-motion-quick) var(--ag-ease-fluid);
+}
+
+.loading-status {
+  display: flex;
+  align-items: center;
+  gap: var(--ag-space-3);
+  min-height: var(--ag-height-button);
+  color: var(--ag-text-secondary);
+}
+
+.loading-status-indicator {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--ag-cyan);
+}
+
+.customer-feedback {
+  min-height: 2.5rem;
+  padding: var(--ag-space-2) var(--ag-space-3);
+  border: 1px solid rgba(121, 217, 181, .28);
+  border-radius: var(--ag-r-sm);
+  color: var(--ag-success-text);
+  background: rgba(121, 217, 181, .08);
+}
+
+.customer-feedback.is-error {
+  color: var(--ag-danger-text);
+  border-color: var(--ag-danger-border);
+  background: rgba(255, 133, 139, .1);
+}
+
 :where(input, select, textarea, .field-control, .glass-input, .glass-select) {
   min-width: 0;
   max-width: 100%;
@@ -68,6 +103,330 @@ textarea {
   background: var(--ag-bg-secondary);
 }
 
+/* One-shot editorial reveals; content stays visible until the observer runs. */
+[data-content-reveal][data-revealed="true"] {
+  animation: ag-content-reveal var(--ag-motion-reveal) var(--ag-ease-fluid) var(--ag-reveal-delay, 0ms) both;
+}
+
+@keyframes ag-content-reveal {
+  from { opacity: 0; transform: translate3d(0, var(--ag-reveal-distance), 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Route entry stays local to new page content; shared chrome and state stay mounted. */
+.page-shell > .page-content > :first-child,
+.auth-grid,
+.booking-shell {
+  animation: ag-route-content-in 200ms var(--ag-ease-fluid) both;
+}
+
+@keyframes ag-route-content-in {
+  from { opacity: .96; transform: translate3d(0, 4px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Tab content changes immediately; only the selected control gets a visual transition. */
+:is(.settings-tabs, .page-builder-tabs, .advanced-tabs) > button {
+  transition: color 190ms var(--ag-ease-fluid), background-color 190ms var(--ag-ease-fluid), border-color 190ms var(--ag-ease-fluid), box-shadow 190ms var(--ag-ease-fluid);
+}
+
+.segment span {
+  transition: color 190ms var(--ag-ease-fluid), background-color 190ms var(--ag-ease-fluid), border-color 190ms var(--ag-ease-fluid), box-shadow 190ms var(--ag-ease-fluid);
+}
+
+/* Native dialog keeps its focus trap, Escape handling, top layer, and scroll lock. */
+.glass-modal {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  animation: none;
+  transition: opacity 200ms var(--ag-ease-fluid), transform 200ms var(--ag-ease-fluid), display 200ms allow-discrete, overlay 200ms allow-discrete;
+}
+
+.glass-modal[open] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.glass-modal::backdrop {
+  opacity: 0;
+  animation: none;
+  transition: opacity 200ms var(--ag-ease-fluid), display 200ms allow-discrete, overlay 200ms allow-discrete;
+}
+
+.glass-modal[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .glass-modal[open] {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+
+  .glass-modal[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* Portal menus and the mobile drawer remain mounted only for their short exit. */
+.glass-popover-portal[data-state="open"] {
+  animation: glass-menu-in 200ms var(--ag-ease-fluid) both;
+}
+
+.glass-popover-portal[data-state="closing"] {
+  animation: ag-menu-out 180ms var(--ag-ease-fluid) both;
+  pointer-events: none;
+}
+
+@keyframes ag-menu-out {
+  to { opacity: 0; transform: translate3d(0, -4px, 0) scale(.99); }
+}
+
+.mobile-sidebar-backdrop[data-state="open"] {
+  animation: ag-overlay-in 200ms var(--ag-ease-fluid) both;
+}
+
+.mobile-sidebar-backdrop[data-state="closing"] {
+  animation: ag-overlay-out 180ms var(--ag-ease-fluid) both;
+  pointer-events: none;
+}
+
+.mobile-sidebar-backdrop[data-state="open"] .mobile-sidebar-drawer {
+  animation: ag-drawer-in 200ms var(--ag-ease-fluid) both;
+}
+
+.mobile-sidebar-backdrop[data-state="closing"] .mobile-sidebar-drawer {
+  animation: ag-drawer-out 180ms var(--ag-ease-fluid) both;
+}
+
+@keyframes ag-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ag-overlay-out { to { opacity: 0; } }
+@keyframes ag-drawer-in { from { opacity: .96; transform: translate3d(-8px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes ag-drawer-out { to { opacity: .96; transform: translate3d(-8px, 0, 0); } }
+
+/* Operational dashboards: consistent rhythm, aligned grids, and restrained depth. */
+.admin-page-container:has(.dashboard-welcome) {
+  --ag-shadow-card: 0 4px 16px rgba(3, 9, 19, .17);
+  gap: var(--ag-space-4);
+}
+
+.admin-page-container:has(.dashboard-welcome) > .dashboard-welcome {
+  min-height: 0;
+  padding: 1.15rem 1.3rem;
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-public-link,
+.admin-page-container:has(.dashboard-welcome) .dashboard-filter-bar,
+.admin-page-container:has(.dashboard-welcome) .dashboard-section,
+.admin-page-container:has(.dashboard-welcome) .dashboard-metric {
+  border-radius: var(--ag-r-card);
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-public-link {
+  gap: var(--ag-space-3);
+  padding: .9rem 1rem;
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-public-link-copy {
+  gap: .2rem;
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-filter-bar {
+  gap: var(--ag-space-3);
+  padding: var(--ag-space-3);
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-today-overview {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: var(--ag-grid-gap);
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-section {
+  padding: var(--ag-card-padding);
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-section-header {
+  gap: var(--ag-space-3);
+  margin-bottom: var(--ag-space-3);
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-section-header h2 {
+  font-size: var(--ag-font-size-section-title);
+  line-height: var(--ag-line-height-heading);
+}
+
+.admin-page-container:has(.dashboard-welcome) .analytics-rank-list li {
+  border-color: var(--ag-line);
+  border-radius: var(--ag-r-sm);
+  background: var(--ag-surface-subtle, rgba(16, 24, 39, .24));
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-analytics-metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--ag-grid-gap);
+  margin: 0;
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-metric {
+  min-height: 7.25rem;
+  gap: var(--ag-space-1);
+  padding: var(--ag-space-4);
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-metric .stat-card-label {
+  font-size: var(--ag-font-size-label);
+  line-height: 1.35;
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-metric .stat-card-value {
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  line-height: 1.1;
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-metric .stat-card-detail {
+  font-size: var(--ag-font-size-caption);
+  line-height: 1.4;
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-insights-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ag-grid-gap);
+}
+
+.admin-page-container:has(.dashboard-welcome) .dashboard-quick-actions {
+  gap: var(--ag-space-3);
+  padding: 0;
+}
+
+.platform-shell .owner-dashboard {
+  --ag-shadow-card: 0 4px 16px rgba(3, 9, 19, .17);
+  gap: var(--ag-grid-gap);
+}
+
+.platform-shell .owner-dashboard .owner-metric-grid,
+.platform-shell .owner-dashboard .owner-dashboard-panels {
+  gap: var(--ag-grid-gap);
+}
+
+.platform-shell .owner-dashboard :is(.owner-chart-panel, .owner-metric) {
+  border-radius: var(--ag-r-card);
+}
+
+.platform-shell .owner-dashboard .owner-chart-panel {
+  padding: var(--ag-card-padding);
+}
+
+/* Form controls: animate state feedback without changing their geometry or fill. */
+.agendito-app-layer :is(.form-control-wrap, .form-textarea, .dashboard-filter-bar select, .dashboard-filter-bar input) {
+  transition: border-color 170ms var(--ag-ease-fluid), outline-color 170ms var(--ag-ease-fluid), box-shadow 170ms var(--ag-ease-fluid);
+}
+
+.agendito-app-layer :is(.form-control-wrap, .field-control):focus-within {
+  border-color: var(--ag-cyan);
+}
+
+.agendito-app-layer :is(input, select, textarea, .form-textarea, .dashboard-filter-bar select, .dashboard-filter-bar input):focus-visible {
+  transition: border-color 170ms var(--ag-ease-fluid), outline-color 170ms var(--ag-ease-fluid), box-shadow 170ms var(--ag-ease-fluid);
+}
+
+.agendito-app-layer :is(.booking-option, .booking-time) {
+  transition: border-color 170ms var(--ag-ease-fluid), background-color 170ms var(--ag-ease-fluid), box-shadow 170ms var(--ag-ease-fluid), transform var(--ag-motion-quick) var(--ag-ease-fluid), filter var(--ag-motion-quick) var(--ag-ease-fluid);
+}
+
+.agendito-app-layer :is(.booking-option.is-selected, .booking-time.is-selected) {
+  border-color: var(--ag-cyan);
+}
+
+.agendito-app-layer :is(.booking-option, .booking-time):focus-visible {
+  outline: var(--ag-focus-outline);
+  outline-offset: var(--ag-focus-outline-offset);
+}
+
+/* Keep hash targets clear of the platform's fixed-height sticky top bar. */
+.platform-console-content :is(#platform-dashboard, #platform-features, #platform-establishments, #platform-new-establishment) {
+  scroll-margin-block-start: calc(92px + var(--ag-space-4));
+}
+
+.platform-console-content .page-builder-tabs {
+  top: calc(92px + var(--ag-space-4));
+}
+
+.platform-console-content .page-builder-preview {
+  top: calc(92px + var(--ag-space-4));
+}
+
+/* Long registration pages use the document scroll instead of a nested form scroller. */
+.auth-shell-registration {
+  height: auto;
+  min-height: 100svh;
+  overflow: visible;
+}
+
+.auth-shell-registration .auth-form-column {
+  max-height: none;
+  overflow: visible;
+}
+
+.admin-shell .analytics-appointments .today-appointments {
+  max-height: none;
+  overflow: visible;
+  overscroll-behavior: auto;
+}
+
+.admin-shell .agenda-month-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+
+.platform-shell .page-builder-checks {
+  max-height: none;
+  overflow: visible;
+  overscroll-behavior: auto;
+}
+
+.platform-console-sidebar {
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+}
+
+@media (max-width: 1100px) {
+  .admin-page-container:has(.dashboard-welcome) .dashboard-analytics-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .admin-page-container:has(.dashboard-welcome) .dashboard-today-overview,
+  .admin-page-container:has(.dashboard-welcome) .dashboard-insights-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ag-space-3);
+  }
+
+  .admin-page-container:has(.dashboard-welcome) .dashboard-analytics-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--ag-space-2);
+  }
+
+  .agendito-app-layer .dashboard-filter-bar :is(select, input) {
+    min-height: var(--ag-height-touch);
+  }
+
+  .platform-console-content :is(#platform-dashboard, #platform-features, #platform-establishments, #platform-new-establishment) {
+    scroll-margin-block-start: calc(64px + var(--ag-space-3));
+  }
+
+  .platform-console-content .page-builder-tabs {
+    top: calc(64px + var(--ag-space-3));
+  }
+
+  .platform-console-content .page-builder-preview {
+    position: static;
+  }
+}
+
 @media (max-width: 600px) {
   :root {
     --ag-modal-max-height: min(88dvh, 850px);
@@ -77,6 +436,33 @@ textarea {
   .glass-modal {
     max-width: calc(100vw - 1rem);
     margin-block: auto;
+  }
+
+  .admin-page-container:has(.dashboard-welcome) {
+    gap: var(--ag-space-3);
+  }
+
+  .admin-page-container:has(.dashboard-welcome) > .dashboard-welcome {
+    padding: .9rem 1rem;
+  }
+
+  .admin-page-container:has(.dashboard-welcome) .dashboard-metric {
+    min-height: 6.5rem;
+    padding: var(--ag-space-3);
+  }
+
+  .admin-page-container:has(.dashboard-welcome) .dashboard-section {
+    padding: var(--ag-space-3);
+  }
+
+  .platform-shell .owner-dashboard,
+  .platform-shell .owner-dashboard .owner-metric-grid,
+  .platform-shell .owner-dashboard .owner-dashboard-panels {
+    gap: var(--ag-space-3);
+  }
+
+  .platform-shell .owner-dashboard .owner-chart-panel {
+    padding: var(--ag-space-3);
   }
 }
 

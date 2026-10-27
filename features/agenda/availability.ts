@@ -1,5 +1,5 @@
 import type { Appointment, BlockedPeriod, Employee, Schedule, Service } from "@/types";
-import { listEmployees, listSchedules } from "@/features/employees";
+import { getEmployeeDailyAvailability, getEmployeeSchedule, listEmployees } from "@/features/employees/repository";
 import { getEstablishmentSettings } from "@/features/settings/repository";
 import { listAllEstablishments } from "@/features/platform/storage";
 import { getPageConfig } from "@/features/platform/storage";
@@ -51,10 +51,24 @@ export function employeeForService(employeeId: string, service: Service, establi
 
 export function scheduleForEmployee(employeeId: string, establishmentId: string, dateKey: string): Schedule | null {
   const day = dayOfWeek(dateKey);
-  const schedules = listSchedules(establishmentId);
-  return schedules.find((item) => item.establishmentId === establishmentId && item.employeeId === employeeId && item.weekday === day && item.active)
-    ?? schedules.find((item) => item.establishmentId === establishmentId && !item.employeeId && item.weekday === day && item.active)
-    ?? null;
+  const businessDay = getEstablishmentSettings(establishmentId).businessHours.find((item) => item.weekday === day);
+  if (!businessDay?.open || businessDay.intervals.length === 0) return null;
+  const individualSchedule = getEmployeeSchedule(employeeId, establishmentId, day);
+  if (individualSchedule) {
+    if (!individualSchedule.active || !individualSchedule.workingHours.length) return null;
+    const workingHours = individualSchedule.workingHours.flatMap((employeeRange) => businessDay.intervals.flatMap((businessRange) => {
+      const start = employeeRange.start > businessRange.start ? employeeRange.start : businessRange.start;
+      const end = employeeRange.end < businessRange.end ? employeeRange.end : businessRange.end;
+      return start < end ? [{ start, end }] : [];
+    })).sort((a, b) => a.start.localeCompare(b.start));
+    return workingHours.length ? { ...individualSchedule, workingHours } : null;
+  }
+  return { id: `business-${establishmentId}-${day}`, establishmentId, employeeId, weekday: day, workingHours: businessDay.intervals, active: true };
+}
+
+export function isProfessionalAvailableOnDate(employeeId: string, establishmentId: string, dateKey: string) {
+  const employee = listEmployees(establishmentId).find((item) => item.id === employeeId && item.active);
+  return Boolean(employee && getEmployeeDailyAvailability(employeeId, establishmentId, dateKey));
 }
 
 /** Single source of truth for public booking, internal creation, edits and rescheduling. */
@@ -81,6 +95,10 @@ export function validateSlot(request: AvailabilityRequest, startIso: string, end
   const expectedDuration = effectiveServices.reduce((total, item) => total + item.durationMinutes, 0);
   if (endMs <= startMs || duration !== expectedDuration || effectiveServices.some((item) => !Number.isInteger(item.durationMinutes) || item.durationMinutes < 1)) return { ok: false, reason: "A duração do horário não corresponde aos serviços selecionados." };
   if (requestedServices.some((item) => !employeeForService(employeeId, item, establishmentId, allowInactiveServices))) return { ok: false, reason: "Este profissional não realiza todos os serviços selecionados." };
+  const existingAppointment = ignoreAppointmentId ? appointments.find((item) => item.id === ignoreAppointmentId) : null;
+  const retainingExistingDay = existingAppointment?.employeeId === employeeId
+    && dateKeyInTimezone(new Date(existingAppointment.startsAt), timezone) === dateKey;
+  if (!retainingExistingDay && !isProfessionalAvailableOnDate(employeeId, establishmentId, dateKey)) return { ok: false, reason: "Este profissional está indisponível nesta data." };
 
   const settings = getEstablishmentSettings(establishmentId);
   const booking = settings.booking;
@@ -108,12 +126,12 @@ export function validateSlot(request: AvailabilityRequest, startIso: string, end
 
   const schedule = scheduleForEmployee(employeeId, establishmentId, dateKey);
   if (!schedule) return { ok: false, reason: "Este profissional não possui expediente nesta data." };
-  if (!schedule.workingHours.some((range) => occupiedStartMinute >= toMinutes(range.start) && occupiedEndMinute <= toMinutes(range.end))) return { ok: false, reason: "O horário está fora do expediente ou atravessa uma pausa do profissional." };
+  if (!schedule.workingHours.some((range) => occupiedStartMinute >= toMinutes(range.start) && occupiedEndMinute <= toMinutes(range.end))) return { ok: false, reason: "O horário está fora do funcionamento do estabelecimento." };
 
   const busyStart = startMs - bufferBefore * 60000;
   const busyEnd = endMs + bufferAfter * 60000;
   const relevantBlocks = blockedPeriods.filter((block) => block.establishmentId === establishmentId && (!block.employeeId || block.employeeId === employeeId));
-  if (relevantBlocks.some((block) => blockConflicts(block, dateKey, timezone, occupiedStartMinute, occupiedEndMinute, busyStart, busyEnd))) return { ok: false, reason: "O horário conflita com uma folga, pausa ou bloqueio cadastrado." };
+  if (relevantBlocks.some((block) => blockConflicts(block, dateKey, timezone, occupiedStartMinute, occupiedEndMinute, busyStart, busyEnd))) return { ok: false, reason: "O horário conflita com um bloqueio de disponibilidade." };
 
   const relevantAppointments = appointments.filter((item) => item.id !== ignoreAppointmentId && item.establishmentId === establishmentId && item.employeeId === employeeId && isActiveAppointmentStatus(item.status));
   const conflictingAppointments = relevantAppointments.filter((item) => {

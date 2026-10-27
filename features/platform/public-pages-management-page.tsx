@@ -7,14 +7,13 @@ import { GlassButton, GlassInput, GlassModal, GlassSelect, GlassSurface, useConf
 import { PageHeader, PageSection, PageShell } from "@/components/admin/page-layout";
 import { getEstablishmentStatus, getPublicPageStatus } from "./domain";
 import { getPlatformPublicPageDraft, initializePublicPageConfig, publishPublicPageDraft, reactivatePublicPage, savePublicPageDraft, setPublicPagePublicationStatus } from "./public-page-builder";
-import { applySavedPublicPageTemplate } from "./public-page-templates";
+import { copyPublicPageAppearance } from "./public-page-appearance";
 import { getPlatformPageConfig, listPlatformEstablishments } from "./storage";
 import { listPlatformActions, recordPlatformAction } from "./owner-dashboard";
 import type { PageDesignConfig, PublicPageStatus } from "@/types";
 import type { PlatformEstablishmentRecord, PlatformPageAdminRecord } from "./repository-contracts";
 
 const pageStatusLabels: Record<PublicPageStatus, string> = { PUBLISHED: "Publicada", DRAFT: "Rascunho", UNPUBLISHED: "Despublicada" };
-const legacyTemplateLabels: Record<string, string> = { editorial: "Profissionais", atelier: "Premium", barber: "Serviços", minimal: "Essencial", studio: "Clínica / Estética", heritage: "Premium", essential: "Essencial", premium: "Premium", professionals: "Profissionais", services: "Serviços", clinic: "Clínica / Estética" };
 
 function formatDate(value?: string) {
   if (!value) return "—";
@@ -139,7 +138,7 @@ export function PublicPagesManagementPage() {
     if (!target || !source || source.id === target.id) return;
     const sourceContent = getPlatformPublicPageDraft(source);
     const targetContent = getPlatformPublicPageDraft(target);
-    const copied = applySavedPublicPageTemplate(targetContent, { id: `source-${source.id}`, name: source.name, content: sourceContent, createdAt: new Date().toISOString() });
+    const copied = copyPublicPageAppearance(targetContent, sourceContent);
     const saved = savePublicPageDraft(target, copied);
     if (!saved) { setFeedback("Não foi possível duplicar a aparência."); return; }
     recordPlatformAction(target, `Configuração visual copiada de ${source.name}`);
@@ -157,11 +156,10 @@ export function PublicPagesManagementPage() {
         const status = getPublicPageStatus(config, establishment);
         const version = config?.versions?.at(-1);
         const publishedAt = config?.publishedAt ?? version?.publishedAt;
-        const templateName = config ? (legacyTemplateLabels[config.template] ?? config.template) : "Padrão legado";
         const archived = getEstablishmentStatus(establishment) === "ARCHIVED";
         return <article className="public-pages-row" key={establishment.id}>
           <div className="public-pages-identity"><strong>{establishment.name}</strong><code>{establishment.slug}</code><a href={pageUrl(establishment.slug)} target="_blank" rel="noreferrer">{pageUrl(establishment.slug)}</a></div>
-          <div className="public-pages-meta"><span className={`owner-page-badge ${status === "PUBLISHED" ? "is-published" : status === "UNPUBLISHED" ? "is-unpublished" : "is-draft"}`}>{pageStatusLabels[status]}</span><small>Template: {templateName}</small><small>Alterada: {formatDate(config?.updatedAt)}</small><small>Publicada: {formatDate(publishedAt)}</small>{getEstablishmentStatus(establishment) !== "ACTIVE" && <small className="public-pages-operation-note">Operação: {getEstablishmentStatus(establishment).toLowerCase()}</small>}</div>
+          <div className="public-pages-meta"><span className={`owner-page-badge ${status === "PUBLISHED" ? "is-published" : status === "UNPUBLISHED" ? "is-unpublished" : "is-draft"}`}>{pageStatusLabels[status]}</span><small>Alterada: {formatDate(config?.updatedAt)}</small><small>Publicada: {formatDate(publishedAt)}</small>{getEstablishmentStatus(establishment) !== "ACTIVE" && <small className="public-pages-operation-note">Operação: {getEstablishmentStatus(establishment).toLowerCase()}</small>}</div>
           <div className="public-pages-actions">
             {!config && <GlassButton size="sm" variant="primary" disabled={archived} onClick={() => createPage(establishment)}><Plus size={14} />Criar página</GlassButton>}
             {!archived && <GlassButton asChild size="sm" variant="quiet"><Link href={`/platform/establishments/${encodeURIComponent(establishment.id)}/page-builder`}><Pencil size={14} />Editar</Link></GlassButton>}
@@ -185,7 +183,7 @@ export function PublicPagesManagementPage() {
     </GlassModal>
 
     <GlassModal open={Boolean(historyTarget)} onClose={() => setHistoryTarget(null)} title={`Histórico de versões · ${historyTarget?.name ?? "Página"}`} description="As versões são registradas localmente neste navegador quando a página é publicada.">
-      {historyTarget && <div className="public-pages-version-list">{(() => { const config = configs[historyTarget.id]; const versions = [...(config?.versions ?? [])].reverse(); if (!versions.length && config?.publishedSnapshot) return <article><div><strong>Última versão publicada</strong><time>{formatDate(config.publishedAt)}</time><small>Snapshot de publicação preservado.</small></div><GlassButton size="sm" variant="quiet" onClick={() => restoreVersion(historyTarget, config.publishedSnapshot!)}><RotateCcw size={14} />Restaurar rascunho</GlassButton></article>; return versions.length ? versions.map((item) => <article key={item.id}><div><strong>{item.content.publicName || item.content.heroTitle}</strong><time>{formatDate(item.publishedAt)}</time><small>{legacyTemplateLabels[item.content.template] ?? item.content.template}</small></div><GlassButton size="sm" variant="quiet" onClick={() => restoreVersion(historyTarget, item.content)}><RotateCcw size={14} />Restaurar rascunho</GlassButton></article>) : <p>Nenhuma publicação foi registrada ainda.</p>; })()}
+      {historyTarget && <div className="public-pages-version-list">{(() => { const config = configs[historyTarget.id]; const versions = [...(config?.versions ?? [])].reverse(); if (!versions.length && config?.publishedSnapshot) return <article><div><strong>Última versão publicada</strong><time>{formatDate(config.publishedAt)}</time><small>Snapshot de publicação preservado.</small></div><GlassButton size="sm" variant="quiet" onClick={() => restoreVersion(historyTarget, config.publishedSnapshot!)}><RotateCcw size={14} />Restaurar rascunho</GlassButton></article>; return versions.length ? versions.map((item) => <article key={item.id}><div><strong>{item.content.publicName || item.content.heroTitle}</strong><time>{formatDate(item.publishedAt)}</time></div><GlassButton size="sm" variant="quiet" onClick={() => restoreVersion(historyTarget, item.content)}><RotateCcw size={14} />Restaurar rascunho</GlassButton></article>) : <p>Nenhuma publicação foi registrada ainda.</p>; })()}
         {listPlatformActions(historyTarget.id).filter((item) => item.action.toLowerCase().includes("página") || item.action.toLowerCase().includes("rascunho")).slice(0, 8).map((item) => <article key={item.id}><strong>{item.action}</strong><time>{formatDate(item.occurredAt)}</time></article>)}
       </div>}
     </GlassModal>

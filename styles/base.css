@@ -70,7 +70,7 @@
   --ag-surface-card: var(--ag-glass);
   --ag-surface-overlay: var(--ag-glass-strong);
   --ag-surface-control: rgba(16, 24, 39, .68);
-  --ag-button-surface: linear-gradient(180deg, rgba(57, 121, 189, .38), rgba(23, 38, 61, .84));
+  --ag-button-surface: rgb(23, 38, 61);
   --ag-button-primary-surface: var(--ag-primary);
   --ag-button-secondary-surface: var(--ag-surface);
   --ag-button-hover-surface: var(--ag-bg-secondary);
@@ -125,7 +125,7 @@
   --ag-navigation-icon-gap: var(--ag-space-3);
   --ag-navigation-item-padding: var(--ag-space-3);
   --ag-navigation-item-radius: var(--ag-r-sm);
-  --ag-navigation-transition: var(--ag-motion) var(--ag-ease);
+  --ag-navigation-transition: var(--ag-motion-standard) var(--ag-ease-fluid);
   --ag-header-border: var(--ag-border-default);
   --ag-header-padding-inline: var(--ag-space-4);
   --ag-modal-max-height: min(90dvh, 850px);
@@ -139,10 +139,22 @@
   --ag-font-size-caption: .6875rem;
   --ag-line-height-heading: 1.15;
   --ag-line-height-body: 1.5;
-  --ag-motion-fast: 140ms;
-  --ag-motion: 230ms;
-  --ag-motion-slow: 420ms;
-  --ag-ease: cubic-bezier(.2, .75, .2, 1);
+  /* Shared motion scale: interaction, state change, and focused entry. */
+  --ag-motion-quick: 140ms;
+  --ag-motion-standard: 230ms;
+  --ag-motion-enter: 380ms;
+  --ag-motion-reveal: 420ms;
+  --ag-reveal-distance: 16px;
+  --ag-motion-progress: 850ms;
+  --ag-motion-pulse: 1100ms;
+  --ag-ease-fluid: cubic-bezier(.22, 1, .36, 1);
+  --ag-ease-standard: cubic-bezier(.4, 0, .2, 1);
+  --ag-ease-linear: linear;
+  --ag-ease-in-out: cubic-bezier(.42, 0, .58, 1);
+  --ag-motion-fast: var(--ag-motion-quick);
+  --ag-motion: var(--ag-motion-standard);
+  --ag-motion-slow: var(--ag-motion-enter);
+  --ag-ease: var(--ag-ease-fluid);
   --ag-page-width: var(--ag-content-width);
   --ag-page-gutter: var(--ag-page-padding-inline);
 
@@ -198,7 +210,7 @@
   --z-nav: 20;
   --z-popover: 40;
   --z-modal: 60;
-  --app-backdrop: linear-gradient(145deg, rgba(16, 24, 39, .92), rgba(16, 24, 39, .96)), url("/images/agendito-wallpaper.jpg") center / cover no-repeat;
+  --app-backdrop: url("/images/agendito-wallpaper.jpg") center / cover no-repeat;
 }
 
 @media (min-width: 600px) {
@@ -240,7 +252,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { min-width: 320px; scroll-behavior: smooth; background: var(--ag-night); }
+html { min-width: 320px; background: var(--ag-night); }
 body {
   min-height: 100svh;
   margin: 0;

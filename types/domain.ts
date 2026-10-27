@@ -67,7 +67,7 @@ export interface BusinessHoursInterval { start: string; end: string }
 export interface BusinessHoursDay { weekday: 0 | 1 | 2 | 3 | 4 | 5 | 6; open: boolean; intervals: BusinessHoursInterval[] }
 export interface EstablishmentSettings {
   businessHours: BusinessHoursDay[];
-  booking: { minimumLeadMinutes: number; maximumDaysAhead: number; slotStepMinutes: number; allowAnyEmployee: boolean; anyEmployeeStrategy?: "FIRST_AVAILABLE" | "BALANCED"; bufferBeforeMinutes?: number; bufferAfterMinutes?: number };
+  booking: { minimumLeadMinutes: number; maximumDaysAhead: number; slotStepMinutes: number; allowAnyEmployee: boolean; anyEmployeeStrategy?: "FIRST_AVAILABLE" | "BALANCED"; bufferBeforeMinutes?: number; bufferAfterMinutes?: number; requiresApproval?: boolean };
   cancellation: { customerCanCancel: boolean; minimumLeadMinutes: number };
   rescheduling: { customerCanReschedule: boolean; minimumLeadMinutes: number };
 }
@@ -90,6 +90,7 @@ export interface PageDesignConfig extends PublicPageCustomization {
   cardStyle?: "glass" | "solid" | "outline";
   typography?: "modern" | "editorial" | "rounded";
   cornerRadius?: number;
+  buttonCornerRadius?: number;
   sectionSpacing?: "compact" | "comfortable" | "airy";
   sections?: PublicPageSection[];
   galleryImages?: string[];

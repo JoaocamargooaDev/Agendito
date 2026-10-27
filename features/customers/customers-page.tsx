@@ -5,11 +5,13 @@ import { ArrowRight, CalendarDays, Mail, Phone, Search, Save } from "lucide-reac
 import React from "react";
 import { AdminPageContainer, AdminPageHeader } from "@/components/admin";
 import { GlassButton, GlassInput, GlassSelect, GlassSurface } from "@/components/ui";
+import { LoadingStatus } from "@/components/ui/loading-status";
 import { listEmployees } from "@/features/employees";
 import { useAuth } from "@/features/auth";
 import { listAllEstablishments } from "@/features/platform";
 import { formatTime } from "@/features/dashboard/selectors";
 import { formatCurrency } from "@/lib/utils";
+import { APPOINTMENT_STATUS_LABELS } from "@/features/agenda/status";
 import { mergeCustomerRecords, updateCustomerEstablishmentProfile } from "@/features/customer/repository";
 import { filterCustomerSnapshots, getCustomerSnapshot } from "./selectors";
 import type { CustomerSnapshot } from "./selectors";
@@ -17,11 +19,11 @@ import type { CustomerSnapshot } from "./selectors";
 function initials(name: string) { return name.split(" ").map((part) => part[0]).join("").slice(0, 2); }
 function employeeName(id: string) { return listEmployees().find((item) => item.id === id)?.displayName ?? "Profissional"; }
 function dateLabel(iso: string) { return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(iso)); }
-function statusLabel(status: string) { return status === "COMPLETED" ? "Concluído" : status === "CANCELLED" ? "Cancelado" : status === "NO_SHOW" ? "Não compareceu" : status === "IN_PROGRESS" ? "Em atendimento" : status === "CONFIRMED" ? "Confirmado" : "Agendado"; }
+function statusLabel(status: keyof typeof APPOINTMENT_STATUS_LABELS) { return APPOINTMENT_STATUS_LABELS[status]; }
 
 export function CustomersPage({ detailId }: { detailId?: string }) {
   const { user, status } = useAuth(); const establishment = listAllEstablishments().find((item) => item.id === user?.establishmentId); const snapshots = establishment ? filterCustomerSnapshots(establishment.id, "", "all") : []; const detail = detailId && establishment ? getCustomerSnapshot(detailId, establishment.id) : null;
-  if (status === "loading") return <AdminPageContainer><div className="dashboard-loading">Carregando clientes…</div></AdminPageContainer>;
+  if (status === "loading") return <AdminPageContainer><LoadingStatus className="dashboard-loading">Carregando clientes…</LoadingStatus></AdminPageContainer>;
   if (!establishment) return <AdminPageContainer><AdminPageHeader title="Clientes" description="Estabelecimento indisponível." /><GlassSurface material="frosted" className="dashboard-empty">Não foi possível carregar os clientes.</GlassSurface></AdminPageContainer>;
   if (detailId) return detail ? <CustomerProfile snapshot={detail} /> : <AdminPageContainer><AdminPageHeader title="Cliente não encontrado" description="Este cliente não possui relacionamento com o estabelecimento atual." /><GlassButton asChild variant="ghost"><Link href="/customers">Voltar para clientes</Link></GlassButton></AdminPageContainer>;
   return <CustomerList establishmentId={establishment.id} initialSnapshots={snapshots} />;

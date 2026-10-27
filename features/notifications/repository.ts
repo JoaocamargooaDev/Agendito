@@ -1,9 +1,10 @@
-import type { Appointment, AppointmentHistoryEvent } from "@/types";
+import type { Appointment, AppointmentHistoryEvent, AppointmentStatus } from "@/types";
 import { REGISTERED_CUSTOMERS_KEY } from "@/features/auth/constants";
 import { CAPABILITIES, canCurrentSession, currentSessionUserId } from "@/features/auth/capabilities";
 import { customers as mockCustomers, users as mockUsers } from "@/mocks";
 import { listAllEstablishments } from "@/features/platform/storage";
 import { isFeatureEnabled } from "@/features/platform/policies";
+import { APPOINTMENT_STATUS_LABELS } from "@/features/agenda/status";
 
 export const NOTIFICATIONS_STORAGE_KEY = "agendito.mock.notifications.v1";
 export const NOTIFICATION_PREFERENCES_KEY = "agendito.mock.notification-preferences.v1";
@@ -78,7 +79,7 @@ function contextsForAppointment(appointment: Appointment) { return [
   { context: "CUSTOMER" as const, contextId: appointment.customerId, customerId: appointment.customerId, link: `/customer/appointments/${appointment.id}` },
 ]; }
 function labelDate(value: string) { return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(value)); }
-function statusLabel(value: string) { return ({ SCHEDULED: "Agendado", CONFIRMED: "Confirmado", IN_PROGRESS: "Em atendimento", COMPLETED: "Concluído", CANCELLED: "Cancelado", NO_SHOW: "Não compareceu" } as Record<string, string>)[value] ?? value; }
+function statusLabel(value: string) { return APPOINTMENT_STATUS_LABELS[value as AppointmentStatus] ?? value; }
 function customerLabel(customerId: string) {
   const customer = mockCustomers.find((item) => item.id === customerId);
   const mockName = customer ? mockUsers.find((item) => item.id === customer.userId)?.name : undefined;

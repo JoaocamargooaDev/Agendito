@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AdminPageContainer, AdminPageHeader } from "@/components/admin";
 import { GlassButton, GlassInput, GlassSelect, GlassSurface, useConfirmation } from "@/components/ui";
+import { LoadingStatus } from "@/components/ui/loading-status";
 import { useAuth } from "@/features/auth";
 import { listAllEstablishments } from "@/features/platform";
 import { isFeatureEnabled } from "@/features/platform/policies";
@@ -43,7 +44,7 @@ function localCustomerId(prefix: string) { return `${prefix}-${globalThis.crypto
 export function AdvancedFeaturesPage() {
   const { user, status } = useAuth();
   const establishment = listAllEstablishments().find((item) => item.id === user?.establishmentId);
-  if (status === "loading") return <AdminPageContainer><p>Carregando recursos…</p></AdminPageContainer>;
+  if (status === "loading") return <AdminPageContainer><LoadingStatus>Carregando recursos…</LoadingStatus></AdminPageContainer>;
   if (!establishment) return <AdminPageContainer><AdminPageHeader title="Recursos indisponíveis" description="Não foi possível carregar o estabelecimento desta sessão." /></AdminPageContainer>;
   return <AdvancedFeaturesWorkspace key={establishment.id} establishment={establishment} />;
 }

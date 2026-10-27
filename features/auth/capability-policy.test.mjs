@@ -73,5 +73,6 @@ test("all profile route families are isolated and public booking remains reachab
     assert.equal(canAccessPath(path, roleCapabilities[role] ?? []), expected, `${role} → ${path}`);
   }
   assert.equal(canAccessPath("/e/barbearia-demo/booking", []), true);
+  assert.equal(canAccessPath("/booking", []), true);
   assert.equal(canAccessPath("/dashboardish", roleCapabilities.ADMIN), false);
 });

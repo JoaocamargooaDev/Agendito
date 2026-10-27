@@ -1,15 +1,15 @@
-import type { BusinessHoursDay, EstablishmentSettings, PublicPaletteId, PublicTemplateId } from "@/types";
+import type { BusinessHoursDay, EstablishmentSettings, PublicPaletteId } from "@/types";
 import { PLATFORM_FEATURES } from "./policies";
 
 export const ESTABLISHMENT_ONBOARDING_DRAFT_KEY = "agendito.mock.platform-onboarding-draft.v1";
 
 export const establishmentPresets = [
-  { id: "empty", name: "Estabelecimento vazio", segment: "", description: "", template: "essential" as PublicTemplateId },
-  { id: "salon", name: "Salão de beleza", segment: "Salão de beleza", description: "Atendimento de beleza com hora marcada.", template: "premium" as PublicTemplateId },
-  { id: "barber", name: "Barbearia", segment: "Barbearia", description: "Cortes, barba e cuidados pessoais.", template: "services" as PublicTemplateId },
-  { id: "aesthetic", name: "Clínica de estética", segment: "Clínica de estética", description: "Cuidados estéticos personalizados com horário agendado.", template: "clinic" as PublicTemplateId },
-  { id: "office", name: "Consultório não clínico", segment: "Consultório não clínico", description: "Atendimentos especializados com hora marcada.", template: "professionals" as PublicTemplateId },
-  { id: "services", name: "Serviços em geral", segment: "Serviços", description: "Serviços personalizados com agendamento online.", template: "essential" as PublicTemplateId },
+  { id: "empty", name: "Estabelecimento vazio", segment: "", description: "" },
+  { id: "salon", name: "Salão de beleza", segment: "Salão de beleza", description: "Atendimento de beleza com hora marcada." },
+  { id: "barber", name: "Barbearia", segment: "Barbearia", description: "Cortes, barba e cuidados pessoais." },
+  { id: "aesthetic", name: "Clínica de estética", segment: "Clínica de estética", description: "Cuidados estéticos personalizados com horário agendado." },
+  { id: "office", name: "Consultório não clínico", segment: "Consultório não clínico", description: "Atendimentos especializados com hora marcada." },
+  { id: "services", name: "Serviços em geral", segment: "Serviços", description: "Serviços personalizados com agendamento online." },
 ] as const;
 
 export type EstablishmentPresetId = (typeof establishmentPresets)[number]["id"];
@@ -44,7 +44,6 @@ export interface EstablishmentOnboardingForm {
   primaryColor: string;
   secondaryColor: string;
   palette: PublicPaletteId;
-  template: PublicTemplateId;
   publicName: string;
   slug: string;
   businessHours: BusinessHoursDay[];
@@ -74,7 +73,7 @@ export function createDefaultOnboardingForm(): EstablishmentOnboardingForm {
   return {
     preset: "empty", establishmentName: "", managerName: "", managerEmail: "", managerPhone: "",
     managerPassword: "", managerPasswordConfirmation: "", segment: "", description: "", street: "", number: "", district: "", postalCode: "", city: "", state: "", timezone: "America/Sao_Paulo",
-    logoUrl: "", primaryColor: "#3979bd", secondaryColor: "#66d8e8", palette: "moss", template: "essential", publicName: "", slug: "",
+    logoUrl: "", primaryColor: "#3979bd", secondaryColor: "#66d8e8", palette: "moss", publicName: "", slug: "",
     businessHours: businessHours([]), slotStepMinutes: 30, minimumLeadMinutes: 0, maximumDaysAhead: 30,
     customerCanCancel: true, cancellationLeadMinutes: 120, customerCanReschedule: true, reschedulingLeadMinutes: 120,
     allowAnyEmployee: true, enabledFeatures: onboardingFeatureOptions.map(({ id }) => id).filter((id) => !["waitlist", "recurrences", "packages", "loyalty", "commissions", "multi-unit"].includes(id)), publishAfterCreate: false, step: 0,
@@ -88,7 +87,6 @@ export function applyEstablishmentPreset(current: EstablishmentOnboardingForm, p
     preset: presetId,
     segment: preset.segment,
     description: preset.description,
-    template: preset.template,
   };
 }
 

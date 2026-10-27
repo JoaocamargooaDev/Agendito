@@ -1,0 +1,164 @@
+/* Solid surfaces replace the former translucent glass treatment across the app. */
+body {
+  background-color: var(--ag-bg, #101827);
+  background-blend-mode: multiply;
+}
+
+.agenda-grid { background: var(--ag-bg-secondary, #17263d); }
+.agenda-blocked { background: var(--ag-surface, #1c3352); }
+
+.ambient { display: none; }
+
+.glass-surface::before,
+.glass-surface::after,
+.frosted-panel::before,
+.frosted-panel::after,
+.liquid-glass__surface::before,
+.liquid-glass__surface::after,
+.glass-button::before,
+.glass-navigation::before,
+.glass-popover::before,
+.mobile-more-sheet::before,
+.admin-sidebar::before {
+  display: none;
+}
+
+.liquid-glass__distortion { filter: none; }
+.liquid-glass__refractive::before { filter: none; }
+
+:is(.glass-surface, .frosted-panel, .liquid-glass__surface, .glass-popover, .glass-modal, .customer-profile-menu, .mobile-more-sheet) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background-image: none;
+  background-color: var(--ag-surface, #1c3352);
+  box-shadow: var(--ag-shadow-small, 0 10px 28px rgba(3, 9, 19, .28));
+}
+
+:is(.glass-material-clear, .glass-material-regular, .glass-material-thick, .glass-material-frosted, .glass-material-floating, .glass-material-interactive) {
+  background-color: var(--ag-surface, #1c3352);
+  background-image: none;
+  box-shadow: var(--ag-shadow-small, 0 10px 28px rgba(3, 9, 19, .28));
+}
+
+.glass-dark { box-shadow: var(--ag-shadow-small, 0 10px 28px rgba(3, 9, 19, .28)); }
+
+.glass-popover,
+.glass-modal,
+.customer-profile-menu,
+.mobile-more-sheet { box-shadow: var(--ag-shadow-dropdown, 0 18px 45px rgba(3, 9, 19, .34)); }
+
+.glass-button { box-shadow: var(--ag-shadow-button, 0 8px 24px rgba(3, 9, 19, .25)); }
+
+:is(.admin-shell, .platform-shell:not(:has(.public-page)), .customer-app, .employee-app, .booking-page:not(.public-tenant-page), .auth-shell) :is(.glass-surface, .frosted-panel, .liquid-glass__surface, .glass-popover, .glass-modal, .customer-profile-menu, .mobile-more-sheet) {
+  background-color: var(--ag-surface, #1c3352);
+}
+
+.public-page :is(.glass-surface, .frosted-panel, .liquid-glass__surface, .glass-popover, .glass-modal, .customer-profile-menu, .mobile-more-sheet, .public-service-row, .public-professional, .public-hours, .public-about-copy, .public-faq details, .public-empty, .public-glass-bar) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background-color: var(--public-page-surface, #fffefa);
+  background-image: none;
+}
+
+.public-tenant-page :is(.glass-surface, .frosted-panel, .liquid-glass__surface, .glass-popover, .glass-modal, .customer-profile-menu, .mobile-more-sheet, .public-service-row, .public-professional, .public-hours, .public-about-copy, .public-faq details, .public-empty, .public-glass-bar) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background-color: var(--public-page-surface, #fffefa);
+  background-image: none;
+}
+
+.public-page .public-header-compact,
+.public-page .public-anchor-nav {
+  background-color: var(--public-page-surface, #fffefa);
+  background-image: none;
+}
+
+.public-page .public-booking-intent > .glass-surface {
+  color: #fff;
+  background-color: color-mix(in srgb, var(--public-page-accent, #3f5845) 78%, #17251d);
+}
+
+.public-page .public-booking-intent > .glass-surface :is(h2, p, .eyebrow) { color: inherit; }
+
+.public-tenant-page :is(.public-header-compact, .public-anchor-nav) {
+  background-color: var(--public-page-surface, #fffefa);
+  background-image: none;
+}
+
+.public-page .public-hero-shade { background: rgba(10, 18, 12, .48); }
+.public-page .store-profile::after,
+.store-profile::after { background: rgba(20, 13, 22, .46); }
+
+/* Keep header content away from rounded edges and let narrow layouts reflow. */
+:is(.admin-header, .customer-header, .employee-header, .platform-console-topbar, .public-header) {
+  box-sizing: border-box;
+  min-width: 0;
+  padding-inline: clamp(1rem, 2vw, 1.5rem);
+}
+
+.admin-workspace > .admin-header {
+  width: min(1440px, calc(100% - 2rem));
+  max-width: 100%;
+  padding-inline: clamp(1rem, 2vw, 1.5rem);
+}
+
+:is(.admin-header-title, .admin-header-page-actions, .admin-header-actions, .customer-header-actions, .employee-header-actions, .platform-console-topbar-context, .platform-console-topbar-actions, .public-glass-bar, .public-header-actions) {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.admin-header-title,
+.platform-console-topbar-context { flex: 1 1 auto; }
+
+.admin-header-page-actions { flex-wrap: wrap; }
+
+.public-page .public-header { padding-inline: clamp(1rem, 3vw, 2rem); }
+.public-page .public-glass-bar {
+  box-sizing: border-box;
+  width: min(var(--ag-page-width, 1200px), 100%);
+  max-width: 100%;
+  padding-inline: clamp(.85rem, 2vw, 1.25rem);
+}
+
+:is(.admin-page-header, .settings-heading, .customer-page-intro, .booking-heading, .platform-header, .employee-page-heading, .page-header) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  padding-inline: max(var(--ag-card-padding, 1rem), clamp(1rem, 2vw, 1.5rem));
+}
+
+:is(.admin-page-header, .settings-heading, .customer-page-intro, .booking-heading, .platform-header, .employee-page-heading, .page-header) > :first-child {
+  min-width: 0;
+}
+
+:is(.modal-header, .form-section-heading, .section-header) { box-sizing: border-box; min-width: 0; }
+
+@media (max-width: 800px) {
+  :is(.admin-header, .customer-header, .employee-header, .platform-console-topbar, .public-header) {
+    padding-inline: 1rem;
+  }
+
+  .admin-workspace > .admin-header {
+    width: calc(100% - 2rem);
+    padding-inline: 1rem;
+  }
+
+  .public-page .public-header { padding-inline: .75rem; }
+  .public-page .public-glass-bar { padding-inline: .75rem; }
+
+  :is(.admin-page-header, .settings-heading, .customer-page-intro, .booking-heading, .platform-header, .employee-page-heading, .page-header) {
+    padding-inline: max(.9rem, var(--ag-card-padding, 1rem));
+  }
+}
+
+@media (max-width: 380px) {
+  :is(.admin-header, .customer-header, .employee-header, .platform-console-topbar) { padding-inline: .75rem; }
+  .admin-workspace > .admin-header { width: calc(100% - 1.5rem); padding-inline: .75rem; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :is(.glass-surface, .frosted-panel, .liquid-glass__surface, .glass-popover, .glass-modal, .customer-profile-menu, .mobile-more-sheet) {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

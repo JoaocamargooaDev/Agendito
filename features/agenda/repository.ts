@@ -13,7 +13,7 @@ import { awardLoyaltyForCompletedAppointment, consumePackageSession, listService
 import { CAPABILITIES, canCurrentSession, currentSessionEstablishmentId, currentSessionUserId, isCurrentSessionUser } from "@/features/auth/capabilities";
 import { isPublishedPublicEstablishment } from "@/features/platform/public-access";
 import { publicAppointmentRecord, publicAvailabilityAppointmentRecord } from "@/features/platform/data-projections.mjs";
-import { isActiveAppointmentStatus, isEditableAppointmentStatus } from "./status";
+import { canTransitionAppointment, isActiveAppointmentStatus, isEditableAppointmentStatus } from "./status";
 
 function canWriteAppointment(establishmentId: string, source: "internal" | "public", origin?: AppointmentEventOrigin) {
   // Public bookings are intentionally available without an authenticated account;
@@ -43,16 +43,17 @@ export const APPOINTMENTS_STORAGE_KEY = "agendito.mock.appointments.v1";
 export const BLOCKED_PERIODS_STORAGE_KEY = "agendito.mock.blocked-periods.v1";
 const appointmentsRepository = createLocalTenantRepository<Appointment>(APPOINTMENTS_STORAGE_KEY, "agendito:agenda-updated");
 const blockedPeriodsRepository = createLocalTenantRepository<BlockedPeriod>(BLOCKED_PERIODS_STORAGE_KEY, "agendito:agenda-updated");
-export const APPOINTMENT_TRANSITIONS: Record<AppointmentStatus, AppointmentStatus[]> = {
-  SCHEDULED: ["CONFIRMED", "IN_PROGRESS", "CANCELLED", "NO_SHOW"],
-  CONFIRMED: ["IN_PROGRESS", "CANCELLED", "NO_SHOW"],
-  IN_PROGRESS: ["COMPLETED"],
-  COMPLETED: [], CANCELLED: [], NO_SHOW: [],
-};
-export function getAppointmentTransitions(status: AppointmentStatus) { return APPOINTMENT_TRANSITIONS[status]; }
-export function canTransitionAppointment(from: AppointmentStatus, to: AppointmentStatus) { return APPOINTMENT_TRANSITIONS[from].includes(to); }
 function historyEvent(type: AppointmentHistoryEvent["type"], origin: AppointmentEventOrigin, values: Partial<AppointmentHistoryEvent> = {}): AppointmentHistoryEvent {
   return { id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `evt-${Date.now()}-${Math.random().toString(36).slice(2)}`, type, at: new Date().toISOString(), origin, ...values };
+}
+
+function appointmentOverlapsBlockedRange(appointment: Appointment, startsAt: number, endsAt: number, establishmentId: string) {
+  const booking = getEstablishmentSettings(establishmentId).booking;
+  const services = appointment.serviceSnapshots?.length ? appointment.serviceSnapshots : [{ preparationMinutes: 0, cleanupMinutes: 0 }];
+  const before = (booking.bufferBeforeMinutes ?? 0) + services.reduce((sum, item) => sum + (item.preparationMinutes ?? 0), 0);
+  const after = (booking.bufferAfterMinutes ?? 0) + services.reduce((sum, item) => sum + (item.cleanupMinutes ?? 0), 0);
+  return new Date(appointment.startsAt).getTime() - before * 60000 < endsAt
+    && new Date(appointment.endsAt).getTime() + after * 60000 > startsAt;
 }
 
 export function listAppointments(establishmentId?: string) {
@@ -131,7 +132,10 @@ export function createAppointment(input: Omit<Appointment, "id" | "createdAt"> &
   let suffix = 1;
   while (existingAppointments.some((item) => item.id === id)) { id = `${baseId}-${suffix}`; suffix += 1; }
   const createdAt = input.createdAt ?? new Date().toISOString();
-  const appointment: Appointment = { ...input, id, createdAt, history: [...(input.history ?? []), historyEvent("CREATED", source === "public" ? "PUBLIC" : "ADMIN", { toStatus: input.status, startsAt: input.startsAt, endsAt: input.endsAt })] };
+  const status = source === "public"
+    ? getEstablishmentSettings(input.establishmentId).booking.requiresApproval === false ? "CONFIRMED" : "SCHEDULED"
+    : input.status;
+  const appointment: Appointment = { ...input, id, status, createdAt, history: [...(input.history ?? []), historyEvent("CREATED", source === "public" ? "PUBLIC" : "ADMIN", { toStatus: status, startsAt: input.startsAt, endsAt: input.endsAt })] };
   const establishment = listAllEstablishments().find((item) => item.id === appointment.establishmentId);
   if (!establishment || getOperationalBlockReason(establishment) || !isFeatureEnabled(establishment, "team-schedule")) return null;
   if (source === "public" && getPublicBookingBlockReason(establishment, getPageConfig(establishment.id))) return null;
@@ -200,10 +204,7 @@ export function createBlockedPeriod(input: Omit<BlockedPeriod, "id"> & { id?: st
   const start = new Date(input.startsAt).getTime();
   const end = new Date(input.endsAt).getTime();
   if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return null;
-  const booking = getEstablishmentSettings(establishment.id).booking;
-  const beforeMs = (booking.bufferBeforeMinutes ?? 0) * 60000;
-  const afterMs = (booking.bufferAfterMinutes ?? 0) * 60000;
-  const conflict = listAppointments(establishment.id).some((appointment) => isActiveAppointmentStatus(appointment.status) && (!input.employeeId || appointment.employeeId === input.employeeId) && new Date(appointment.startsAt).getTime() - beforeMs < end && new Date(appointment.endsAt).getTime() + afterMs > start);
+  const conflict = listAppointments(establishment.id).some((appointment) => isActiveAppointmentStatus(appointment.status) && (!input.employeeId || appointment.employeeId === input.employeeId) && appointmentOverlapsBlockedRange(appointment, start, end, establishment.id));
   if (conflict) return null;
   const baseId = `block-${input.establishmentId}-${input.employeeId ?? "all"}-${input.startsAt}`.replace(/[^a-zA-Z0-9_-]/g, "-");
   let id = input.id ?? baseId;
@@ -225,7 +226,7 @@ export function updateBlockedPeriod(id: string, patch: Partial<Omit<BlockedPerio
   const start = new Date(next.startsAt).getTime();
   const end = new Date(next.endsAt).getTime();
   if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return null;
-  const conflict = listAppointments(establishment.id).some((appointment) => isActiveAppointmentStatus(appointment.status) && (!next.employeeId || appointment.employeeId === next.employeeId) && new Date(appointment.startsAt).getTime() < end && new Date(appointment.endsAt).getTime() > start);
+  const conflict = listAppointments(establishment.id).some((appointment) => isActiveAppointmentStatus(appointment.status) && (!next.employeeId || appointment.employeeId === next.employeeId) && appointmentOverlapsBlockedRange(appointment, start, end, establishment.id));
   if (conflict) return null;
   return blockedPeriodsRepository.update(existing.establishmentId, id, patch);
 }

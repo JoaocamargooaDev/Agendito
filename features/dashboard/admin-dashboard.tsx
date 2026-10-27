@@ -5,6 +5,7 @@ import { ArrowRight, CalendarDays, Check, CircleAlert, Clock3, Copy, Download, E
 import { useEffect, useState } from "react";
 import { AdminPageContainer, SectionHeader } from "@/components/admin";
 import { ActionCard, ContentGrid, EmptyCard, GlassButton, GlassSurface, StatCard } from "@/components/ui";
+import { LoadingStatus } from "@/components/ui/loading-status";
 import { profileForCustomer } from "@/features/customer/repository";
 import { useAuth } from "@/features/auth";
 import { listAllEstablishments } from "@/features/platform";
@@ -49,7 +50,7 @@ export function AdminDashboard() {
   const analytics = establishment ? getEstablishmentAnalytics(establishment.id, timezone, filters) : null;
   const employeeNames = new Map(listEmployees(establishment?.id).map((employee) => [employee.id, employee.displayName]));
 
-  if (status === "loading") return <AdminPageContainer><div className="dashboard-loading" aria-live="polite">Carregando visão geral…</div></AdminPageContainer>;
+  if (status === "loading") return <AdminPageContainer><LoadingStatus className="dashboard-loading">Carregando visão geral…</LoadingStatus></AdminPageContainer>;
   if (!establishment || !snapshot || !analytics) return <AdminPageContainer><header className="admin-page-header"><span className="eyebrow">Visão geral</span><h1>Estabelecimento indisponível</h1><p>Não foi possível carregar os dados administrativos desta sessão.</p></header><EmptyCard className="dashboard-empty" icon={<CircleAlert size={20} />} title="Não foi possível carregar" description="Verifique a sessão e tente novamente." /></AdminPageContainer>;
 
   const customerName = (customerId: string) => profileForCustomer(customerId)?.user.name ?? "Cliente";

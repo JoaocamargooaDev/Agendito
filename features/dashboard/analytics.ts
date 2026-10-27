@@ -3,7 +3,7 @@ import { listEmployees } from "@/features/employees";
 import { listAllEstablishments } from "@/features/platform";
 import { listServices } from "@/features/services";
 import { addDays, dateKeyInTimezone as bookingDateKey, isoForLocalTime } from "@/features/booking/rules";
-import { scheduleForEmployee } from "@/features/agenda/availability";
+import { isProfessionalAvailableOnDate, scheduleForEmployee } from "@/features/agenda/availability";
 import { occupiesAppointmentTime, isActiveAppointmentStatus } from "@/features/agenda/status";
 import type { Appointment, AppointmentStatus, Employee, Service } from "@/types";
 
@@ -104,6 +104,7 @@ export function calculateOccupancy(establishmentId: string, timezone: string, ra
   for (let offset = 0; offset < days; offset += 1) {
     const dateKey = addDays(range.startDate, offset);
     for (const employee of activeEmployees) {
+      if (!isProfessionalAvailableOnDate(employee.id, establishmentId, dateKey)) continue;
       const hours = scheduleForEmployee(employee.id, establishmentId, dateKey)?.workingHours ?? [];
       for (const interval of hours) {
         const shiftStart = new Date(isoForLocalTime(dateKey, interval.start, timezone)).getTime();

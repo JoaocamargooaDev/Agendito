@@ -1,0 +1,481 @@
+.page:global(.entry-page) {
+  display: block;
+  min-height: 100svh;
+  padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 5vw, 5rem) clamp(1.25rem, 2vw, 2rem);
+  overflow: clip;
+}
+
+.layout:global(.entry-layout) {
+  display: grid;
+  width: min(100%, 1320px);
+  max-width: 1320px;
+  margin-inline: auto;
+  gap: 0;
+  justify-items: stretch;
+  transform: none;
+}
+
+.hero {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .96fr);
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: clamp(2rem, 5vw, 5.5rem);
+}
+
+.heroCopy {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: center;
+  display: grid;
+  align-content: center;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  min-width: 0;
+}
+
+.intro:global(.entry-intro) {
+  display: block;
+  width: 100%;
+  max-width: 680px;
+  margin: 0;
+  text-align: left;
+}
+
+.heroCopy .intro h1 {
+  width: 100%;
+  max-width: none;
+  margin: 1rem 0 1.15rem;
+  text-align: left;
+  font-size: clamp(3rem, 5.3vw, 5.4rem);
+  line-height: .98;
+  text-wrap: balance;
+}
+
+.heroCopy .intro p {
+  max-width: 48ch;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.destinations:global(.entry-destinations) {
+  grid-template-columns: minmax(0, 1fr);
+  width: min(100%, 650px);
+  max-width: none;
+  margin: 0;
+  gap: .75rem;
+}
+
+.destination:global(.entry-destination) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 96px;
+  padding: 1rem 1.1rem;
+}
+
+.destination :global(.entry-destination-icon) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.destination :global(.entry-destination-copy) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.destination :global(.entry-destination-action) {
+  grid-column: 3;
+  grid-row: 1;
+  width: auto;
+}
+
+.heroPhoto,
+.featurePhoto {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--ag-line);
+  border-radius: var(--ag-r-card);
+  background: var(--ag-bg-secondary);
+  box-shadow: var(--ag-shadow-card);
+}
+
+.heroPhoto {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+.heroVisual {
+  position: relative;
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 4 / 3;
+  isolation: isolate;
+}
+
+.floatingSchedule,
+.floatingService {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: .6rem;
+  pointer-events: none;
+  color: #30202d;
+  border: 1px solid rgba(255, 255, 255, .82);
+  border-radius: var(--ag-r-card);
+  background: rgb(250, 246, 243);
+  box-shadow: inset 0 1px 0 #fff, 0 12px 30px rgba(0, 0, 0, .22);
+  will-change: transform;
+}
+
+.floatingSchedule {
+  top: 5%;
+  right: 4%;
+  width: min(210px, 42%);
+  padding: .8rem;
+  animation: float-schedule 8s ease-in-out infinite;
+}
+
+.previewLabel {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  color: #70465e;
+  font-size: .7rem;
+  font-weight: 720;
+}
+
+.previewSlots {
+  display: flex;
+  gap: .35rem;
+}
+
+.previewSlots span {
+  flex: 1;
+  padding: .35rem .25rem;
+  color: #30202d;
+  border: 1px solid rgba(129, 85, 110, .2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .68);
+  font-size: .66rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.floatingService {
+  bottom: 5%;
+  left: 3%;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: .6rem;
+  width: min(265px, 54%);
+  padding: .75rem;
+  animation: float-service 9s ease-in-out infinite;
+}
+
+.previewServiceIcon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: #70465e;
+  border: 1px solid rgba(129, 85, 110, .2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .68);
+}
+
+.previewServiceCopy {
+  display: grid;
+  gap: .2rem;
+  min-width: 0;
+}
+
+.previewServiceCopy strong {
+  overflow: hidden;
+  font-size: .72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.previewServiceCopy small {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  overflow: hidden;
+  color: #625762;
+  font-size: .61rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.previewServiceCopy i {
+  width: 3px;
+  height: 3px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+@keyframes float-schedule {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(1deg); }
+  50% { transform: translate3d(0, -6px, 0) scale(.99) rotate(1deg); }
+}
+
+@keyframes float-service {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(-1.2deg); }
+  50% { transform: translate3d(0, 5px, 0) scale(1.005) rotate(-1.2deg); }
+}
+
+.heroBrand {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.heroBrand :global(.agendito-logo-large) {
+  width: clamp(320px, 34vw, 460px);
+  height: clamp(213px, 22.7vw, 307px);
+}
+
+.photo {
+  object-fit: cover;
+}
+
+.features {
+  display: grid;
+  width: 100%;
+  gap: clamp(1.75rem, 3vw, 2.75rem);
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.featuresHeading {
+  max-width: 720px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.featuresHeading h2 {
+  margin: .8rem 0 0;
+  color: var(--ag-text);
+  font-size: clamp(2rem, 4.5vw, 3.7rem);
+  line-height: 1.04;
+  letter-spacing: -.055em;
+  text-wrap: balance;
+}
+
+.featureList {
+  display: grid;
+  gap: clamp(2.25rem, 4.5vw, 4rem);
+}
+
+.feature {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .82fr);
+  align-items: center;
+  gap: clamp(2rem, 7vw, 7rem);
+}
+
+.featureReverse {
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.08fr);
+}
+
+.featureReverse .featurePhoto {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.featureReverse .featureCopy {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.featurePhoto {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+.featureCopy {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 1rem;
+  min-width: 0;
+  max-width: 540px;
+}
+
+.featureIndex {
+  color: var(--ag-cyan);
+  font-size: .72rem;
+  font-weight: 760;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.featureCopy h3 {
+  margin: 0;
+  color: var(--ag-text);
+  font-size: clamp(1.8rem, 3.8vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+
+.featureCopy p {
+  max-width: 48ch;
+  margin: 0;
+  color: var(--ag-text-secondary);
+  font-size: clamp(.95rem, 1.2vw, 1.08rem);
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    gap: 2rem;
+  }
+
+  .heroCopy {
+    grid-column: 1;
+    grid-row: 2;
+    gap: 1.5rem;
+  }
+
+  .heroBrand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .heroVisual {
+    grid-column: 1;
+    grid-row: 3;
+    max-height: 560px;
+  }
+
+  .feature,
+  .featureReverse {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .9fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .page:global(.entry-page) {
+    padding: .75rem 1rem 1.25rem;
+  }
+
+  .heroCopy .intro h1 {
+    width: 100%;
+    max-width: none;
+    margin: .8rem 0 .75rem;
+    font-size: clamp(2.5rem, 9vw, 3.6rem);
+  }
+
+  .heroCopy .intro p {
+    font-size: 1rem;
+  }
+
+  .destinations:global(.entry-destinations) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .6rem;
+  }
+
+  .destination:global(.entry-destination) {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    min-height: 88px;
+    padding: .8rem;
+    gap: .65rem;
+  }
+
+  .floatingSchedule {
+    top: 4%;
+    right: 3%;
+    width: min(155px, 46%);
+    padding: .6rem;
+    gap: .45rem;
+  }
+
+  .previewLabel {
+    font-size: .62rem;
+  }
+
+  .previewSlots span {
+    padding: .3rem .15rem;
+    font-size: .58rem;
+  }
+
+  .floatingService {
+    display: none;
+  }
+
+  .heroVisual {
+    aspect-ratio: 4 / 3;
+  }
+
+  .heroBrand :global(.agendito-logo-large) {
+    width: min(100%, clamp(260px, 78vw, 360px));
+    height: clamp(173px, 52vw, 240px);
+  }
+
+  .features {
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .featuresHeading {
+    text-align: left;
+  }
+
+  .featureList {
+    gap: 1.75rem;
+  }
+
+  .feature,
+  .featureReverse {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.2rem;
+  }
+
+  .featureReverse .featurePhoto,
+  .featureReverse .featureCopy {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .featureCopy {
+    gap: .7rem;
+  }
+
+  .featureCopy h3 {
+    font-size: clamp(1.7rem, 8vw, 2.25rem);
+  }
+
+  .featurePhoto {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page :global(.entry-destination) {
+    transition: none;
+  }
+
+  .floatingSchedule,
+  .floatingService {
+    animation: none;
+    will-change: auto;
+  }
+}

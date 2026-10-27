@@ -6,10 +6,11 @@ import "@/styles/layout-audit.css";
 import "@/styles/design-system.css";
 import "@/styles/public-storefront.css";
 import "@/styles/customer-dashboard.css";
+import "@/styles/solid-appearance.css";
 import { AuthProvider } from "@/features/auth";
-import { GlassFilterDefinitions } from "@/components/ui/glass-filter-definitions";
 import { NotificationRuntime } from "@/features/notifications/notification-runtime";
 import { ConfirmationProvider } from "@/components/ui";
+import { ContentRevealRuntime } from "@/components/ui/content-reveal-runtime";
 
 export const metadata: Metadata = {
   title: "Agendito — agendamentos para estabelecimentos e clientes",
@@ -18,9 +19,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" data-scroll-behavior="smooth">
+    <html lang="pt-BR">
       <body>
-        <GlassFilterDefinitions />
         <div className="agendito-background-art" aria-hidden="true">
           <span className="background-art-clock" />
           <span className="background-art-calendar" />
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <span className="background-art-planner" />
           <span className="background-art-calendar-clock" />
         </div>
-        <AuthProvider><ConfirmationProvider><NotificationRuntime /><div className="agendito-app-layer">{children}</div></ConfirmationProvider></AuthProvider>
+        <AuthProvider><ConfirmationProvider><NotificationRuntime /><ContentRevealRuntime /><div className="agendito-app-layer">{children}</div></ConfirmationProvider></AuthProvider>
       </body>
     </html>
   );

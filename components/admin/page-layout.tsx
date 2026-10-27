@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 
 type PageShellProps = HTMLAttributes<HTMLElement> & {
   as?: "main" | "div";
@@ -34,10 +34,11 @@ type PageHeaderProps = {
   className?: string;
   compact?: boolean;
   variant?: "admin" | "content";
+  style?: CSSProperties;
 };
 
-export function PageHeader({ title, eyebrow, description, breadcrumbs, leading, pageActions, actions, actionsClassName, className = "", compact = false, variant = "admin" }: PageHeaderProps) {
-  if (variant === "content") return <header className={`page-header ${className}`.trim()}>
+export function PageHeader({ title, eyebrow, description, breadcrumbs, leading, pageActions, actions, actionsClassName, className = "", compact = false, variant = "admin", style }: PageHeaderProps) {
+  if (variant === "content") return <header style={style} className={`page-header ${className}`.trim()}>
     <div className="page-header-content">
       {breadcrumbs && <nav className="page-header-breadcrumbs" aria-label="Navegação estrutural">{breadcrumbs}</nav>}
       {eyebrow && <span className="eyebrow">{eyebrow}</span>}
@@ -47,7 +48,7 @@ export function PageHeader({ title, eyebrow, description, breadcrumbs, leading, 
     {actions && <div className={actionsClassName ?? "page-header-actions"}>{actions}</div>}
   </header>;
 
-  return <header className={`page-header${compact ? " admin-header-compact" : ""} ${className}`.trim()}>
+  return <header style={style} className={`page-header${compact ? " admin-header-compact" : ""} ${className}`.trim()}>
     <div className="admin-header-title page-header-main">
       {leading}
       <div>

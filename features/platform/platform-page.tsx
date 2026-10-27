@@ -2,20 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Archive, ArrowDown, ArrowUp, Building2, CheckCircle2, Copy, Download, ExternalLink, Eye, LayoutTemplate, LogOut, Pencil, Search, ShieldAlert, Store } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Archive, ArrowDown, ArrowRight, ArrowUp, Building2, CheckCircle2, Clock3, Copy, Download, ExternalLink, Eye, FileText, LayoutTemplate, Pencil, Search, ShieldAlert, Store, Zap } from "lucide-react";
 import { ContentGrid, DataTable, GlassButton, GlassInput, GlassModal, GlassSelect, GlassSurface, Pagination, StatCard, StatusBadge, useConfirmation } from "@/components/ui";
 import { PageHeader, PageSection, PageShell, SectionHeader } from "@/components/admin/page-layout";
-import { useAuth } from "@/features/auth";
 import { getEstablishmentStatus, getPublicPageStatus, localPlatformRepository } from "@/features/platform";
-import { getOwnerDashboardSnapshot, listPlatformActions, listRegisteredEstablishments, recordPlatformAction } from "@/features/platform/owner-dashboard";
+import { getOwnerDashboardSnapshot, listPlatformActions, listRecentPlatformActions, listRegisteredEstablishments, recordPlatformAction } from "@/features/platform/owner-dashboard";
 import { EstablishmentProvisioningWizard } from "@/features/platform/establishment-provisioning-wizard";
-import type { PageDesignConfig, PublicPaletteId, PublicTemplateId } from "@/types";
+import type { PageDesignConfig } from "@/types";
 import type { PlatformEstablishmentRecord } from "./repository-contracts";
 import { PLATFORM_FEATURES, createEstablishmentLifecycleUpdate, getEnabledFeatureIds } from "@/features/platform/policies";
 import { getPlatformPublicPageDraft, savePublicPageDraft } from "@/features/platform/public-page-builder";
-import { PUBLIC_PAGE_TEMPLATES } from "@/features/platform/public-page-templates";
 import { emitEstablishmentNotification } from "@/features/notifications/repository";
-import { NotificationCenter } from "@/components/admin/notification-center";
 
 const platformRepository = localPlatformRepository;
 const PAGE_SIZE = 8;
@@ -27,17 +25,9 @@ type PlatformEditorConfig = PageDesignConfig & {
   enabledFeatures: string[];
   simulatedContractStatus?: "ACTIVE" | "INACTIVE" | "SUSPENDED";
 };
-const palettes: Array<{ id: PublicPaletteId; label: string; description: string; color: string }> = [
-  { id: "moss", label: "Moss", description: "Verde natural e acolhedor", color: "#3f5845" },
-  { id: "copper", label: "Copper", description: "Terracota sofisticado", color: "#b06f49" },
-  { id: "sand", label: "Sand", description: "Neutros quentes", color: "#a98258" },
-  { id: "ink", label: "Ink", description: "Contraste contemporâneo", color: "#28312c" },
-  { id: "sage", label: "Sage", description: "Verde claro e sereno", color: "#758276" },
-];
-const templates: Array<{ id: PublicTemplateId; label: string; description: string }> = PUBLIC_PAGE_TEMPLATES.map(({ id, name, description }) => ({ id, label: name, description }));
 
 export function PlatformEstablishmentsPage() {
-  const { user, logout } = useAuth();
+  const searchParams = useSearchParams();
   const confirm = useConfirmation();
   const [, setRefresh] = useState(0);
   const [editing, setEditing] = useState<PlatformEstablishmentRecord | null>(null);
@@ -46,12 +36,13 @@ export function PlatformEstablishmentsPage() {
   const [pendingAction, setPendingAction] = useState<{ establishment: PlatformEstablishmentRecord; action: "suspend" | "archive" } | null>(null);
   const [suspensionReason, setSuspensionReason] = useState("");
   const [details, setDetails] = useState<PlatformEstablishmentRecord | null>(null);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
   const snapshot = getOwnerDashboardSnapshot();
   const establishments = listRegisteredEstablishments();
+  const recentActions = listRecentPlatformActions(5);
   const filteredEstablishments = useMemo(() => {
     const normalized = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     return establishments.filter((establishment) => {
@@ -93,7 +84,7 @@ export function PlatformEstablishmentsPage() {
     const publicSlugAliases = slug === editing.slug ? editing.publicSlugAliases : [...new Set([...(editing.publicSlugAliases ?? []), editing.slug])];
     const updated = { ...next, name: editor.establishmentName.trim() || editing.name, slug, publicSlugAliases, address: { street: editor.addressStreet, number: editor.addressNumber, district: editor.addressDistrict, postalCode: editor.addressPostalCode, city: editor.addressCity, state: editor.addressState }, phone: editor.contactPhone, segment: editor.segment, simulatedContractStatus: editor.simulatedContractStatus, enabledFeatures: editor.enabledFeatures, featureConfigVersion: 2 };
     const previousFeatures = new Set(getEnabledFeatureIds(editing));
-    const pageDesign: PageDesignConfig = { ...getPlatformPublicPageDraft(updated), template: editor.template, palette: editor.palette, heroTitle: editor.heroTitle, heroSubtitle: editor.heroSubtitle, aboutText: editor.aboutText, backgroundColor: editor.backgroundColor, primaryColor: editor.primaryColor, secondaryColor: editor.secondaryColor, backgroundImageUrl: editor.backgroundImageUrl, logoUrl: editor.logoUrl, profileImageUrl: editor.profileImageUrl, coverUrl: editor.coverUrl };
+    const pageDesign: PageDesignConfig = { ...getPlatformPublicPageDraft(updated), template: "editorial", heroTitle: editor.heroTitle, heroSubtitle: editor.heroSubtitle, aboutText: editor.aboutText, backgroundColor: editor.backgroundColor, primaryColor: editor.primaryColor, secondaryColor: editor.secondaryColor, backgroundImageUrl: editor.backgroundImageUrl, logoUrl: editor.logoUrl, profileImageUrl: editor.profileImageUrl, coverUrl: editor.coverUrl };
     if (!platformRepository.establishments.save(updated) || !savePublicPageDraft(updated, pageDesign)) {
       setFeedback("Não foi possível salvar a página.");
       return;
@@ -149,7 +140,7 @@ export function PlatformEstablishmentsPage() {
         publicPage: (() => {
           const page = platformRepository.publicPages.findByEstablishment(establishment.id);
           if (!page) return null;
-          return { status: page.status, template: page.template, palette: page.palette, heroTitle: page.heroTitle, publicName: page.publicName, heroSubtitle: page.heroSubtitle, aboutText: page.aboutText, backgroundColor: page.backgroundColor, primaryColor: page.primaryColor, secondaryColor: page.secondaryColor, buttonColor: page.buttonColor, logoUrl: page.logoUrl, coverUrl: page.coverUrl, backgroundImageUrl: page.backgroundImageUrl, galleryImages: page.galleryImages, cardStyle: page.cardStyle, typography: page.typography, cornerRadius: page.cornerRadius, sectionSpacing: page.sectionSpacing, sections: page.sections };
+          return { status: page.status, template: page.template, palette: page.palette, heroTitle: page.heroTitle, publicName: page.publicName, heroSubtitle: page.heroSubtitle, aboutText: page.aboutText, backgroundColor: page.backgroundColor, primaryColor: page.primaryColor, secondaryColor: page.secondaryColor, buttonColor: page.buttonColor, logoUrl: page.logoUrl, coverUrl: page.coverUrl, backgroundImageUrl: page.backgroundImageUrl, galleryImages: page.galleryImages, cardStyle: page.cardStyle, typography: page.typography, cornerRadius: page.cornerRadius, buttonCornerRadius: page.buttonCornerRadius, sectionSpacing: page.sectionSpacing, sections: page.sections };
         })(),
         manager: platformRepository.managers.getManagerContact(establishment.id),
       })),
@@ -166,58 +157,50 @@ export function PlatformEstablishmentsPage() {
   }
 
   return <PageShell as="main" className="platform-shell">
-    <PageHeader variant="content" className="platform-header" eyebrow="AGENDITO · PROPRIETÁRIO" title="Painel da plataforma" description="Visão global e gestão independente dos estabelecimentos cadastrados." actionsClassName="platform-header-actions" actions={<>
-        <NotificationCenter context="OWNER" contextId="platform" />
-        {user && <div className="platform-account" aria-label={`Perfil: ${user.name}, ${user.email}`}>
-          <span className="platform-account-avatar" aria-hidden="true">{user.name.slice(0, 1)}</span>
-          <span className="platform-account-name" title={user.name}>{user.name}</span>
-          <span className="platform-account-separator" aria-hidden="true">·</span>
-          <span className="platform-account-email" title={user.email}>{user.email}</span>
-        </div>}
-        <GlassButton variant="quiet" className="platform-logout" onClick={logout} aria-label="Sair"><LogOut size={16} /><span className="platform-logout-label">Sair</span></GlassButton>
-      </>} />
+    <PageHeader variant="content" className="platform-header platform-dashboard-header" style={{ padding: 0, border: 0, borderRadius: 0, background: "transparent", boxShadow: "none" }} breadcrumbs={<><Link href="/platform/establishments#platform-dashboard">Dashboard</Link><span aria-hidden="true">/</span><span>Home</span></>} eyebrow="Visão geral" title="Painel da plataforma" description="Visão global e gestão independente dos estabelecimentos cadastrados." />
+    <PageSection className="platform-grid" aria-label="Cadastro de estabelecimentos">
+      <EstablishmentProvisioningWizard anchorId="platform-new-establishment" onCreated={(message) => { setFeedback(message); refresh(); }} />
+    </PageSection>
     {feedback && !feedback.toLocaleLowerCase("pt-BR").includes("página excluída") && <p className="platform-feedback platform-global-feedback" role="status">{feedback}</p>}
-    <PageSection className="owner-dashboard" aria-label="Indicadores globais da plataforma">
-      <SectionHeader className="owner-section-heading"><div><span className="eyebrow">Visão geral</span><h2>Resumo da plataforma</h2><p>Indicadores cadastrais e de publicação, sem acesso aos dados operacionais das empresas.</p></div><div className="platform-header-actions"><GlassButton asChild variant="quiet"><Link href="/platform/pages"><LayoutTemplate size={16} />Gerenciar páginas</Link></GlassButton><GlassButton variant="quiet" onClick={exportEstablishments}><Download size={16} />Exportar cadastro</GlassButton></div></SectionHeader>
+    <PageSection id="platform-dashboard" className="owner-dashboard" aria-label="Painel global da plataforma">
       <ContentGrid className="owner-metric-grid">
-        <StatCard className="owner-metric" label="Estabelecimentos cadastrados" value={snapshot.establishments.length} detail="Cadastros da plataforma" icon={<Building2 />} />
+        <StatCard className="owner-metric" label="Estabelecimentos" value={snapshot.total} detail="Cadastros não arquivados" icon={<Building2 />} />
         <StatCard className="owner-metric" label="Ativos" value={snapshot.active} detail="Operação liberada" icon={<CheckCircle2 />} tone="success" />
-        <StatCard className="owner-metric" label="Inativos" value={snapshot.inactive} detail="Desativados pelo proprietário" icon={<Store />} />
-        <StatCard className="owner-metric" label="Suspensos" value={snapshot.suspended} detail="Acesso operacional interrompido" icon={<ShieldAlert />} tone="warning" />
-        <StatCard className="owner-metric" label="Arquivados" value={snapshot.archived} detail="Preservados para consulta" icon={<Archive />} />
-        <StatCard className="owner-metric" label="Páginas criadas" value={snapshot.pagesCreated} detail="Configurações públicas salvas" icon={<LayoutTemplate />} />
-        <StatCard className="owner-metric" label="Publicadas" value={snapshot.publishedPages} detail="Acessíveis publicamente" icon={<ExternalLink />} />
-        <StatCard className="owner-metric" label="Despublicadas" value={snapshot.unpublishedPages} detail="Indisponíveis publicamente" icon={<Eye />} />
+        <StatCard className="owner-metric" label="Inativos" value={snapshot.inactive} detail="Temporariamente desativados" icon={<Store />} />
+        <StatCard className="owner-metric" label="Suspensos" value={snapshot.suspended} detail="Operação interrompida" icon={<ShieldAlert />} tone="warning" />
+        <StatCard className="owner-metric" label="Páginas criadas" value={snapshot.pagesCreated} detail="Vinculadas aos cadastros" icon={<LayoutTemplate />} />
+        <StatCard className="owner-metric" label="Publicadas" value={snapshot.publishedPages} detail="Visíveis publicamente" icon={<ExternalLink />} />
+        <StatCard className="owner-metric" label="Despublicadas" value={snapshot.unpublishedPages} detail="Fora do ar" icon={<Eye />} />
         <StatCard className="owner-metric" label="Rascunhos" value={snapshot.draftPages} detail="Ainda não publicadas" icon={<Pencil />} />
       </ContentGrid>
-      <div className="owner-dashboard-lower">
-        <GlassSurface material="frosted" className="owner-chart-panel">
-          <div className="owner-panel-heading"><div><Store size={18} /><h3>Distribuição por status</h3></div></div>
-          <div className="owner-status-summary"><span><i className="status-dot is-active" />Ativos <b>{snapshot.active}</b></span><span><i className="status-dot is-inactive" />Inativos <b>{snapshot.inactive}</b></span><span><i className="status-dot is-suspended" />Suspensos <b>{snapshot.suspended}</b></span></div>
-          <div className="owner-status-track" aria-label={`${snapshot.active} ativos, ${snapshot.inactive} inativos, ${snapshot.suspended} suspensos`}><i className="is-active" style={{ flex: snapshot.active }} /><i className="is-inactive" style={{ flex: snapshot.inactive }} /><i className="is-suspended" style={{ flex: snapshot.suspended }} /></div>
+      <div className="owner-dashboard-panels">
+        <GlassSurface material="frosted" className="owner-chart-panel owner-quick-panel">
+          <div className="owner-panel-heading"><div><Zap size={19} /><h3>Ações rápidas</h3></div></div>
+          <p className="owner-panel-description">Acesse as operações mais usadas da plataforma.</p>
+          <div className="owner-quick-actions">
+            <Link className="owner-quick-action" href="#platform-establishments"><span><Building2 size={18} /></span><span><strong>Gerenciar estabelecimentos</strong><small>Consultar e administrar cadastros</small></span><ArrowRight size={17} /></Link>
+            <Link className="owner-quick-action" href="/platform/pages"><span><LayoutTemplate size={18} /></span><span><strong>Gerenciar páginas</strong><small>Visualizar e publicar páginas públicas</small></span><ArrowRight size={17} /></Link>
+            <button className="owner-quick-action" type="button" onClick={exportEstablishments}><span><Download size={18} /></span><span><strong>Exportar cadastro</strong><small>Baixar os dados cadastrados</small></span><ArrowRight size={17} /></button>
+          </div>
         </GlassSurface>
-        <GlassSurface material="frosted" className="owner-chart-panel owner-feature-panel">
-          <div className="owner-panel-heading"><div><LayoutTemplate size={18} /><h3>Recursos habilitados</h3></div></div>
-          <div className="owner-feature-usage">{snapshot.featureUsage.map((feature) => <div className="owner-feature-row" key={feature.featureId}><span>{PLATFORM_FEATURES.find((item) => item.id === feature.featureId)?.label ?? feature.featureId}</span><div><i style={{ width: `${feature.total ? feature.enabled / feature.total * 100 : 0}%` }} /></div><strong>{feature.enabled}/{feature.total}</strong></div>)}</div>
+      <GlassSurface material="frosted" className="owner-chart-panel owner-feature-panel" id="platform-features">
+          <div className="owner-panel-heading"><div><CheckCircle2 size={19} /><h3>Recursos em uso</h3></div></div>
+          <p className="owner-panel-description">Recursos habilitados nos estabelecimentos ativos.</p>
+          <div className="owner-activity-list">{snapshot.featureUsage.filter((feature) => feature.enabled > 0).map((feature) => <div className="owner-feature-summary" key={feature.featureId}><span className="owner-feature-check"><CheckCircle2 size={16} /></span><span><strong>{PLATFORM_FEATURES.find((item) => item.id === feature.featureId)?.label ?? feature.featureId}</strong><small>Habilitado em {feature.enabled} de {feature.total}</small></span></div>)}</div>
+          {!snapshot.featureUsage.some((feature) => feature.enabled > 0) && <p className="owner-empty-inline">Nenhum recurso habilitado nos estabelecimentos ativos.</p>}
         </GlassSurface>
-      </div>
-      <div className="owner-dashboard-lower">
-        <GlassSurface material="frosted" className="owner-chart-panel">
-          <div className="owner-panel-heading"><div><LayoutTemplate size={18} /><h3>Templates utilizados</h3></div></div>
-          {snapshot.templateUsage.length ? <div className="owner-feature-usage">{snapshot.templateUsage.map(({ template, count }) => <div className="owner-feature-row" key={template}><span>{templates.find((item) => item.id === template)?.label ?? template}</span><strong>{count}</strong></div>)}</div> : <p>Nenhuma configuração de página salva.</p>}
-        </GlassSurface>
-        <GlassSurface material="frosted" className="owner-chart-panel">
-          <div className="owner-panel-heading"><div><Building2 size={18} /><h3>Cadastro na plataforma</h3></div></div>
-          <div className="owner-feature-usage"><div className="owner-feature-row"><span>Estabelecimentos cadastrados</span><strong>{snapshot.total}</strong></div><div className="owner-feature-row"><span>Contratos configurados</span><strong>{snapshot.contractStatusUsage.filter(({ status }) => status !== "NOT_CONFIGURED").reduce((total, item) => total + item.count, 0)}</strong></div></div>
-        </GlassSurface>
-        <GlassSurface material="frosted" className="owner-chart-panel">
-          <div className="owner-panel-heading"><div><CheckCircle2 size={18} /><h3>Contratos simulados</h3></div></div>
-          <div className="owner-feature-usage">{snapshot.contractStatusUsage.map(({ status, count }) => <div className="owner-feature-row" key={status}><span>{{ ACTIVE: "Ativo", INACTIVE: "Inativo", SUSPENDED: "Suspenso", NOT_CONFIGURED: "Não configurado" }[status]}</span><strong>{count}</strong></div>)}</div>
+        <GlassSurface material="frosted" className="owner-chart-panel owner-activity-panel">
+          <div className="owner-panel-heading"><div><Clock3 size={19} /><h3>Atividade recente</h3></div></div>
+          <p className="owner-panel-description">Últimas ações administrativas registradas.</p>
+          {recentActions.length ? <div className="owner-activity-list">{recentActions.map((action) => {
+            const establishment = establishments.find((item) => item.id === action.establishmentId);
+            return <button className="owner-activity-row" key={action.id} type="button" disabled={!establishment} onClick={() => establishment && setDetails(establishment)}><span className="owner-activity-icon"><FileText size={17} /></span><span><strong>{action.action}</strong><small>{action.establishmentName}</small></span><time>{new Date(action.occurredAt).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}</time></button>;
+          })}</div> : <p className="owner-empty-inline">As ações registradas aparecerão aqui.</p>}
+          <Link className="owner-activity-link" href="#platform-establishments">Ver estabelecimentos <ArrowRight size={15} /></Link>
         </GlassSurface>
       </div>
     </PageSection>
-    <PageSection className="platform-grid" aria-label="Gestão e provisionamento de estabelecimentos">
-      <EstablishmentProvisioningWizard onCreated={(message) => { setFeedback(message); refresh(); }} />
+    <PageSection id="platform-establishments" className="platform-grid" aria-label="Gestão e provisionamento de estabelecimentos">
       <section className={`platform-list owner-establishment-list${establishments.length === 0 ? " is-empty" : ""}`}>
         {establishments.length > 0 && <SectionHeader className="platform-section-heading"><span className="platform-icon"><Store size={18} /></span><div><h2>Estabelecimentos</h2><p>{filteredEstablishments.length} de {establishments.length} registros · cadastro e publicação das páginas.</p></div></SectionHeader>}
         {establishments.length > 0 && <div className="owner-list-toolbar"><GlassInput label="Pesquisar" value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Nome, responsável, segmento ou identificador" leadingIcon={<Search size={16} />} /><GlassSelect label="Status" value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value); setPage(1); }} options={[{ value: "all", label: "Todos os status" }, { value: "ACTIVE", label: "Ativos" }, { value: "INACTIVE", label: "Inativos" }, { value: "SUSPENDED", label: "Suspensos" }, { value: "archived", label: "Arquivados" }]} /><GlassButton variant="quiet" onClick={() => setSortDirection((current) => current === "asc" ? "desc" : "asc")}><ArrowDown size={15} />Nome <span className="owner-sort-icon">{sortDirection === "asc" ? <ArrowUp size={13} /> : <ArrowDown size={13} />}</span></GlassButton></div>}
@@ -255,13 +238,11 @@ export function PlatformEstablishmentsPage() {
       </section>
     </PageSection>
     {editing && editor && <PageSection className="platform-editor" aria-label={`Editor visual de ${editing.name}`}>
-      <SectionHeader className="platform-editor-heading"><div><span className="eyebrow">Editor visual</span><h2>{editing.name}</h2><p>Escolha um modelo, uma paleta e personalize os conteúdos da página.</p></div><GlassButton variant="quiet" onClick={() => { setEditing(null); setEditor(null); }}>Fechar editor</GlassButton></SectionHeader>
+      <SectionHeader className="platform-editor-heading"><div><span className="eyebrow">Editor visual</span><h2>{editing.name}</h2><p>Personalize diretamente as cores, imagens e textos da página.</p></div><GlassButton variant="quiet" onClick={() => { setEditing(null); setEditor(null); }}>Fechar editor</GlassButton></SectionHeader>
       <div className="platform-editor-grid">
         <GlassSurface material="frosted" className="platform-editor-panel">
-          <div className="platform-subheading"><LayoutTemplate size={17} /><h3>Modelo da página</h3></div>
-          <div className="template-grid">{templates.map((template) => <button type="button" className={`template-option ${editor.template === template.id ? "is-selected" : ""}`} key={template.id} onClick={() => setEditor({ ...editor, template: template.id })}><span className={`template-preview template-${template.id}`} /><strong>{template.label}</strong><small>{template.description}</small></button>)}</div>
-          <div className="platform-subheading"><Store size={17} /><h3>Paleta de cores</h3></div>
-          <div className="palette-grid">{palettes.map((palette) => <button type="button" className={`palette-option ${editor.palette === palette.id ? "is-selected" : ""}`} key={palette.id} onClick={() => setEditor({ ...editor, palette: palette.id })}><span style={{ background: palette.color }} /><strong>{palette.label}</strong><small>{palette.description}</small></button>)}</div>
+          <div className="platform-subheading"><Store size={17} /><h3>Cores da página</h3></div>
+          <p>Edite as cores diretamente ou use o construtor para ajustar as imagens e os detalhes visuais.</p>
         </GlassSurface>
         <GlassSurface material="frosted" className="platform-editor-panel">
           <div className="platform-subheading"><Pencil size={17} /><h3>Conteúdo e aparência</h3></div>

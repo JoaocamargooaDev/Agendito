@@ -14,12 +14,13 @@ export interface GlassPopoverProps {
 
 export function GlassPopover({ trigger, children, label, align = "start", panelClassName }: GlassPopoverProps) {
   const [open, setOpen] = useState(false);
+  const [rendered, setRendered] = useState(false);
   const [position, setPosition] = useState<CSSProperties>();
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
-  const restoreFocusRef = useRef(true);
+  const closeTimerRef = useRef<number | null>(null);
 
   const positionPanel = useCallback(() => {
     const triggerElement = triggerRef.current;
@@ -40,17 +41,34 @@ export function GlassPopover({ trigger, children, label, align = "start", panelC
   }, [align]);
 
   const close = useCallback((restoreFocus = true) => {
-    restoreFocusRef.current = restoreFocus;
     setOpen(false);
-    if (restoreFocus) requestAnimationFrame(() => triggerRef.current?.focus());
+    if (restoreFocus) requestAnimationFrame(() => triggerRef.current?.focus({ preventScroll: true }));
   }, []);
+
+  const openPanel = () => {
+    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = null;
+    setRendered(true);
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    if (open || !rendered) return;
+    closeTimerRef.current = window.setTimeout(() => {
+      closeTimerRef.current = null;
+      setRendered(false);
+    }, 180);
+    return () => {
+      if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    };
+  }, [open, rendered]);
 
   useEffect(() => {
     if (!open) return;
-    restoreFocusRef.current = true;
     const frame = requestAnimationFrame(() => {
       positionPanel();
-      panelRef.current?.querySelector<HTMLElement>("button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), [tabindex='0']")?.focus();
+      panelRef.current?.querySelector<HTMLElement>("button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), [tabindex='0']")?.focus({ preventScroll: true });
     });
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Node;
@@ -88,17 +106,20 @@ export function GlassPopover({ trigger, children, label, align = "start", panelC
 
   return <>
     <div className="popover-root" ref={rootRef}>
-      <button ref={triggerRef} className="popover-trigger" type="button" aria-expanded={open} aria-haspopup="dialog" aria-controls={open ? panelId : undefined} onClick={() => open ? close() : setOpen(true)}>{trigger}</button>
+      <button ref={triggerRef} className="popover-trigger" type="button" aria-expanded={open} aria-haspopup="dialog" aria-controls={rendered ? panelId : undefined} onClick={() => open ? close() : openPanel()}>{trigger}</button>
     </div>
-    {open && typeof document !== "undefined" && createPortal(
+    {rendered && typeof document !== "undefined" && createPortal(
       <div
         ref={panelRef}
         id={panelId}
         className={cn("glass-popover", "glass-popover-portal", `popover-${align}`, panelClassName)}
+        data-state={open ? "open" : "closing"}
         role="dialog"
         aria-label={label}
         aria-modal="false"
         tabIndex={-1}
+        aria-hidden={!open}
+        inert={!open}
         style={position}
         onPointerMove={updatePointerLight}
         onClickCapture={(event) => { if ((event.target as HTMLElement).closest("a[href]")) close(false); }}

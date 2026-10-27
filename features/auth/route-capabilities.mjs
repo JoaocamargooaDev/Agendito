@@ -24,5 +24,5 @@ export function canAccessPath(pathname, allowedCapabilities) {
   const path = pathname.split(/[?#]/, 1)[0];
   const required = capabilityForPath(path);
   if (required) return allowedCapabilities.includes(required);
-  return /^\/e\/[^/]+(?:\/booking)?(?:\/|$)/.test(path);
+  return path === "/booking" || /^\/e\/[^/]+(?:\/booking)?(?:\/|$)/.test(path);
 }
