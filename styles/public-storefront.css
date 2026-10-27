@@ -21,6 +21,11 @@
   font-family: var(--font-sans);
 }
 
+.public-page {
+  background-image: none;
+  background-attachment: scroll;
+}
+
 /* Keep the configured section order in one page-level flow (hero + sections + footer). */
 .public-page {
   display: flex;
@@ -47,12 +52,12 @@
 .public-page[data-public-tone="light"],
 .public-tenant-page[data-public-tone="light"] { --public-page-muted: color-mix(in srgb, var(--public-page-ink) 82%, var(--public-page-surface)); }
 .public-page[data-public-cards][data-public-tone] {
-  background-image: var(--public-page-background-image, none);
+  background-image: none;
   background-color: var(--public-page-custom-background, #f4f2ec);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-attachment: scroll;
 }
 .public-page *,
 .public-tenant-page * { box-sizing: border-box; }
